@@ -1,4 +1,6 @@
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import EyeHideSolidIcon from "@iconify-react/clarity/eye-hide-solid";
+import EyeSolidIcon from "@iconify-react/clarity/eye-solid";
+import { InputGroupButton } from "./ui/input-group";
 
 interface PasswordToggleProps {
   inputType: string;
@@ -9,16 +11,13 @@ const PasswordToggle: React.FC<PasswordToggleProps> = ({
   onAction,
 }) => {
   return (
-    <span
-      role="button"
-      className="cursor-pointer"
-    >
+    <InputGroupButton onClick={() => onAction()} className="cursor-pointer">
       {inputType === "text" ? (
-        <EyeIcon className="text-black/50" onClick={() => onAction()} />
+        <EyeSolidIcon className="size-6" />
       ) : (
-        <EyeOffIcon className="text-black/50" onClick={() => onAction()} />
+        <EyeHideSolidIcon className="size-6" />
       )}
-    </span>
+    </InputGroupButton>
   );
 };
 
