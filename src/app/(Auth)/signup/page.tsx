@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import Link from "next/link";
 import PasswordToggle from "@/components/PasswordToggle";
 import {
@@ -23,6 +23,13 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import {
+  signUpSchema,
+  verificationCodeSchema,
+} from "@/validations/auth.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
 
 const { INITIAL, EMAIL_VERIFICATION } = SignUpStages;
 
@@ -30,6 +37,37 @@ const SignupPage = () => {
   const [inputType, setInputType] = useState<"password" | "text">("password");
   const [stage, setStage] = useState<SignUpStages>(INITIAL);
   const isInitialStage = stage === INITIAL;
+
+  const signupform = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const otpForm = useForm<z.infer<typeof verificationCodeSchema>>({
+    resolver: zodResolver(verificationCodeSchema),
+    defaultValues: {
+      code: "",
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof signUpSchema>) {
+    console.log(data);
+    if (isInitialStage) {
+      setStage(EMAIL_VERIFICATION);
+    }
+    signupform.reset();
+  }
+
+  function onCodeSubmit(data: z.infer<typeof verificationCodeSchema>) {
+    console.log(data);
+    if (isInitialStage) {
+      setStage(EMAIL_VERIFICATION);
+    }
+    signupform.reset();
+  }
 
   const renderBasedOnStage = () => {
     switch (stage) {
@@ -49,54 +87,75 @@ const SignupPage = () => {
               <hr className="bg-black-100 w-full h-0.5 border-none" />
             </div>
             <form className="flex flex-col gap-6">
-              <Field>
-                <FieldLabel
-                  htmlFor="input-field-email"
-                  className="text-m-medium text-brand-800"
-                >
-                  Email
-                </FieldLabel>
-                <InputGroup className="h-14">
-                  <InputGroupAddon>
-                    <EmailFilledIcon className="size-6" />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    id="input-field-email"
-                    type="email"
-                    placeholder="Enter your email address"
-                  />
-                </InputGroup>
-              </Field>
-              <div className="flex flex-col gap-4">
-                <Field>
-                  <FieldLabel
-                    htmlFor="input-field-username"
-                    className="text-m-medium text-brand-800"
-                  >
-                    Password
-                  </FieldLabel>
-
-                  <InputGroup className="h-14">
-                    <InputGroupAddon>
-                      <PasswordIcon className="size-6" />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      id="input-field-password"
-                      type={inputType}
-                      placeholder="Create your password"
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <PasswordToggle
-                        inputType={inputType}
-                        onAction={() =>
-                          setInputType((prev) =>
-                            prev === "password" ? "text" : "password",
-                          )
-                        }
+              <Controller
+                control={signupform.control}
+                name="email"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="text-m-medium text-brand-800"
+                    >
+                      Email
+                    </FieldLabel>
+                    <InputGroup className="h-14">
+                      <InputGroupAddon>
+                        <EmailFilledIcon className="size-6" />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        type="email"
+                        placeholder="Enter your email address"
                       />
-                    </InputGroupAddon>
-                  </InputGroup>
-                </Field>
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <div className="flex flex-col gap-4">
+                <Controller
+                  control={signupform.control}
+                  name="password"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="text-m-medium text-brand-800"
+                      >
+                        Password
+                      </FieldLabel>
+                      <InputGroup className="h-14">
+                        <InputGroupAddon>
+                          <PasswordIcon className="size-6" />
+                        </InputGroupAddon>
+                        <InputGroupInput
+                          {...field}
+                          id={field.name}
+                          aria-invalid={fieldState.invalid}
+                          type={inputType}
+                          placeholder="Create your password"
+                        />
+                        <InputGroupAddon align="inline-end">
+                          <PasswordToggle
+                            inputType={inputType}
+                            onAction={() =>
+                              setInputType((prev) =>
+                                prev === "password" ? "text" : "password",
+                              )
+                            }
+                          />
+                        </InputGroupAddon>
+                      </InputGroup>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
                 <div className="flex flex-col gap-1">
                   {passwordCriteria.map((criteria, index) => (
                     <div key={index} className={`flex gap-2 items-center`}>
@@ -114,22 +173,51 @@ const SignupPage = () => {
       case EMAIL_VERIFICATION:
         return (
           <>
-            <Field>
-              <InputOTP
-                id="digits-only"
-                maxLength={6}
-                pattern={REGEXP_ONLY_DIGITS}
-              >
-                <InputOTPGroup className="flex w-full justify-between">
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
-            </Field>
+            <Controller
+              control={otpForm.control}
+              name="code"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <InputOTP
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    maxLength={6}
+                    pattern={REGEXP_ONLY_DIGITS}
+                  >
+                    <InputOTPGroup className="flex w-full justify-between">
+                      <InputOTPSlot
+                        aria-invalid={fieldState.invalid}
+                        index={0}
+                      />
+                      <InputOTPSlot
+                        aria-invalid={fieldState.invalid}
+                        index={1}
+                      />
+                      <InputOTPSlot
+                        aria-invalid={fieldState.invalid}
+                        index={2}
+                      />
+                      <InputOTPSlot
+                        aria-invalid={fieldState.invalid}
+                        index={3}
+                      />
+                      <InputOTPSlot
+                        aria-invalid={fieldState.invalid}
+                        index={4}
+                      />
+                      <InputOTPSlot
+                        aria-invalid={fieldState.invalid}
+                        index={5}
+                      />
+                    </InputOTPGroup>
+                  </InputOTP>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
             <div className="text-m-medium gap-1 flex m-auto">
               <p>Didn’t recieve a code</p>
               <span className="text-brand-500 text-m-bold">
@@ -164,8 +252,10 @@ const SignupPage = () => {
         <div className="flex flex-col gap-4 items-center text-black-500">
           <Button
             className="text-white w-full h-14"
-            onClick={() =>
-              isInitialStage ? setStage(EMAIL_VERIFICATION) : undefined
+            onClick={
+              isInitialStage
+                ? signupform.handleSubmit(onSubmit)
+                : otpForm.handleSubmit(onCodeSubmit)
             }
           >
             {isInitialStage ? "Create Account" : "Submit OTP"}
@@ -187,14 +277,17 @@ const SignupPage = () => {
                 onClick={() => setStage(INITIAL)}
                 className="text-brand-500 text-m-bold"
               >
-                <p className="text-brand-500! text-m-bold!">Edit Email Address</p>
+                <p className="text-brand-500! text-m-bold!">
+                  Edit Email Address
+                </p>
               </Button>
             )}
           </div>
           {isInitialStage && (
             <p className="text-m-medium">
               By submitting, you have agreed to our{" "}
-              <span className="text-brand-500 ">Privacy Policy</span> and <span className="text-brand-500 ">Terms</span>
+              <span className="text-brand-500 ">Privacy Policy</span> and{" "}
+              <span className="text-brand-500 ">Terms</span>
             </p>
           )}
         </div>

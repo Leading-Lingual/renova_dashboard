@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import Link from "next/link";
 import {
   InputGroup,
@@ -13,12 +13,29 @@ import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
 import FormHeader from "@/components/FormHeader";
 import { ForgetPasswordStages } from "./forgetPasswordEnum";
 import { ResetPasswordIcon } from "@/assets/ResetPassordIcon";
+import { forgetPasswordSchema } from "@/validations/auth.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
 
 const { INITIAL, CHECK_EMAIL } = ForgetPasswordStages;
 
 const ForgetPassword = () => {
   const [stage, setStage] = useState<ForgetPasswordStages>(INITIAL);
   const isInitialStage = stage === INITIAL;
+
+  const form = useForm<z.infer<typeof forgetPasswordSchema>>({
+    resolver: zodResolver(forgetPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof forgetPasswordSchema>) {
+    console.log(data);
+    form.reset();
+    setStage(CHECK_EMAIL);
+  }
 
   return (
     <AuthWrapper>
@@ -34,39 +51,53 @@ const ForgetPassword = () => {
             }
           />
           {isInitialStage && (
-            <form className="flex flex-col gap-6">
-              <Field>
-                <FieldLabel
-                  htmlFor="input-field-email"
-                  className="text-m-medium text-brand-800"
-                >
-                  Email
-                </FieldLabel>
-                <InputGroup className="h-14">
-                  <InputGroupAddon>
-                    <EmailFilledIcon className="size-6" />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    id="input-field-email"
-                    type="email"
-                    placeholder="Enter your email address"
-                  />
-                </InputGroup>
-              </Field>
+            <form
+              className="flex flex-col gap-6"
+              onSubmit={form.handleSubmit(onSubmit)}
+            >
+              <Controller
+                control={form.control}
+                name="email"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="text-m-medium text-brand-800"
+                    >
+                      Email
+                    </FieldLabel>
+                    <InputGroup className="h-14">
+                      <InputGroupAddon>
+                        <EmailFilledIcon className="size-6" />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        type="email"
+                        placeholder="Enter your email address"
+                      />
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
             </form>
           )}
         </div>
         <div className="flex flex-col gap-4 items-center text-black-500">
           <Button
             className="text-white w-full h-14"
-            onClick={() => (isInitialStage ? setStage(CHECK_EMAIL) : undefined)}
+            onClick={isInitialStage ? form.handleSubmit(onSubmit) : undefined}
           >
             {isInitialStage ? "Send Reset Link" : "Check email"}
           </Button>
           <div className="text-m-medium gap-1">
-              {isInitialStage
-                ? "Never mind!"
-                : "Did not receive the email? Check your spam folder or"}
+            {isInitialStage
+              ? "Never mind!"
+              : "Did not receive the email? Check your spam folder or"}
             {isInitialStage ? (
               <Link href={"/login"} className="text-brand-500 text-m-bold ml-1">
                 Take me back to Login
@@ -77,7 +108,10 @@ const ForgetPassword = () => {
                 variant="ghost"
                 onClick={() => setStage(INITIAL)}
               >
-                <p className="text-brand-500! text-m-bold! ml-1"> try another email</p>
+                <p className="text-brand-500! text-m-bold! ml-1">
+                  {" "}
+                  try another email
+                </p>
               </Button>
             )}
           </div>

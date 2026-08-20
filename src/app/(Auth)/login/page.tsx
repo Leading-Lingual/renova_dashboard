@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import Link from "next/link";
 import { useState } from "react";
 import PasswordToggle from "@/components/PasswordToggle";
@@ -14,9 +14,27 @@ import { GoogleLogo } from "@/assets/GoogleLogo";
 import PasswordIcon from "@iconify-react/mdi/password";
 import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
 import FormHeader from "@/components/FormHeader";
+import { Controller, useForm } from "react-hook-form";
+import * as z from "zod";
+import { loginSchema } from "@/validations/auth.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const LoginPage = () => {
   const [inputType, setInputType] = useState<"password" | "text">("password");
+
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof loginSchema>) {
+    // Do something with the form values.
+    console.log(data);
+    form.reset();
+  }
 
   return (
     <AuthWrapper
@@ -38,71 +56,103 @@ const LoginPage = () => {
             <p className="text-black">or</p>
             <hr className="bg-black-100 w-full h-0.5 border-none" />
           </div>
-          <form className="flex flex-col gap-6">
-            <Field>
-              <FieldLabel
-                htmlFor="input-field-email"
-                className="text-m-medium text-brand-800"
-              >
-                Email
-              </FieldLabel>
-              <InputGroup className="h-14">
-                <InputGroupAddon>
-                  <EmailFilledIcon className="size-6" />
-                </InputGroupAddon>
-                <InputGroupInput
-                  id="input-field-email"
-                  type="email"
-                  placeholder="Enter your email address"
-                />
-              </InputGroup>
-            </Field>
-            <Field>
-              <FieldLabel
-                htmlFor="input-field-username"
-                className="text-m-medium text-brand-800"
-              >
-                Password
-              </FieldLabel>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-6"
+          >
+            <Controller
+              control={form.control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-m-medium text-brand-800"
+                  >
+                    Email
+                  </FieldLabel>
+                  <InputGroup className="h-14">
+                    <InputGroupAddon>
+                      <EmailFilledIcon className="size-6" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      type="email"
+                      placeholder="Enter your email address"
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-m-medium text-brand-800"
+                  >
+                    Password
+                  </FieldLabel>
 
-              <InputGroup className="h-14">
-                <InputGroupAddon>
-                  <PasswordIcon className="size-6" />
-                </InputGroupAddon>
-                <InputGroupInput
-                  id="input-field-password"
-                  type={inputType}
-                  placeholder="Enter your password"
-                />
-                <InputGroupAddon align="inline-end">
-                  <PasswordToggle
-                    inputType={inputType}
-                    onAction={() =>
-                      setInputType((prev) =>
-                        prev === "password" ? "text" : "password",
-                      )
-                    }
-                  />
-                </InputGroupAddon>
-              </InputGroup>
-            </Field>
+                  <InputGroup className="h-14">
+                    <InputGroupAddon>
+                      <PasswordIcon className="size-6" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      type={inputType}
+                      placeholder="Enter your password"
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <PasswordToggle
+                        inputType={inputType}
+                        onAction={() =>
+                          setInputType((prev) =>
+                            prev === "password" ? "text" : "password",
+                          )
+                        }
+                      />
+                    </InputGroupAddon>
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <div className="flex flex-col gap-4 items-center text-black-500">
+              <Button
+                // onClick={form.handleSubmit(onSubmit)}
+                type="submit"
+                className="text-white h-14 w-full"
+              >
+                Log in
+              </Button>
+              <div className="text-m-medium flex gap-1">
+                <p>Don&lsquo;t have an account?</p>
+                <Link href={"/signup"} className="text-brand-500 text-m-bold">
+                  Sign up
+                </Link>{" "}
+                |{" "}
+                <Link
+                  href={"/forgot-password"}
+                  className="text-brand-500 text-m-bold"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
           </form>
-        </div>
-        <div className="flex flex-col gap-4 items-center text-black-500">
-          <Button className="text-white h-14 w-full">Log in</Button>
-          <div className="text-m-medium flex gap-1">
-            <p>Don&lsquo;t have an account?</p>
-            <Link href={"/signup"} className="text-brand-500 text-m-bold">
-              Sign up
-            </Link>{" "}
-            |{" "}
-            <Link
-              href={"/forgot-password"}
-              className="text-brand-500 text-m-bold"
-            >
-              Forgot password?
-            </Link>
-          </div>
         </div>
       </div>
     </AuthWrapper>
