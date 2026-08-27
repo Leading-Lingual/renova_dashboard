@@ -45,16 +45,15 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
-      const nextResponse = NextResponse.json(
-        {
-          message: data.message ?? "Unable to refresh session",
-        },
-        {
-          status: response.status,
-        },
-      );
+      console.error("REFRESH FAILED:", {
+        status: response.status,
+        message: data.message,
+      });
 
-      // Refresh failed, so the session is no longer valid
+      const loginUrl = new URL("/login", request.url);
+
+      const nextResponse = NextResponse.redirect(loginUrl);
+
       nextResponse.cookies.delete("access_token");
       nextResponse.cookies.delete("refresh_token");
       nextResponse.cookies.delete("csrf_token");
@@ -102,13 +101,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("REFRESH ROUTE ERROR:", error);
 
-    return NextResponse.json(
-      {
-        message: "Something went wrong while refreshing your session",
-      },
-      {
-        status: 500,
-      },
-    );
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 }
