@@ -13,12 +13,15 @@ import useQueryParams from "@/hooks/useQueryParams";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PasswordIcon from "@iconify-react/mdi/password";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
 import { passwordCriteria } from "@/lib/utils";
 import { Controller, useForm } from "react-hook-form";
 import { resetPasswordSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { resetPasswordMutation } from "@/actions/auth/auth.mutation";
+import { toast } from "sonner";
 
 const ResetPasswordPage = () => {
   const queryParams = useQueryParams();
@@ -36,18 +39,31 @@ const ResetPasswordPage = () => {
   const [confirmPasswordInputType, setConfirmPasswordInputType] = useState<
     "text" | "password"
   >("password");
+  const { mutate: resetPassword, isPending } = useMutation(
+    resetPasswordMutation,
+  );
 
   const form = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      password: "",
+      resetToken: showResetPage ?? "",
+      newPassword: "",
       confirmPassword: "",
     },
   });
 
   function onSubmit(data: z.infer<typeof resetPasswordSchema>) {
-    console.log(data);
-    form.reset();
+    resetPassword(data, {
+      onSuccess(data) {
+        toast.success(data.message);
+        form.reset();
+        router.push(`/login`);
+      },
+
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   }
 
   return (
@@ -65,7 +81,7 @@ const ResetPasswordPage = () => {
             >
               <Controller
                 control={form.control}
-                name="password"
+                name="newPassword"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
@@ -163,9 +179,11 @@ const ResetPasswordPage = () => {
         </div>
         <div className="flex flex-col gap-4 items-center text-black-500">
           <Button
+            disabled={isPending}
             onClick={form.handleSubmit(onSubmit)}
             className="text-white h-14 w-full"
           >
+            {isPending && <Loader2 className="animate-spin" />}
             Reset Password
           </Button>
         </div>

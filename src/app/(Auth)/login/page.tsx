@@ -18,9 +18,16 @@ import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { loginSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { loginMutation } from "@/actions/auth/auth.mutation";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const LoginPage = () => {
   const [inputType, setInputType] = useState<"password" | "text">("password");
+  const { mutate: login, isPending } = useMutation(loginMutation);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -31,9 +38,17 @@ const LoginPage = () => {
   });
 
   function onSubmit(data: z.infer<typeof loginSchema>) {
-    // Do something with the form values.
-    console.log(data);
-    form.reset();
+    login(data, {
+      onSuccess: () => {
+        toast.success("Login successful");
+        form.reset();
+        router.push("/onboarding");
+      },
+
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   }
 
   return (
@@ -132,10 +147,11 @@ const LoginPage = () => {
 
             <div className="flex flex-col gap-4 items-center text-black-500">
               <Button
-                // onClick={form.handleSubmit(onSubmit)}
+                disabled={isPending}
                 type="submit"
                 className="text-white h-14 w-full"
               >
+                {isPending && <Loader2 className="animate-spin" />}
                 Log in
               </Button>
               <div className="text-m-medium flex gap-1">

@@ -86,6 +86,10 @@
     --text-2s-medium--line-height: 1.5;
     --text-2s-medium--font-weight: 500;
     --text-2s-medium--letter-spacing: 0;
+
+    --text-s: 0.75rem; /* 12px */
+    --text-s--line-height: 1.5;
+    --text-s--letter-spacing: 0;
     
     --font-satoshi: var(--font-satoshi), Inter, system-ui, sans-serif;
     --font-heading: var(--font-sans);

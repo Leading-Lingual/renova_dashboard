@@ -8,14 +8,14 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthWrapper from "@/components/AuthWrapper";
 import { GoogleLogo } from "@/assets/GoogleLogo";
 import PasswordIcon from "@iconify-react/mdi/password";
 import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
 import FormHeader from "@/components/FormHeader";
 import { passwordCriteria } from "@/lib/utils";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
 import { SignUpStages } from "./signUpEnum";
 import {
   InputOTP,
@@ -23,13 +23,19 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import {
-  signUpSchema,
-  verificationCodeSchema,
-} from "@/validations/auth.validation";
+import { signUpSchema, verifyEmailSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
+import { useMutation } from "@tanstack/react-query";
+import {
+  resendOTP,
+  signUpMutation,
+  verifyEmailMutation,
+} from "@/actions/auth/auth.mutation";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useResendCountdown } from "@/hooks/useResendCountdown";
 
 const { INITIAL, EMAIL_VERIFICATION } = SignUpStages;
 
@@ -37,37 +43,87 @@ const SignupPage = () => {
   const [inputType, setInputType] = useState<"password" | "text">("password");
   const [stage, setStage] = useState<SignUpStages>(INITIAL);
   const isInitialStage = stage === INITIAL;
+  const { mutate: signup, isPending: isLoadingSignUp } =
+    useMutation(signUpMutation);
+  const { mutate: verifyEmail, isPending: isLoadingVerification } =
+    useMutation(verifyEmailMutation);
+  const { mutate: resend } = useMutation(resendOTP);
+  const router = useRouter();
+  const { formattedTime, startCountdown, isCounting } = useResendCountdown(600);
 
   const signupform = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
+      userType: "INDIVIDUAL",
     },
   });
 
-  const otpForm = useForm<z.infer<typeof verificationCodeSchema>>({
-    resolver: zodResolver(verificationCodeSchema),
+  const otpForm = useForm<z.infer<typeof verifyEmailSchema>>({
+    resolver: zodResolver(verifyEmailSchema),
     defaultValues: {
-      code: "",
+      email: "",
+      otp: "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof signUpSchema>) {
-    console.log(data);
-    if (isInitialStage) {
-      setStage(EMAIL_VERIFICATION);
-    }
-    signupform.reset();
+  function onSubmit(signupData: z.infer<typeof signUpSchema>) {
+    signup(signupData, {
+      onSuccess: (data) => {
+        toast.success(data.message);
+        otpForm.setValue("email", signupData.email);
+        setStage(EMAIL_VERIFICATION);
+        signupform.reset();
+      },
+
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   }
 
-  function onCodeSubmit(data: z.infer<typeof verificationCodeSchema>) {
-    console.log(data);
-    if (isInitialStage) {
-      setStage(EMAIL_VERIFICATION);
-    }
-    signupform.reset();
+  function onCodeSubmit(data: z.infer<typeof verifyEmailSchema>) {
+    verifyEmail(data, {
+      onSuccess(data) {
+        toast.success(data.message);
+        otpForm.reset();
+        router.push("/login");
+      },
+
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   }
+
+  const handleResendCode = () => {
+    resend(
+      { email: otpForm.getValues("email") },
+      {
+        onSuccess(data) {
+          toast.success(data.message);
+          startCountdown();
+        },
+
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      },
+    );
+  };
+
+  const password = useWatch({
+    control: signupform.control,
+    name: "password",
+  });
+
+  useEffect(() => {
+    signupform.setValue("confirmPassword", password, {
+      shouldValidate: true,
+    });
+  }, [password, signupform]);
 
   const renderBasedOnStage = () => {
     switch (stage) {
@@ -175,7 +231,7 @@ const SignupPage = () => {
           <>
             <Controller
               control={otpForm.control}
-              name="code"
+              name="otp"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <InputOTP
@@ -218,11 +274,21 @@ const SignupPage = () => {
                 </Field>
               )}
             />
-            <div className="text-m-medium gap-1 flex m-auto">
+            <div className="text-m-medium gap-1 flex items-center m-auto">
               <p>Didn’t recieve a code</p>
-              <span className="text-brand-500 text-m-bold">
-                Resend Code in 1m:05s
-              </span>
+              <Button
+                size="fit"
+                variant={"ghost"}
+                onClick={handleResendCode}
+                disabled={isCounting}
+                className={"cursor-pointer"}
+              >
+                <p className="text-brand-500! text-m-bold!">
+                  {isCounting
+                    ? `Resend Code in ${formattedTime}`
+                    : "Resend OTP"}
+                </p>
+              </Button>
             </div>
           </>
         );
@@ -244,13 +310,14 @@ const SignupPage = () => {
             subtitle={
               isInitialStage
                 ? "Sign up to join the future of smarter recycling"
-                : "We sent a 6-digit verification code to user@example.com. Please enter the code below."
+                : `We sent a 6-digit verification code to ${otpForm.getValues("email")}. Please enter the code below.`
             }
           />
           {renderBasedOnStage()}
         </div>
         <div className="flex flex-col gap-4 items-center text-black-500">
           <Button
+            disabled={isLoadingSignUp || isLoadingVerification}
             className="text-white w-full h-14"
             onClick={
               isInitialStage
@@ -258,9 +325,12 @@ const SignupPage = () => {
                 : otpForm.handleSubmit(onCodeSubmit)
             }
           >
+            {(isLoadingSignUp || isLoadingVerification) && (
+              <Loader2 className="animate-spin" />
+            )}
             {isInitialStage ? "Create Account" : "Submit OTP"}
           </Button>
-          <div className="text-m-medium gap-1 flex">
+          <div className="text-m-medium gap-1 flex items-center">
             <p>
               {isInitialStage
                 ? "Already have an account?"
@@ -275,7 +345,7 @@ const SignupPage = () => {
                 size="fit"
                 variant="ghost"
                 onClick={() => setStage(INITIAL)}
-                className="text-brand-500 text-m-bold"
+                className="cursor-pointer"
               >
                 <p className="text-brand-500! text-m-bold!">
                   Edit Email Address

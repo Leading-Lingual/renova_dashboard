@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
+import Providers from "./Provider";
 
 const satoshi = localFont({
   src: "./fonts/Satoshi-Regular.otf",
-  variable: "--font-satoshi"
+  variable: "--font-satoshi",
 });
 
 export const metadata: Metadata = {
@@ -18,11 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${satoshi.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col overflow-hidden h-screen">{children}</body>
+    <html lang="en" className={`${satoshi.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col overflow-hidden h-screen">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
