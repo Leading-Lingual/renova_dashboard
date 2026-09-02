@@ -56,8 +56,8 @@ const ResetPasswordPage = () => {
     resetPassword(data, {
       onSuccess(data) {
         toast.success(data.message);
-        form.reset();
         router.push(`/login`);
+        form.reset();
       },
 
       onError: (error) => {

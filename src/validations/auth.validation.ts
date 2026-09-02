@@ -17,7 +17,7 @@ export const signUpSchema = object({
       /[^A-Za-z0-9]/,
       "Password must contain at least one special character.",
     ),
-  userType: string(),
+  userType: string().trim().min(1,"Please select an account type"),
   confirmPassword: string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match.",

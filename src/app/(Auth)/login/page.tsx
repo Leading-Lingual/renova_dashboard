@@ -41,7 +41,6 @@ const LoginPage = () => {
     login(data, {
       onSuccess: () => {
         toast.success("Login successful");
-        form.reset();
         router.push("/onboarding");
       },
 
@@ -145,6 +144,13 @@ const LoginPage = () => {
               )}
             />
 
+            <Link
+              href={"/forgot-password"}
+              className="text-black-500 text-m-bold ml-auto"
+            >
+              Forgot password?
+            </Link>
+
             <div className="flex flex-col gap-4 items-center text-black-500">
               <Button
                 disabled={isPending}
@@ -158,13 +164,6 @@ const LoginPage = () => {
                 <p>Don&lsquo;t have an account?</p>
                 <Link href={"/signup"} className="text-brand-500 text-m-bold">
                   Sign up
-                </Link>{" "}
-                |{" "}
-                <Link
-                  href={"/forgot-password"}
-                  className="text-brand-500 text-m-bold"
-                >
-                  Forgot password?
                 </Link>
               </div>
             </div>

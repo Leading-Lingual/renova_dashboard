@@ -24,6 +24,8 @@ export async function POST(request: NextRequest) {
     });
 
     response.cookies.delete("access_token");
+    response.cookies.delete("refresh_token");
+    response.cookies.delete("csrf_token");
 
     return response;
   } catch (error) {
@@ -35,7 +37,8 @@ export async function POST(request: NextRequest) {
     });
 
     response.cookies.delete("access_token");
-
+    response.cookies.delete("refresh_token");
+    response.cookies.delete("csrf_token");
     return response;
   }
 }

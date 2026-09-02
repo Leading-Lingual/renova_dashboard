@@ -91,6 +91,66 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
               </Field>
             )}
           />
+          <div className="flex gap-6 flex-col md:flex-row">
+            <Controller
+              control={form.control}
+              name="location"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-m-medium text-brand-800"
+                  >
+                    Country
+                  </FieldLabel>
+                  <InputGroup className="h-14">
+                    <InputGroupAddon>
+                      <LocationIcon className="size-6" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      type="text"
+                      placeholder="Enter your location"
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="location"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-m-medium text-brand-800"
+                  >
+                    State
+                  </FieldLabel>
+                  <InputGroup className="h-14">
+                    <InputGroupAddon>
+                      <LocationIcon className="size-6" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      type="text"
+                      placeholder="Enter your location"
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </div>
           <Controller
             control={form.control}
             name="location"
@@ -100,7 +160,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                   htmlFor={field.name}
                   className="text-m-medium text-brand-800"
                 >
-                  Location
+                  Address
                 </FieldLabel>
                 <InputGroup className="h-14">
                   <InputGroupAddon>
@@ -114,12 +174,12 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                     placeholder="Enter your location"
                   />
                 </InputGroup>
-                <FieldLabel className="flex gap-2 text-brand-400 items-center">
+                {/* <FieldLabel className="flex gap-2 text-brand-400 items-center">
                   <div className="rounded-full border border-brand-400 flex size-5">
                     <LocationIcon className="size-2.5 m-auto" />
                   </div>
                   <p className="text-s font-medium">Use current location</p>
-                </FieldLabel>
+                </FieldLabel> */}
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
