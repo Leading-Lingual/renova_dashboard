@@ -23,3 +23,5 @@ export interface LoginResponse {
 export interface VerifyEmailResponse {
   message: string;
 }
+
+export type AccountType =  "INDIVIDUAL" | "AGENT" | "NGO"

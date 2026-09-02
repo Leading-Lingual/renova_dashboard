@@ -8,7 +8,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AuthWrapper from "@/components/AuthWrapper";
 import { GoogleLogo } from "@/assets/GoogleLogo";
 import PasswordIcon from "@iconify-react/mdi/password";
@@ -25,7 +25,7 @@ import {
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { signUpSchema, verifyEmailSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -36,6 +36,14 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useResendCountdown } from "@/hooks/useResendCountdown";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import UserFillIcon from "@iconify-react/ri/user-fill";
 
 const { INITIAL, EMAIL_VERIFICATION } = SignUpStages;
 
@@ -57,7 +65,7 @@ const SignupPage = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      userType: "INDIVIDUAL",
+      userType: "",
     },
   });
 
@@ -88,7 +96,6 @@ const SignupPage = () => {
     verifyEmail(data, {
       onSuccess(data) {
         toast.success(data.message);
-        otpForm.reset();
         router.push("/login");
       },
 
@@ -113,17 +120,6 @@ const SignupPage = () => {
       },
     );
   };
-
-  const password = useWatch({
-    control: signupform.control,
-    name: "password",
-  });
-
-  useEffect(() => {
-    signupform.setValue("confirmPassword", password, {
-      shouldValidate: true,
-    });
-  }, [password, signupform]);
 
   const renderBasedOnStage = () => {
     switch (stage) {
@@ -172,17 +168,101 @@ const SignupPage = () => {
                   </Field>
                 )}
               />
+              <Controller
+                control={signupform.control}
+                name="userType"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="text-m-medium text-brand-800"
+                    >
+                      Role
+                    </FieldLabel>
+
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        ref={field.ref}
+                        id={field.name}
+                        className="h-14! w-full shrink-0 rounded-[12px] px-3 border-black-200!"
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <UserFillIcon className="size-6" />
+                        <SelectValue placeholder="Select an account type" />
+                      </SelectTrigger>
+
+                      <SelectContent alignItemWithTrigger={false}>
+                        {["INDIVIDUAL", "AGENT", "NGO"].map((item) => (
+                          <SelectItem
+                            className="h-10! px-4!"
+                            key={item}
+                            value={item}
+                          >
+                            {item}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={signupform.control}
+                name="password"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      className="text-m-medium text-brand-800"
+                    >
+                      Password
+                    </FieldLabel>
+                    <InputGroup className="h-14">
+                      <InputGroupAddon>
+                        <PasswordIcon className="size-6" />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        type={inputType}
+                        placeholder="Create your password"
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <PasswordToggle
+                          inputType={inputType}
+                          onAction={() =>
+                            setInputType((prev) =>
+                              prev === "password" ? "text" : "password",
+                            )
+                          }
+                        />
+                      </InputGroupAddon>
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
               <div className="flex flex-col gap-4">
                 <Controller
                   control={signupform.control}
-                  name="password"
+                  name="confirmPassword"
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel
                         htmlFor={field.name}
                         className="text-m-medium text-brand-800"
                       >
-                        Password
+                        Confirm Password
                       </FieldLabel>
                       <InputGroup className="h-14">
                         <InputGroupAddon>
@@ -193,7 +273,7 @@ const SignupPage = () => {
                           id={field.name}
                           aria-invalid={fieldState.invalid}
                           type={inputType}
-                          placeholder="Create your password"
+                          placeholder="Confirm your password"
                         />
                         <InputGroupAddon align="inline-end">
                           <PasswordToggle

@@ -67,8 +67,8 @@ const ForgetPassword = () => {
       onSuccess: (data) => {
         toast.success(data.message);
         otpForm.setValue("email", forgotPasswordData.email);
-        form.reset();
         setStage(CHECK_EMAIL);
+        form.reset();
       },
       onError: (error) => {
         toast.error(error.message);
@@ -81,7 +81,6 @@ const ForgetPassword = () => {
       onSuccess(data) {
         toast.success("Otp verified");
         router.push(`/reset-password?token=${data.resetToken}`);
-        otpForm.reset();
       },
 
       onError: (error) => {
