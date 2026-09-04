@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/input-group";
 import { useState } from "react";
 import AuthWrapper from "@/components/AuthWrapper";
-import { GoogleLogo } from "@/assets/GoogleLogo";
 import PasswordIcon from "@iconify-react/mdi/password";
 import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
 import FormHeader from "@/components/FormHeader";
@@ -36,6 +35,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useResendCountdown } from "@/hooks/useResendCountdown";
+import {GoogleAuthButton} from "@/components/GoogleAuthButton";
 import {
   Select,
   SelectContent,
@@ -126,13 +126,7 @@ const SignupPage = () => {
       case INITIAL:
         return (
           <>
-            <Button
-              variant="outline"
-              className=" h-14 text-heading-xs-semibold"
-            >
-              <GoogleLogo />
-              <p>Create with Google Account</p>
-            </Button>
+          <GoogleAuthButton mode="register"/>
             <div className="flex items-center gap-4 w-full">
               <hr className="bg-black-100 w-full h-0.5 border-none" />
               <p className="text-black">or</p>
@@ -177,7 +171,7 @@ const SignupPage = () => {
                       htmlFor={field.name}
                       className="text-m-medium text-brand-800"
                     >
-                      Role
+                      Account type
                     </FieldLabel>
 
                     <Select

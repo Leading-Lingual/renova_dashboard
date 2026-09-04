@@ -24,6 +24,10 @@ export const signUpSchema = object({
   path: ["confirmPassword"],
 });
 
+export const userTypeSchema = object({
+  userType: string().trim().min(1,"Please select an account type"),
+});
+
 export const verifyEmailSchema = object({
   email:  email("Please enter your email address"),
   otp: string().trim().min(6, "Please input your 6-digit verification code"),

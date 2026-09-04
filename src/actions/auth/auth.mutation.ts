@@ -1,6 +1,8 @@
 import { mutationOptions } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import {
+  GoogleLoginPayload,
+  GoogleRegisterPayload,
   LoginPayload,
   LoginResponse,
   ResendEmailVerifyPayload,
@@ -84,5 +86,23 @@ export const logoutMutation = mutationOptions({
   mutationFn: () =>
     apiClient<{ message: string }>("/api/logout", {
       method: "POST",
+    }),
+});
+
+export const googleRegisterMutation = mutationOptions({
+  mutationKey: ["auth", "google", "register"],
+  mutationFn: (payload: GoogleRegisterPayload) =>
+    apiClient<SignUpResponse>("/v1/auth/google/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+});
+
+export const googleLoginMutation = mutationOptions({
+  mutationKey: ["auth", "google", "login"],
+  mutationFn: (payload: GoogleLoginPayload) =>
+    apiClient<LoginResponse>("/api/google", {
+      method: "POST",
+      body: JSON.stringify(payload),
     }),
 });
