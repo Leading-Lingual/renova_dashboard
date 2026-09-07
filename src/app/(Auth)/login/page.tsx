@@ -10,7 +10,6 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import AuthWrapper from "@/components/AuthWrapper";
-import { GoogleLogo } from "@/assets/GoogleLogo";
 import PasswordIcon from "@iconify-react/mdi/password";
 import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
 import FormHeader from "@/components/FormHeader";
@@ -23,6 +22,7 @@ import { loginMutation } from "@/actions/auth/auth.mutation";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 const LoginPage = () => {
   const [inputType, setInputType] = useState<"password" | "text">("password");
@@ -61,10 +61,7 @@ const LoginPage = () => {
             title="Welcome back"
             subtitle="Sign in to track and manage your waste operations."
           />
-          <Button variant="outline" className="h-14 text-heading-xs-semibold">
-            <GoogleLogo />
-            <p>Sign in with Google Account</p>
-          </Button>
+          <GoogleAuthButton mode="login" />
           <div className="flex items-center gap-4 w-full">
             <hr className="bg-black-100 w-full h-0.5 border-none" />
             <p className="text-black">or</p>

@@ -25,3 +25,13 @@ export interface VerifyEmailResponse {
 }
 
 export type AccountType =  "INDIVIDUAL" | "AGENT" | "NGO"
+
+export interface GoogleRegisterPayload {
+  idToken: string;
+  userType: AccountType;
+}
+
+export interface GoogleLoginPayload {
+  idToken: string;
+}
+
