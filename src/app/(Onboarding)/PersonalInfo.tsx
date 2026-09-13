@@ -9,13 +9,22 @@ import {
 import { AccountType } from "@/types/onboarding.type";
 import { PersonInfoSchema } from "@/validations/onboarding.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 import UserFillIcon from "@iconify-react/ri/user-fill";
 import LocationIcon from "@iconify-react/mi/location";
 import CouponFillIcon from "@iconify-react/mingcute/coupon-fill";
 import { useRouter } from "next/navigation";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
+import { Country, State } from "country-state-city";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 
 const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
   const router = useRouter();
@@ -24,15 +33,27 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
     defaultValues: {
       name: "",
       phone: "",
-      location: "",
+      country: "",
+      state: "",
+      address: "",
       referralCode: "",
     },
   });
   const handleSetProfile = () => {
-    router.push("/");
+    router.push("/home");
   };
+
+  const countryList = Country.getAllCountries().map((country) => country.name);
+  const selectedCountry = useWatch({ control: form.control, name: "country" });
+  const countryCode = Country.getAllCountries().find(
+    (item) => item.name === selectedCountry,
+  )?.isoCode;
+  const statesOfSelectedCountryList = State.getStatesOfCountry(countryCode).map(
+    (item) => item.name,
+  );
+
   return (
-    <form className="flex flex-col gap-6 md:gap-8">
+    <form className="flex flex-col gap-6 md:gap-8 w-full">
       <FormHeader
         title="Personal Info"
         subtitle="Tell us a bit about your business..."
@@ -91,30 +112,48 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
               </Field>
             )}
           />
-          <div className="flex gap-6 flex-col md:flex-row">
+          <div className="flex gap-6 w-full flex-col md:flex-row">
             <Controller
               control={form.control}
-              name="location"
+              name="country"
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="flex-1 ">
                   <FieldLabel
                     htmlFor={field.name}
                     className="text-m-medium text-brand-800"
                   >
                     Country
                   </FieldLabel>
-                  <InputGroup className="h-14">
-                    <InputGroupAddon>
-                      <LocationIcon className="size-6" />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      type="text"
-                      placeholder="Enter your location"
-                    />
-                  </InputGroup>
+                  <Combobox
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    onValueChange={field.onChange}
+                    items={countryList}
+                  >
+                    <ComboboxInput
+                      placeholder="Select a country"
+                      className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
+                    >
+                      <InputGroupAddon>
+                        <LocationIcon className="size-6" />
+                      </InputGroupAddon>
+                    </ComboboxInput>
+                    <ComboboxContent alignOffset={-28}>
+                      <ComboboxEmpty>No country found.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(country) => (
+                          <ComboboxItem
+                            key={country}
+                            value={country}
+                            className="h-10! px-4!"
+                          >
+                            {country}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -123,27 +162,44 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
             />
             <Controller
               control={form.control}
-              name="location"
+              name="state"
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="flex-1 ">
                   <FieldLabel
                     htmlFor={field.name}
                     className="text-m-medium text-brand-800"
                   >
                     State
                   </FieldLabel>
-                  <InputGroup className="h-14">
-                    <InputGroupAddon>
-                      <LocationIcon className="size-6" />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      type="text"
-                      placeholder="Enter your location"
-                    />
-                  </InputGroup>
+                  <Combobox
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    onValueChange={field.onChange}
+                    items={statesOfSelectedCountryList}
+                  >
+                    <ComboboxInput
+                      placeholder="Select state"
+                      className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
+                    >
+                      <InputGroupAddon>
+                        <LocationIcon className="size-6" />
+                      </InputGroupAddon>
+                    </ComboboxInput>
+                    <ComboboxContent alignOffset={-28}>
+                      <ComboboxEmpty>No state found.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(state) => (
+                          <ComboboxItem
+                            key={state}
+                            value={state}
+                            className="h-10! px-4!"
+                          >
+                            {state}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -153,7 +209,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
           </div>
           <Controller
             control={form.control}
-            name="location"
+            name="address"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel

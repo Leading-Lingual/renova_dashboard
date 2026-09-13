@@ -9,30 +9,29 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import useQueryParams from "@/hooks/useQueryParams";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import PasswordIcon from "@iconify-react/mdi/password";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
-import { passwordCriteria } from "@/lib/utils";
-import { Controller, useForm } from "react-hook-form";
+import { validatePassword } from "@/lib/utils";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { resetPasswordSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { resetPasswordMutation } from "@/actions/auth/auth.mutation";
 import { toast } from "sonner";
+import { useResetPassword } from "@/context/ResetPasswordProvider";
 
-const ResetPasswordPage = () => {
-  const queryParams = useQueryParams();
+function ResetPasswordForm() {
   const router = useRouter();
-  const showResetPage = queryParams.get("token");
+  const {token}=useResetPassword()
 
   useEffect(() => {
-    if (!showResetPage) {
+    if (!token) {
       return router.push("/forgot-password");
     }
-  }, [showResetPage, router]);
+  }, [token, router]);
   const [passwordInputType, setPasswordInputType] = useState<
     "text" | "password"
   >("password");
@@ -46,11 +45,15 @@ const ResetPasswordPage = () => {
   const form = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      resetToken: showResetPage ?? "",
+      resetToken: token ?? "",
       newPassword: "",
       confirmPassword: "",
     },
   });
+
+  const password = useWatch({ control: form.control, name: "newPassword" });
+  
+  const ValidPassword = validatePassword(password);
 
   function onSubmit(data: z.infer<typeof resetPasswordSchema>) {
     resetPassword(data, {
@@ -165,10 +168,14 @@ const ResetPasswordPage = () => {
                 Your Password must contain
               </p>
               <div className="flex flex-col gap-1">
-                {passwordCriteria.map((criteria, index) => (
+                {ValidPassword.map((criteria, index) => (
                   <div key={index} className={`flex gap-2 items-center`}>
-                    <ArrowRightCircle className="size-4 text-black-200" />
-                    <p className="text-2s-medium text-black-300">
+                    <ArrowRightCircle
+                      className={`size-4 ${form.getValues("newPassword") ? (criteria.isValid ? "text-brand-400" : "text-danger-400") : "text-black-200 "} `}
+                    />
+                    <p
+                      className={`text-2s-medium  ${form.getValues("newPassword") ? (criteria.isValid ? "text-brand-500" : "text-danger-500") : "text-black-300"} `}
+                    >
                       {criteria.description}
                     </p>
                   </div>
@@ -190,6 +197,12 @@ const ResetPasswordPage = () => {
       </div>
     </AuthWrapper>
   );
-};
+}
 
-export default ResetPasswordPage;
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}

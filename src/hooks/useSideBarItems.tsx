@@ -45,7 +45,7 @@ const useSidebarItems = () => {
     {
       Icon: HomeFilledIcon,
       text: "Home",
-      route: "/",
+      route: "/home",
     },
   ];
   const featureItems: SidebarItem[] = useMemo(() => {

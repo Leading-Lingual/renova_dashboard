@@ -15,12 +15,30 @@ export async function POST(request: Request) {
 
     const body = await request.json(); 
 
-    const response = await fetch(`${API_URL}/v1/auth/google/login`, {
+    const origin = request.headers.get("origin");
+
+    const { action, ...payload } = body;
+
+    if (action !== "login" && action !== "signup") {
+      return NextResponse.json(
+        { message: "Invalid Google authentication action" },
+        { status: 400 },
+      );
+    }
+
+    const endpoint =
+      action === "login"
+        ? "/v1/auth/google/code/login"
+        : "/v1/auth/google/code/register";
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Requested-With": "XmlHttpRequest",
+        ...(origin ? { Origin: origin } : {}),
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     const backendCookies = response.headers.getSetCookie();
@@ -38,7 +56,9 @@ export async function POST(request: Request) {
     if (!response.ok) {
       return NextResponse.json(
         {
-          message: data.message ?? "Google login failed",
+          message:
+            data.message ??
+            `Google ${action === "login" ? "login" : "signup"} failed`,
           errors: data.errors,
         },
         {
@@ -51,7 +71,12 @@ export async function POST(request: Request) {
     const csrfToken = getCookieValue(csrfCookie);
 
     const nextResponse = NextResponse.json({
-      message: "Login successful",
+      message:
+        action === "login"
+          ? "Google login successful"
+          : "Google signup successful",
+      accessToken: data.accessToken,
+      expiresIn: data.expiresIn,
     });
 
     nextResponse.cookies.set({
@@ -90,7 +115,7 @@ export async function POST(request: Request) {
 
     return nextResponse;
   } catch (error) {
-    console.error("GOOGLE LOGIN ROUTE ERROR:", error);
+    console.error("GOOGLE AUTH ROUTE ERROR:", error);
 
     return NextResponse.json(
       {

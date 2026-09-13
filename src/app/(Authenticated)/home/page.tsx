@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import EyeHideSolidIcon from "@iconify-react/clarity/eye-hide-solid";
 import MoneyIcon from "@iconify-react/tdesign/money";
-import EmptyStateImage from "../../../public/bro.svg";
+import EmptyStateImage from "../../../../public/bro.svg";
 import EmptyState from "@/components/EmptyState";
 import Overview from "@/components/Home/Overview";
 import Heading from "@/components/Heading";

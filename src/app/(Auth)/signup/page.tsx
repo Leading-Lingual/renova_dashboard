@@ -13,7 +13,7 @@ import AuthWrapper from "@/components/AuthWrapper";
 import PasswordIcon from "@iconify-react/mdi/password";
 import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
 import FormHeader from "@/components/FormHeader";
-import { passwordCriteria } from "@/lib/utils";
+import { validatePassword } from "@/lib/utils";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
 import { SignUpStages } from "./signUpEnum";
 import {
@@ -35,15 +35,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useResendCountdown } from "@/hooks/useResendCountdown";
-import {GoogleAuthButton} from "@/components/GoogleAuthButton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import UserFillIcon from "@iconify-react/ri/user-fill";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 const { INITIAL, EMAIL_VERIFICATION } = SignUpStages;
 
@@ -57,7 +49,8 @@ const SignupPage = () => {
     useMutation(verifyEmailMutation);
   const { mutate: resend } = useMutation(resendOTP);
   const router = useRouter();
-  const { formattedTime, startCountdown, isCounting } = useResendCountdown(600);
+  const { formattedTime, startCountdown, isCounting } = useResendCountdown(60);
+  const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
 
   const signupform = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -65,7 +58,6 @@ const SignupPage = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      userType: "",
     },
   });
 
@@ -77,19 +69,24 @@ const SignupPage = () => {
     },
   });
 
-  function onSubmit(signupData: z.infer<typeof signUpSchema>) {
-    signup(signupData, {
-      onSuccess: (data) => {
-        toast.success(data.message);
-        otpForm.setValue("email", signupData.email);
-        setStage(EMAIL_VERIFICATION);
-        signupform.reset();
-      },
+  const ValidPassword = validatePassword(signupform.getValues("password"));
 
-      onError: (error) => {
-        toast.error(error.message);
+  function onSubmit(signupData: z.infer<typeof signUpSchema>) {
+    signup(
+      { email: signupData.email, password: signupData.password },
+      {
+        onSuccess: (data) => {
+          toast.success(data.message);
+          otpForm.setValue("email", signupData.email);
+          setStage(EMAIL_VERIFICATION);
+          signupform.reset();
+        },
+
+        onError: (error) => {
+          toast.error(error.message);
+        },
       },
-    });
+    );
   }
 
   function onCodeSubmit(data: z.infer<typeof verifyEmailSchema>) {
@@ -126,7 +123,12 @@ const SignupPage = () => {
       case INITIAL:
         return (
           <>
-          <GoogleAuthButton mode="register"/>
+            <GoogleAuthButton
+              mode="register"
+              onAuthStateChange={(authenticating) =>
+                setIsGoogleAuthenticating(authenticating)
+              }
+            />
             <div className="flex items-center gap-4 w-full">
               <hr className="bg-black-100 w-full h-0.5 border-none" />
               <p className="text-black">or</p>
@@ -154,53 +156,9 @@ const SignupPage = () => {
                         aria-invalid={fieldState.invalid}
                         type="email"
                         placeholder="Enter your email address"
+                        disabled={isGoogleAuthenticating || isLoadingSignUp}
                       />
                     </InputGroup>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-              <Controller
-                control={signupform.control}
-                name="userType"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel
-                      htmlFor={field.name}
-                      className="text-m-medium text-brand-800"
-                    >
-                      Account type
-                    </FieldLabel>
-
-                    <Select
-                      value={field.value ?? ""}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        ref={field.ref}
-                        id={field.name}
-                        className="h-14! w-full shrink-0 rounded-[12px] px-3 border-black-200!"
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <UserFillIcon className="size-6" />
-                        <SelectValue placeholder="Select an account type" />
-                      </SelectTrigger>
-
-                      <SelectContent alignItemWithTrigger={false}>
-                        {["INDIVIDUAL", "AGENT", "NGO"].map((item) => (
-                          <SelectItem
-                            className="h-10! px-4!"
-                            key={item}
-                            value={item}
-                          >
-                            {item}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -228,6 +186,7 @@ const SignupPage = () => {
                         aria-invalid={fieldState.invalid}
                         type={inputType}
                         placeholder="Create your password"
+                        disabled={isGoogleAuthenticating || isLoadingSignUp}
                       />
                       <InputGroupAddon align="inline-end">
                         <PasswordToggle
@@ -268,6 +227,7 @@ const SignupPage = () => {
                           aria-invalid={fieldState.invalid}
                           type={inputType}
                           placeholder="Confirm your password"
+                          disabled={isGoogleAuthenticating || isLoadingSignUp}
                         />
                         <InputGroupAddon align="inline-end">
                           <PasswordToggle
@@ -287,10 +247,14 @@ const SignupPage = () => {
                   )}
                 />
                 <div className="flex flex-col gap-1">
-                  {passwordCriteria.map((criteria, index) => (
+                  {ValidPassword.map((criteria, index) => (
                     <div key={index} className={`flex gap-2 items-center`}>
-                      <ArrowRightCircle className="size-4 text-black-200" />
-                      <p className="text-2s-medium text-black-300">
+                      <ArrowRightCircle
+                        className={`size-4  ${signupform.getValues("password") ? (criteria.isValid ? "text-brand-400" : "text-danger-400") : "text-black-200 "} `}
+                      />
+                      <p
+                        className={`text-2s-medium  ${signupform.getValues("password") ? (criteria.isValid ? "text-brand-500" : "text-danger-500") : "text-black-300"} `}
+                      >
                         {criteria.description}
                       </p>
                     </div>
@@ -391,7 +355,9 @@ const SignupPage = () => {
         </div>
         <div className="flex flex-col gap-4 items-center text-black-500">
           <Button
-            disabled={isLoadingSignUp || isLoadingVerification}
+            disabled={
+              isLoadingSignUp || isLoadingVerification || isGoogleAuthenticating
+            }
             className="text-white w-full h-14"
             onClick={
               isInitialStage

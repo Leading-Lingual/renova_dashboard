@@ -1,25 +1,26 @@
 "use client";
-
 import { Button } from "./ui/button";
 import { GoogleLogo } from "@/assets/GoogleLogo";
 import { useMutation } from "@tanstack/react-query";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
-import { AccountType } from "@/types/auth.types";
 import {
   googleLoginMutation,
   googleRegisterMutation,
 } from "@/actions/auth/auth.mutation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { SelectAccountTypeModal } from "./SelectAccountTypeModal";
+import { useEffect } from "react";
 
 interface GoogleAuthButtonProps {
   mode: "login" | "register";
+  onAuthStateChange?: (isAuthenticating: boolean) => void;
 }
 
-export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
+export function GoogleAuthButton({
+  mode,
+  onAuthStateChange,
+}: GoogleAuthButtonProps) {
   const router = useRouter();
 
   const { mutate: googleLogin, isPending: loggingIn } =
@@ -30,56 +31,63 @@ export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
 
   const isPending = loggingIn || signingUp;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [registerationId, setRegisterationId] = useState("");
+  useEffect(() => {
+    onAuthStateChange?.(isPending);
+  }, [isPending, onAuthStateChange]);
 
-  const handleSuccess = (credentialResponse: CredentialResponse) => {
-    const idToken = credentialResponse.credential;
-    if (!idToken) {
-      toast.error("Google didn't return a valid credential. Please try again.");
-      return;
-    }
-
-    if (mode === "register") {
-      setRegisterationId(idToken);
-      setIsModalOpen(true);
-    } else {
-      googleLogin(
-        { idToken },
-        {
-          onSuccess: () => {
-            toast.success("Login successful");
-            router.push("/onboarding");
+  const handleContinuewithGoogle = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: ({ code }) => {
+      if (mode === "register") {
+        googleSignUp(
+          { code },
+          {
+            onSuccess: (result) => {
+              toast.success("Sign in successful");
+              if (result.isProfileComplete) {
+                router.push("/home");
+              } else {
+                router.push("/onboarding");
+              }
+            },
+            onError: (error) => {
+              toast.error(error.message);
+            },
           },
-          onError: (error) => {
-            toast.error(error.message);
+        );
+      } else {
+        googleLogin(
+          { code },
+          {
+            onSuccess: (result) => {
+              toast.success("Login successful");
+              if (result.isProfileComplete) {
+                router.push("/home");
+              } else {
+                router.push("/onboarding");
+              }
+            },
+            onError: (error) => {
+              toast.error(error.message);
+            },
           },
-        },
-      );
-    }
-  };
+        );
+      }
+    },
+    onError: (error) => {
+      console.error("Login Failed:", error);
+      toast.error("failed to sign in with google");
+    },
+  });
 
-  const handleRegister = (idToken: string, userType: AccountType) => {
-    googleSignUp(
-      { idToken, userType },
-      {
-        onSuccess: (data) => {
-          toast.success(data.message);
-          router.push("/login");
-        },
-        onError: (error) => {
-          toast.error(error.message);
-        },
-      },
-    );
-  };
   return (
     <div className="relative h-14">
       <Button
         disabled={isPending}
         type="button"
         variant="outline"
-        className="h-14! w-full text-heading-xs-semibold pointer-events-none"
+        onClick={() => handleContinuewithGoogle()}
+        className="h-14! w-full text-heading-xs-semibold"
       >
         {isPending && <Loader2 className="animate-spin" />}
 
@@ -90,22 +98,6 @@ export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
             : "Sign in with Google Account"}
         </p>
       </Button>
-
-      {!isPending && (
-        <div className="absolute inset-0 overflow-hidden opacity-0 [&>div]:h-full! [&>div]:w-full! [&_iframe]:h-full! [&_iframe]:w-full!">
-          <GoogleLogin
-            onSuccess={handleSuccess}
-            onError={() => toast.error("Google sign-in failed")}
-            useOneTap={mode === "login"}
-          />
-        </div>
-      )}
-
-      <SelectAccountTypeModal
-        onSubmit={({ userType }) => handleRegister(registerationId, userType as AccountType)}
-        open={isModalOpen}
-        close={() => setIsModalOpen(false)}
-      />
     </div>
   );
 }

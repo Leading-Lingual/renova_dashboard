@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${satoshi.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col overflow-hidden h-screen">
+      <body className="min-h-full flex flex-col overflow-hidden h-full">
         <Providers>{children}</Providers>
       </body>
     </html>
