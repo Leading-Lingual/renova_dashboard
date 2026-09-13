@@ -7,8 +7,9 @@ const AUTH_ROUTES = [
   "/reset-password",
 ];
 
-const DEFAULT_AUTHENTICATED_ROUTE = "/";
+const DEFAULT_AUTHENTICATED_ROUTE = "/home";
 const LOGIN_ROUTE = "/login";
+const LANDING_PAGE_ROUTE = "/"
 
 function isAuthRoute(pathname: string) {
   return AUTH_ROUTES.some(
@@ -26,6 +27,7 @@ export function proxy(request: NextRequest) {
 
   const isAuthenticated = Boolean(accessToken);
   const isAuth = isAuthRoute(pathname);
+  const landing_page = pathname === LANDING_PAGE_ROUTE
 
   // User has an access token and tries to visit an auth page
   if (isAuthenticated && isAuth) {
@@ -35,7 +37,7 @@ export function proxy(request: NextRequest) {
   }
 
   // User has no access token and tries to access a protected route
-  if (!isAuthenticated && !isAuth) {
+  if (!isAuthenticated && !isAuth && !landing_page) {
     // They still have a refresh token, so try refreshing their session
     if (refreshToken) {
       const refreshUrl = new URL("/api/refresh", request.url);

@@ -15,12 +15,24 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const response = await fetch(`${API_URL}/v1/auth/login`, {
+    const { action, ...payload } = body;
+
+    if (action !== "login" && action !== "signup") {
+      return NextResponse.json(
+        { message: "Invalid authentication action" },
+        { status: 400 },
+      );
+    }
+
+    const endpoint =
+      action === "login" ? "/v1/auth/login" : "/v1/auth/email/verify";
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     const backendCookies = response.headers.getSetCookie();
@@ -38,7 +50,7 @@ export async function POST(request: Request) {
     if (!response.ok) {
       return NextResponse.json(
         {
-          message: data.message ?? "Invalid credentials",
+          message: data.message ?? "Authentication failed",
           errors: data.errors,
         },
         {
@@ -51,20 +63,28 @@ export async function POST(request: Request) {
     const csrfToken = getCookieValue(csrfCookie);
 
     const nextResponse = NextResponse.json({
-      message: "Login successful",
+      message: data.message
+        ? data.message
+        : action === "login"
+          ? "Login successful"
+          : "Signup successful, logging in",
+      accessToken: data.accessToken,
+      expiresIn: data.expiresIn,
     });
 
     // Access token — 15 minutes
-    nextResponse.cookies.set({
-      name: "access_token",
-      value: data.accessToken,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: data.expiresIn,
-    });
-
+    if (data.accessToken) {
+      nextResponse.cookies.set({
+        name: "access_token",
+        value: data.accessToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: data.expiresIn,
+      });
+    }
+    
     // Refresh token — 7 days
     if (refreshToken) {
       nextResponse.cookies.set({
@@ -93,7 +113,7 @@ export async function POST(request: Request) {
 
     return nextResponse;
   } catch (error) {
-    console.error("LOGIN ROUTE ERROR:", error);
+    console.error("AUTH ROUTE ERROR:", error);
 
     return NextResponse.json(
       {

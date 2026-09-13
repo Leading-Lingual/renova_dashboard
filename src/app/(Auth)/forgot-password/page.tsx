@@ -12,7 +12,6 @@ import AuthWrapper from "@/components/AuthWrapper";
 import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
 import FormHeader from "@/components/FormHeader";
 import { ForgetPasswordStages } from "./forgetPasswordEnum";
-// import { ResetPasswordIcon } from "@/assets/ResetPassordIcon";
 import {
   forgetPasswordSchema,
   verifyEmailSchema,
@@ -34,6 +33,8 @@ import {
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useResendCountdown } from "@/hooks/useResendCountdown";
+import { useResetPassword } from "@/context/ResetPasswordProvider";
 
 const { INITIAL, CHECK_EMAIL } = ForgetPasswordStages;
 
@@ -46,6 +47,8 @@ const ForgetPassword = () => {
   const { mutate: verifyCode, isPending: isVerifying } =
     useMutation(verifyPasswordOTP);
   const router = useRouter();
+  const { formattedTime, startCountdown, isCounting } = useResendCountdown(60);
+  const {setToken}=useResetPassword()
 
   const form = useForm<z.infer<typeof forgetPasswordSchema>>({
     resolver: zodResolver(forgetPasswordSchema),
@@ -80,7 +83,8 @@ const ForgetPassword = () => {
     verifyCode(data, {
       onSuccess(data) {
         toast.success("Otp verified");
-        router.push(`/reset-password?token=${data.resetToken}`);
+        setToken(data.resetToken)
+        router.push(`/reset-password`);
       },
 
       onError: (error) => {
@@ -89,19 +93,32 @@ const ForgetPassword = () => {
     });
   }
 
+  const handleResend = () => {
+    forgotPassword(
+      { email: otpForm.getValues("email") },
+      {
+        onSuccess: () => {
+          toast.success("A new OTP has been sent");
+          startCountdown();
+        },
+        onError: () => {
+          toast.error("failed to resend OTP");
+          startCountdown();
+        },
+      },
+    );
+  };
+
   return (
     <AuthWrapper>
       <div className="flex bg-white justify-center-safe md:rounded-2xl md:px-18.75 md:py-[92.5px] w-full gap-6 md:gap-11 flex-col h-full overflow-auto no-scrollbar">
         <div className="flex flex-col gap-6">
-          {/* {!isInitialStage && <ResetPasswordIcon className="m-auto" />} */}
           <FormHeader
             title={isInitialStage ? "Forgot Password" : "Check your mail"}
             subtitle={
               isInitialStage
                 ? "Enter the email address you used to create your account."
-                : // You will receive a link to create a new password."
-                  // : "We have sent a password recover instructions to your email."
-                  `We sent a 6-digit verification code to ${otpForm.getValues("email")}. Please enter the code below.`
+                : `We sent a 6-digit verification code to ${otpForm.getValues("email")}. Please enter the code below.`
             }
           />
           {isInitialStage ? (
@@ -205,28 +222,44 @@ const ForgetPassword = () => {
             {(isSubmitting || isVerifying) && (
               <Loader2 className="animate-spin" />
             )}
-            {/* {isInitialStage ? "Send Reset Link" : "Check email"} */}
             Submit
           </Button>
-          <div className="text-m-medium gap-1">
+          <div className="text-m-medium gap-1 text-center">
             {isInitialStage
               ? "Never mind!"
-              : "Did not receive the email? Check your spam folder or"}
+              : "Did not receive the email? Check your spam folder, "}
             {isInitialStage ? (
               <Link href={"/login"} className="text-brand-500 text-m-bold ml-1">
                 Take me back to Login
               </Link>
             ) : (
-              <Button
-                size="fit"
-                variant="ghost"
-                onClick={() => setStage(INITIAL)}
-              >
-                <p className="text-brand-500! text-m-bold! ml-1">
-                  {" "}
-                  try another email
-                </p>
-              </Button>
+              <>
+                <Button
+                  size="fit"
+                  variant={"ghost"}
+                  onClick={handleResend}
+                  disabled={isCounting}
+                  className={"cursor-pointer"}
+                >
+                  <p className="text-brand-500! text-m-bold!">
+                    {isCounting
+                      ? `Resend Code in ${formattedTime}`
+                      : "Resend OTP"}
+                  </p>
+                </Button>
+                {" or "}
+                <Button
+                  size="fit"
+                  variant="ghost"
+                  onClick={() => setStage(INITIAL)}
+                  className={"cursor-pointer"}
+                >
+                  <p className="text-brand-500! text-m-bold! ml-1">
+                    {" "}
+                    try another email
+                  </p>
+                </Button>
+              </>
             )}
           </div>
         </div>

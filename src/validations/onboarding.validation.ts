@@ -8,6 +8,8 @@ export const AccountSetUpSchema = object({
 export const PersonInfoSchema = object({
   name: string(),
   phone: string(),
-  location: string(),
+  country:string(),
+  state:string(),
+  address: string(),
   referralCode: string().optional()
 });

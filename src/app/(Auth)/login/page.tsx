@@ -27,6 +27,7 @@ import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 const LoginPage = () => {
   const [inputType, setInputType] = useState<"password" | "text">("password");
   const { mutate: login, isPending } = useMutation(loginMutation);
+  const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -39,9 +40,14 @@ const LoginPage = () => {
 
   function onSubmit(data: z.infer<typeof loginSchema>) {
     login(data, {
-      onSuccess: () => {
+      onSuccess: (result) => {
         toast.success("Login successful");
         router.push("/onboarding");
+        if (result.isProfileComplete) {
+          router.push("/home");
+        } else {
+          router.push("/onboarding");
+        }
       },
 
       onError: (error) => {
@@ -61,7 +67,12 @@ const LoginPage = () => {
             title="Welcome back"
             subtitle="Sign in to track and manage your waste operations."
           />
-          <GoogleAuthButton mode="login" />
+          <GoogleAuthButton
+            mode="login"
+            onAuthStateChange={(authenticating) =>
+              setIsGoogleAuthenticating(authenticating)
+            }
+          />
           <div className="flex items-center gap-4 w-full">
             <hr className="bg-black-100 w-full h-0.5 border-none" />
             <p className="text-black">or</p>
@@ -92,6 +103,7 @@ const LoginPage = () => {
                       aria-invalid={fieldState.invalid}
                       type="email"
                       placeholder="Enter your email address"
+                      disabled={isGoogleAuthenticating || isPending}
                     />
                   </InputGroup>
                   {fieldState.invalid && (
@@ -122,6 +134,7 @@ const LoginPage = () => {
                       aria-invalid={fieldState.invalid}
                       type={inputType}
                       placeholder="Enter your password"
+                      disabled={isGoogleAuthenticating || isPending}
                     />
                     <InputGroupAddon align="inline-end">
                       <PasswordToggle
@@ -150,7 +163,7 @@ const LoginPage = () => {
 
             <div className="flex flex-col gap-4 items-center text-black-500">
               <Button
-                disabled={isPending}
+                disabled={isPending || isGoogleAuthenticating}
                 type="submit"
                 className="text-white h-14 w-full"
               >
