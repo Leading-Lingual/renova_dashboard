@@ -39,12 +39,6 @@ export interface VerifyEmailResponse {
   message: string;
 }
 
-export type AccountType = "INDIVIDUAL" | "AGENT" | "NGO";
-
-export interface GoogleRegisterPayload {
-  registrationToken: string;
-}
-
 export interface GoogleLoginPayload {
   code: string;
 }
