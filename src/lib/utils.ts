@@ -36,3 +36,31 @@ export function getCookieValue(cookie: string | undefined) {
 
 export const getNameFromEmail = (email?: string) =>
   email ? email.split("@")[0] : "";
+
+export const getFirstWord = (value: string): string => {
+  return value.trim().split(" ")[0] || "";
+};
+
+export const getInitials = (value: string): string => {
+  const words = value.trim().split(" ").filter(Boolean);
+
+  const isLetter = (char: string) => /^[A-Za-z]$/.test(char);
+
+  if (words.length === 0) return "?";
+
+  const firstInitial = words[0].charAt(0);
+
+  if (!isLetter(firstInitial)) return "?";
+
+  if (words.length === 1) {
+    return firstInitial.toUpperCase();
+  }
+
+  const secondInitial = words[1].charAt(0);
+
+  if (!isLetter(secondInitial)) {
+    return firstInitial.toUpperCase();
+  }
+
+  return `${firstInitial}${secondInitial}`.toUpperCase();
+};

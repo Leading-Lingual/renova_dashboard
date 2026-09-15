@@ -11,21 +11,25 @@ import RecentActivities from "@/components/Home/RecentActivities";
 import Pill from "@/components/Pill";
 import { Plus } from "lucide-react";
 import ScanFilledIcon from "@iconify-react/boxicons/scan-filled";
+import { useQuery } from "@tanstack/react-query";
+import { getUserProfile } from "@/actions/user/user.query";
 
 export default function Home() {
   const hasData = false;
+    const { data } = useQuery(getUserProfile);
+
   return (
     <div className="flex py-6 flex-col gap-8 h-full px-8 overflow-auto w-full">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 md:gap-0">
         <div className="flex flex-col gap-1">
           <div className="flex flex-col gap-0.5">
-            <p className="text-m-bold">Individual</p>
+            <p className="text-m-bold capitalize">{data?.accountType}</p>
             <p className="text-s font-normal">
               Manage your listings, sales, purchases and collections.{" "}
             </p>
           </div>
           <div className="flex gap-3">
-            {["Seller", "Buyer", "Collector"].map((item) => (
+            {data?.activities?.map((item) => (
               <Pill key={item} small>
                 {item}
               </Pill>

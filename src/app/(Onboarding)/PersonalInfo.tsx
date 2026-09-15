@@ -1,3 +1,4 @@
+"use client";
 import FormHeader from "@/components/FormHeader";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -6,15 +7,10 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { AccountType } from "@/types/onboarding.type";
-import { PersonInfoSchema } from "@/validations/onboarding.validation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import * as z from "zod";
+import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import UserFillIcon from "@iconify-react/ri/user-fill";
 import LocationIcon from "@iconify-react/mi/location";
 import CouponFillIcon from "@iconify-react/mingcute/coupon-fill";
-import { useRouter } from "next/navigation";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
 import { Country, State } from "country-state-city";
 import {
@@ -25,35 +21,48 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
+import { OnboardingFormValues } from "@/types/user.type";
+import { Loader2 } from "lucide-react";
 
-const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
-  const router = useRouter();
-  const form = useForm<z.infer<typeof PersonInfoSchema>>({
-    resolver: zodResolver(PersonInfoSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-      country: "",
-      state: "",
-      address: "",
-      referralCode: "",
-    },
+type PersonalInfoProps = {
+  form: UseFormReturn<OnboardingFormValues>;
+  onSubmit: (data: OnboardingFormValues) => void;
+  isSubmiting: boolean;
+};
+
+const PersonalInfo = ({ form, onSubmit, isSubmiting }: PersonalInfoProps) => {
+  const accountType = useWatch({
+    control: form.control,
+    name: "accountType",
   });
-  const handleSetProfile = () => {
-    router.push("/home");
-  };
 
-  const countryList = Country.getAllCountries().map((country) => country.name);
-  const selectedCountry = useWatch({ control: form.control, name: "country" });
-  const countryCode = Country.getAllCountries().find(
-    (item) => item.name === selectedCountry,
+  const selectedCountry = useWatch({
+    control: form.control,
+    name: "location.country",
+  });
+
+  const countryList = Country.getAllCountries();
+
+  const selectedCountryCode = countryList.find(
+    (country) => country.name === selectedCountry,
   )?.isoCode;
-  const statesOfSelectedCountryList = State.getStatesOfCountry(countryCode).map(
-    (item) => item.name,
-  );
+
+  const statesOfSelectedCountry = selectedCountryCode
+    ? State.getStatesOfCountry(selectedCountryCode)
+    : [];
+
+  const nameLabel =
+    accountType === "INDIVIDUAL"
+      ? "Full Name"
+      : accountType === "AGENT"
+        ? "Business Name"
+        : "Organization Name";
 
   return (
-    <form className="flex flex-col gap-6 md:gap-8 w-full">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-6 md:gap-8 w-full"
+    >
       <FormHeader
         title="Personal Info"
         subtitle="Tell us a bit about your business..."
@@ -62,18 +71,14 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
         <div className="flex flex-col gap-6">
           <Controller
             control={form.control}
-            name="name"
+            name="fullName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel
                   htmlFor={field.name}
                   className="text-m-medium text-brand-800"
                 >
-                  {accountType === "individual"
-                    ? "Full Name"
-                    : accountType === "business"
-                      ? "Business Name"
-                      : "Organization Name"}
+                  {nameLabel}
                 </FieldLabel>
                 <InputGroup className="h-14">
                   <InputGroupAddon>
@@ -84,7 +89,12 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     type="text"
-                    placeholder="Enter your first and last name"
+                    placeholder={
+                      accountType === "INDIVIDUAL"
+                        ? "Enter your first and last name"
+                        : "Enter your business name"
+                    }
+                    disabled={isSubmiting}
                   />
                 </InputGroup>
                 {fieldState.invalid && (
@@ -95,7 +105,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
           />
           <Controller
             control={form.control}
-            name="phone"
+            name="phoneNumber"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <PhoneNumberInput
@@ -105,6 +115,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                   invalid={fieldState.invalid}
                   defaultCountry="NG"
                   placeholder="9012356781"
+                  disabled={isSubmiting}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -115,7 +126,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
           <div className="flex gap-6 w-full flex-col md:flex-row">
             <Controller
               control={form.control}
-              name="country"
+              name="location.country"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid} className="flex-1 ">
                   <FieldLabel
@@ -127,10 +138,16 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                   <Combobox
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    onValueChange={field.onChange}
-                    items={countryList}
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value ? value : "");
+                      form.setValue("location.state", "");
+                    }}
+                    items={countryList.map((country) => country.name)}
+                    disabled={isSubmiting}
                   >
                     <ComboboxInput
+                      disabled={isSubmiting}
                       placeholder="Select a country"
                       className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
                     >
@@ -162,9 +179,9 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
             />
             <Controller
               control={form.control}
-              name="state"
+              name="location.state"
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className="flex-1 ">
+                <Field data-invalid={fieldState.invalid} className="flex-1">
                   <FieldLabel
                     htmlFor={field.name}
                     className="text-m-medium text-brand-800"
@@ -174,11 +191,20 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                   <Combobox
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    onValueChange={field.onChange}
-                    items={statesOfSelectedCountryList}
+                    value={field.value}
+                    onValueChange={(value) =>
+                      field.onChange(value ? value : "")
+                    }
+                    items={statesOfSelectedCountry.map((state) => state.name)}
+                    disabled={!selectedCountryCode || isSubmiting}
                   >
                     <ComboboxInput
-                      placeholder="Select state"
+                      disabled={!selectedCountryCode || isSubmiting}
+                      placeholder={
+                        selectedCountryCode
+                          ? "Select state"
+                          : "Select a country first"
+                      }
                       className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
                     >
                       <InputGroupAddon>
@@ -209,7 +235,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
           </div>
           <Controller
             control={form.control}
-            name="address"
+            name="location.formattedAddress"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel
@@ -228,6 +254,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                     aria-invalid={fieldState.invalid}
                     type="text"
                     placeholder="Enter your location"
+                    disabled={isSubmiting}
                   />
                 </InputGroup>
                 {/* <FieldLabel className="flex gap-2 text-brand-400 items-center">
@@ -263,6 +290,7 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
                     aria-invalid={fieldState.invalid}
                     type="text"
                     placeholder="Enter your referral code"
+                    disabled={isSubmiting}
                   />
                 </InputGroup>
                 {fieldState.invalid && (
@@ -273,12 +301,11 @@ const PersonalInfo = ({ accountType }: { accountType: AccountType }) => {
           />
         </div>
         <Button
-          // disabled={isPending}
-          //   type="submit"
+          disabled={isSubmiting}
+          type="submit"
           className="text-white h-14 w-full"
-          onClick={handleSetProfile}
         >
-          {/* {isPending && <Loader2 className="animate-spin" />} */}
+          {isSubmiting && <Loader2 className="animate-spin" />}
           Set profile
         </Button>
       </div>
