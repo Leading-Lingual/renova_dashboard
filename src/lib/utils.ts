@@ -64,3 +64,32 @@ export const getInitials = (value: string): string => {
 
   return `${firstInitial}${secondInitial}`.toUpperCase();
 };
+
+export const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  const units = ["KB", "MB", "GB", "TB"];
+  let size = bytes;
+  let unitIndex = -1;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${size.toFixed(2)} ${units[unitIndex]}`;
+};
+
+export const formatText = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/^./, (char) => char.toUpperCase());
+
+export const formatNumber = (num: number) => {
+  const toString = String(num);
+  const formattedNumber = toString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return formattedNumber;
+};

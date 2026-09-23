@@ -40,7 +40,7 @@ const OnboardingPage = () => {
         longitude: undefined,
         source: "MANUAL",
       },
-      referralCode: "",
+      referralCode: undefined,
     },
     mode: "onSubmit",
   });
@@ -60,14 +60,13 @@ const OnboardingPage = () => {
   };
 
   const handleSubmit = (data: OnboardingFormValues) => {
-    console.log("Complete onboarding payload:", data);
     completeOnboarding(data, {
       onSuccess: () => {
         toast.success("onboarding completed");
         router.push("/home");
       },
       onError: (error) => {
-        toast.error(error.message ? error.message : "onboarding completed");
+        toast.error(error.message ? error.message : "failed to onboarding completed");
       },
     });
   };

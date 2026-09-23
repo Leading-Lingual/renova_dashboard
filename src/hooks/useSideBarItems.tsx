@@ -53,7 +53,7 @@ const useSidebarItems = () => {
       {
         Icon: ListingLabDarkIcon,
         text: "My Listings",
-        route: "#",
+        route: "/listing",
       },
       {
         Icon: MarketplaceIcon,

@@ -71,12 +71,11 @@ export async function POST(request: Request) {
     const csrfToken = getCookieValue(csrfCookie);
 
     const nextResponse = NextResponse.json({
+      ...data,
       message:
         action === "login"
           ? "Google login successful"
           : "Google signup successful",
-      accessToken: data.accessToken,
-      expiresIn: data.expiresIn,
     });
 
     nextResponse.cookies.set({

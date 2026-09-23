@@ -9,4 +9,9 @@ export const completeOnboardingMutation = mutationOptions({
       method: "PATCH",
       body: JSON.stringify(payload),
     }),
+  onSuccess: (_data, _variables, _onMutateResult, context) => {
+    context.client.invalidateQueries({
+      queryKey: ["user"],
+    });
+  },
 });

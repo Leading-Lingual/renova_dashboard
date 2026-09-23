@@ -1,6 +1,6 @@
 import { onboardingSchema } from "@/validations/onboarding.validation";
 import * as z from "zod"
-export type AccountType = "INDIVIDUAL" | "AGENT" | "NGO";
+export type AccountType = "INDIVIDUAL" | "BUSINESS" | "NGO";
 
 export type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
@@ -12,12 +12,14 @@ export interface UserAuth {
   isProfileComplete: boolean;
 }
 
+export type Status =  "INCOMPLETE" | "COMPLETE"
+
 export interface UserProfile {
   id: string;
   userId: string;
   email: string;
   accountType: AccountType;
-  activities?: [];
+  activities?: string[];
   fullName?: string;
   phoneNumber?: string;
   location: {
@@ -32,7 +34,7 @@ export interface UserProfile {
   };
   referralCode?: string;
   avatarUrl?: string;
-  status: "INCOMPLETE" | "COMPLETE";
+  status:Status;
   isProfileComplete: boolean;
   createdAt: string;
   updatedAt: string;

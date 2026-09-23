@@ -13,28 +13,30 @@ import { Plus } from "lucide-react";
 import ScanFilledIcon from "@iconify-react/boxicons/scan-filled";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "@/actions/user/user.query";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const hasData = false;
-    const { data } = useQuery(getUserProfile);
+  const hasData =   true
+  const { data } = useQuery(getUserProfile);
+  const router = useRouter();
 
   return (
     <div className="flex py-6 flex-col gap-8 h-full px-8 overflow-auto w-full">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 md:gap-0">
         <div className="flex flex-col gap-1">
           <div className="flex flex-col gap-0.5">
-            <p className="text-m-bold capitalize">{data?.accountType}</p>
+            <p className="text-m-bold capitalize ">{data?.accountType.toLocaleLowerCase()}</p>
             <p className="text-s font-normal">
               Manage your listings, sales, purchases and collections.{" "}
             </p>
           </div>
-          <div className="flex gap-3">
+          {data?.accountType !== "NGO" &&<div className="flex gap-3">
             {data?.activities?.map((item) => (
-              <Pill key={item} small>
-                {item}
+              <Pill key={item} small className="capitalize">
+                {item.toLocaleLowerCase()}
               </Pill>
             ))}
-          </div>
+          </div>}
         </div>
         <div className=" bg-brand-500 text-white md:text-inherit md:bg-transparent  md:shadow-[0px_1px_4px_0px_#0000000D,0px_1px_4px_0px_#0000001A] rounded-2xl p-4 flex gap-7 items-center justify-between md:items-start md:justify-start">
           <div className="flex gap-4">
@@ -81,7 +83,11 @@ export default function Home() {
                 made or pickup to make."
             image={EmptyStateImage}
             firstButton={{ text: "Scan Material", icon: ScanFilledIcon }}
-            secondButton={{ text: "Create New Listing", icon: Plus }}
+            secondButton={{
+              text: "Create New Listing",
+              icon: Plus,
+              onClick: () => router.push("/listing/newListing"),
+            }}
           />
         </div>
       )}

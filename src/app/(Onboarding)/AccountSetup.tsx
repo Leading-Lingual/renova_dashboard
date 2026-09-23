@@ -20,7 +20,7 @@ const ACCOUNT_TYPES = [
     text: "Individual (Buy, sell, or collect recyclable materials as an individual).",
   },
   {
-    value: "AGENT" as const,
+    value: "BUSINESS" as const,
     icon: BusinessPickUserIcon,
     text: "Business (Buy, sell, recycle or collect recyclable materials as a business).",
   },
@@ -48,7 +48,7 @@ const ACCOUNT_OPTIONS: Record<AccountType, { value: string; text: string }[]> =
       },
     ],
 
-    AGENT: [
+    BUSINESS: [
       {
         value: "SELL",
         text: "Sell (List recyclable materials and earn from them).",
@@ -62,26 +62,26 @@ const ACCOUNT_OPTIONS: Record<AccountType, { value: string; text: string }[]> =
         text: "Collect (Collect materials from sellers and deliver them).",
       },
       {
-        value: "RECYCLE",
+        value: "PROCESS_RECYCLE",
         text: "Process/Recycle Materials.",
       },
     ],
 
     NGO: [
       {
-        value: "CAMPAIGNS",
+        value: "RUN_ENVIRONMENTAL_CAMPAIGNS",
         text: "Run Environmental Campaigns.",
       },
       {
-        value: "COLLECTION_DRIVES",
+        value: "ORGANIZE_COLLECTION_DRIVES",
         text: "Organize Collection Drives.",
       },
       {
-        value: "COMMUNITY",
+        value: "MANAGE_COMMUNITY_OUTREACH",
         text: "Manage Community Programs and Outreach.",
       },
       {
-        value: "PARTNER",
+        value: "PARTNER_WITH_RECYCLERS",
         text: "Partner with Recyclers.",
       },
     ],

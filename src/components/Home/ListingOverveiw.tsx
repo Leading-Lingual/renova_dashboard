@@ -1,35 +1,37 @@
+"use client";
 import { Plus } from "lucide-react";
 import Heading from "../Heading";
 import { Button } from "../ui/button";
 import ScanFilledIcon from "@iconify-react/boxicons/scan-filled";
-import ListingOverviewTable from "./ListingOverviewTable";
+import { useRouter } from "next/navigation";
+import { GetListingQuery } from "@/actions/listing/listing.query";
+import { useQuery } from "@tanstack/react-query";
+import ListingTable from "../Listing/ListingsTable";
+import EmptyState from "../EmptyState";
+import EmptyStateImg from "../../../public/rafiki.svg";
+import ListingHeading from "../Listing/ListingHeading";
 
 const ListingOverveiw = () => {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col gap-7">
-      <Heading
-        title="My Listings"
-        subtitle=" View and manage all the waste material you’ve listed"
-        actions={
-          <div className="flex itmes-center gap-4 md:gap-10 w-full md:w-fit -order-1 md:order-0">
-            <Button
-              variant="outline"
-              className="border-brand-500! h-12 md:h-14 px-4! flex-1"
-            >
-              <ScanFilledIcon className="size-6 text-brand-700" />
-              <p className="text-brand-700 text-heading-xs-semibold">
-                Scan <span className="hidden md:inline">material</span>
-              </p>
-            </Button>
-            <Button className="h-12 md:h-14 px-4! flex-1">
-              <Plus className="size-6" />
-              <p className="text-heading-xs-semibold">Create new listing</p>
-            </Button>
-          </div>
-        }
-      />
-
-      <ListingOverviewTable/>
+      <ListingHeading />
+      {/* {data?.items.length !== 0 ? (
+        <ListingTable listings={data?.items ?? []} />
+      ) : ( */}
+        <EmptyState
+          title="No Listing"
+          subtile="You currently do not have any listed waste material"
+          image={EmptyStateImg}
+          firstButton={{ text: "Scan Material", icon: ScanFilledIcon }}
+          secondButton={{
+            text: "Create New Listing",
+            icon: Plus,
+            onClick: () => router.push("/listing/newListing"),
+          }}
+        />
+      {/* )} */}
     </div>
   );
 };
