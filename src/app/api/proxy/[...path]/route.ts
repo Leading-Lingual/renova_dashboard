@@ -17,7 +17,9 @@ async function handler(
 
   const accessToken = cookieStore.get("access_token")?.value;
 
-  const targetUrl = `${API_URL}/${path.join("/")}`;
+  const incomingUrl =new URL(request.url)
+
+  const targetUrl = `${API_URL}/${path.join("/")}${incomingUrl.search}`;
 
   const headers = new Headers(request.headers);
 

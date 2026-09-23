@@ -8,6 +8,6 @@ export const getUser = queryOptions({
 });
 
 export const getUserProfile = queryOptions({
-  queryKey: ["user", "profile"],
+  queryKey: ["user"],
   queryFn: () => apiClient<UserProfile>("/v1/users/me"),
 });

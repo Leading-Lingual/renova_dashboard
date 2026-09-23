@@ -63,13 +63,12 @@ export async function POST(request: Request) {
     const csrfToken = getCookieValue(csrfCookie);
 
     const nextResponse = NextResponse.json({
+      ...data,
       message: data.message
         ? data.message
         : action === "login"
           ? "Login successful"
           : "Signup successful, logging in",
-      accessToken: data.accessToken,
-      expiresIn: data.expiresIn,
     });
 
     // Access token — 15 minutes
@@ -84,7 +83,7 @@ export async function POST(request: Request) {
         maxAge: data.expiresIn,
       });
     }
-    
+
     // Refresh token — 7 days
     if (refreshToken) {
       nextResponse.cookies.set({

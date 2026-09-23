@@ -1,0 +1,59 @@
+import { apiClient } from "@/lib/api-client";
+import { GetListingResponse, ListingSort, ListingStatus, MaterialType } from "@/types/listing.types";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+
+interface GetListingParams {
+  status?: ListingStatus;
+  materialType?: MaterialType;
+  q?: string;
+  sort?: ListingSort;
+  limit?: number;
+  cursor?: string;
+}
+
+export const GetListingQuery = (
+  params: GetListingParams = {}
+) =>
+  queryOptions({
+    queryKey: ["listings", params],
+    placeholderData: keepPreviousData,
+    queryFn: () => {
+      const searchParams = new URLSearchParams();
+
+      if (params.status) {
+        searchParams.set("status", params.status);
+      }
+
+      if (params.materialType) {
+        searchParams.set(
+          "materialType",
+          params.materialType
+        );
+      }
+
+      if (params.q) {
+        searchParams.set("q", params.q);
+      }
+
+      if (params.sort) {
+        searchParams.set("sort", params.sort);
+      }
+
+      if (params.limit) {
+        searchParams.set(
+          "limit",
+          String(params.limit)
+        );
+      }
+
+      if (params.cursor) {
+        searchParams.set("cursor", params.cursor);
+      }
+
+      const queryString = searchParams.toString();
+
+      return apiClient<GetListingResponse>(
+        `/v1/material-listings?${queryString}`
+      );
+    },
+  });

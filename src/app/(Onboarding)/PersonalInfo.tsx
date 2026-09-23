@@ -54,7 +54,7 @@ const PersonalInfo = ({ form, onSubmit, isSubmiting }: PersonalInfoProps) => {
   const nameLabel =
     accountType === "INDIVIDUAL"
       ? "Full Name"
-      : accountType === "AGENT"
+      : accountType === "BUSINESS"
         ? "Business Name"
         : "Organization Name";
 
@@ -147,6 +147,7 @@ const PersonalInfo = ({ form, onSubmit, isSubmiting }: PersonalInfoProps) => {
                     disabled={isSubmiting}
                   >
                     <ComboboxInput
+                      aria-invalid={fieldState.invalid}
                       disabled={isSubmiting}
                       placeholder="Select a country"
                       className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
@@ -199,6 +200,7 @@ const PersonalInfo = ({ form, onSubmit, isSubmiting }: PersonalInfoProps) => {
                     disabled={!selectedCountryCode || isSubmiting}
                   >
                     <ComboboxInput
+                      aria-invalid={fieldState.invalid}
                       disabled={!selectedCountryCode || isSubmiting}
                       placeholder={
                         selectedCountryCode

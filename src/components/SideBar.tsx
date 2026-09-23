@@ -63,7 +63,7 @@ const SideBar = () => {
               ))}
             </div>
           </div>
-          <div className="">
+          <div className="flex flex-col gap-2">
             <p className="text-s">FEATURES</p>
             <div className="flex flex-col">
               {featureItems.map((item) => (
@@ -85,7 +85,7 @@ const SideBar = () => {
               ))}
             </div>
           </div>
-          <div className="">
+          <div className="flex flex-col gap-2">
             <p className="text-s">GENERAL</p>
             <div className="flex flex-col">
               {generalItems.map((item) => (

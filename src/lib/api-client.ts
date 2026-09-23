@@ -33,11 +33,13 @@ export async function apiClient<T>(
 ): Promise<T> {
   const url = endpoint.startsWith("/api") ? endpoint : `/api/proxy${endpoint}`;
 
+  const isFormData = options?.body instanceof FormData;
+
   const response = await fetch(url, {
     ...options,
     credentials: options?.credentials ?? "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       "X-Requested-With": "XmlHttpRequest",
       ...options?.headers,
     },
