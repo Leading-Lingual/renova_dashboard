@@ -29,8 +29,11 @@ export const CreateListingMutation = mutationOptions({
   },
   onSuccess: (_data, _variables, _onMutateResult, context) => {
     context.client.invalidateQueries({
-      queryKey: ["listings"],
-    });
+      predicate: (query) => {
+        const key = query.queryKey;
+
+        return key.includes("listings") || key.includes("dashboard");
+      },    });
   },
 });
 
@@ -48,8 +51,11 @@ export const DeleteListingMutation = mutationOptions({
     }),
   onSuccess: (_data, _variables, _onMutateResult, context) => {
     context.client.invalidateQueries({
-      queryKey: ["listings"],
-    });
+      predicate: (query) => {
+        const key = query.queryKey;
+
+        return key.includes("listings") || key.includes("dashboard");
+      },    });
   },
 });
 
@@ -61,8 +67,11 @@ export const ArchiveListingMutation = mutationOptions({
     }),
   onSuccess: (_data, _variables, _onMutateResult, context) => {
     context.client.invalidateQueries({
-      queryKey: ["listings"],
-    });
+      predicate: (query) => {
+        const key = query.queryKey;
+
+        return key.includes("listings") || key.includes("dashboard");
+      },    });
   },
 });
 
@@ -74,8 +83,11 @@ export const RestoreListingMutation = mutationOptions({
     }),
   onSuccess: (_data, _variables, _onMutateResult, context) => {
     context.client.invalidateQueries({
-      queryKey: ["listings"],
-    });
+      predicate: (query) => {
+        const key = query.queryKey;
+
+        return key.includes("listings") || key.includes("dashboard");
+      },    });
   },
 });
 
@@ -87,11 +99,13 @@ export const PublishListingMutation = mutationOptions({
     }),
   onSuccess: (_data, _variables, _onMutateResult, context) => {
     context.client.invalidateQueries({
-      queryKey: ["listings"],
-    });
+      predicate: (query) => {
+        const key = query.queryKey;
+
+        return key.includes("listings") || key.includes("dashboard");
+      },    });
   },
 });
-
 
 export const UnPublishListingMutation = mutationOptions({
   mutationKey: ["unPublishListing"],
@@ -101,7 +115,11 @@ export const UnPublishListingMutation = mutationOptions({
     }),
   onSuccess: (_data, _variables, _onMutateResult, context) => {
     context.client.invalidateQueries({
-      queryKey: ["listings"],
+      predicate: (query) => {
+        const key = query.queryKey;
+
+        return key.includes("listings") || key.includes("dashboard");
+      },
     });
   },
 });

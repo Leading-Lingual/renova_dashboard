@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 import { GetListingResponse, ListingSort, ListingStatus, MaterialType } from "@/types/listing.types";
-import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 
 interface GetListingParams {
   status?: ListingStatus;
@@ -16,7 +16,6 @@ export const GetListingQuery = (
 ) =>
   queryOptions({
     queryKey: ["listings", params],
-    placeholderData: keepPreviousData,
     queryFn: () => {
       const searchParams = new URLSearchParams();
 

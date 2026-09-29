@@ -14,7 +14,7 @@ const OverviewCard = ({
     Omit<SVGProps<SVGSVGElement>, "viewBox" | "width" | "height" | "xmlns"> &
       IconProps
   >;
-  value: string;
+  value: string|number;
   increase: number;
 }) => {
   return (

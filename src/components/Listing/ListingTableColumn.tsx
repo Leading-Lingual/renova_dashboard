@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import LocationIcon from "@iconify-react/mi/location";
 
 import { Listing } from "@/types/listing.types";
-import { formatText } from "@/lib/utils";
+import { formatDecimal, formatNumber, formatText } from "@/lib/utils";
 
 import Pill from "../Pill";
 import {
@@ -37,10 +37,10 @@ export const getListingColumns = ({
   onArchive,
   onRestore,
   onPublish,
-  onUnPublish
+  onUnPublish,
 }: ListingColumnActions) =>
   columnHelper.columns([
-    columnHelper.accessor("id", {
+    columnHelper.accessor("materialName", {
       header: "Listing",
 
       cell: ({ row }) => {
@@ -65,8 +65,8 @@ export const getListingColumns = ({
               </p>
 
               <p className="text-s">
-                {item.quantityKg}
-                {item.unit}
+                {formatDecimal(item.quantityKg)}
+                {item.unit ?? "KG"}
               </p>
 
               <div className="flex items-center gap-1 text-s">
@@ -95,11 +95,18 @@ export const getListingColumns = ({
         return (
           <div className="flex flex-col gap-1">
             <p className="text-m-bold">
-              {item.currency} {item.estimatedTotal}
+              {/* {item.currency}  */}
+              &#x20A6;
+              {formatNumber(formatDecimal(item.estimatedTotal))}
             </p>
 
             <p className="text-s">
-              {item.currency} {item.pricePerKg} Per {item.unit}
+              {/* {item.currency} */}
+              &#x20A6;
+              {item.pricePerKg
+                ? formatNumber(formatDecimal(item.pricePerKg))
+                : ""}{" "}
+              Per {item.unit}
             </p>
           </div>
         );
@@ -136,8 +143,8 @@ export const getListingColumns = ({
       ),
     }),
 
-    columnHelper.display({
-      id: "actions",
+    columnHelper.accessor("id", {
+      header: "Actions",
 
       cell: ({ row }) => {
         const listing = row.original;

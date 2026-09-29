@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { keepPreviousData, QueryClient } from "@tanstack/react-query";
 
 export const createQueryClient = () =>
   new QueryClient({
@@ -7,6 +7,7 @@ export const createQueryClient = () =>
         staleTime: 5 * 60 * 1000,
         retry: 1,
         refetchOnWindowFocus: false,
+        placeholderData: keepPreviousData,
       },
       mutations: {
         retry: 0,

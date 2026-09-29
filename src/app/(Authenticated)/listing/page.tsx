@@ -12,10 +12,7 @@ import {
 } from "lucide-react";
 import ScanFilledIcon from "@iconify-react/boxicons/scan-filled";
 import { useRouter } from "next/navigation";
-import {
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetListingQuery } from "@/actions/listing/listing.query";
 import ListingTable from "@/components/Listing/ListingsTable";
 import ListingHeading from "@/components/Listing/ListingHeading";
@@ -84,8 +81,6 @@ const ListingPage = () => {
   })();
 
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
-
-  const isInitialLoading = isPending && !data;
 
   const resetPagination = () => {
     setPage(1);
@@ -214,9 +209,12 @@ const ListingPage = () => {
 
   return (
     <div className="flex h-full w-full flex-col gap-8 overflow-auto px-8 py-6">
-      <ListingHeading isOverview={false} showActions={data?.counts.all !== 0} />
+      <ListingHeading
+        isOverview={false}
+        showActions={data && data?.counts.all !== 0}
+      />
 
-      {isInitialLoading ? (
+      {isPending ? (
         <div className="flex h-full w-full items-center justify-center">
           <Loader2 className="animate-spin" />
         </div>

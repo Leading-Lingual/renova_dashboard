@@ -1,5 +1,6 @@
 import { onboardingSchema } from "@/validations/onboarding.validation";
-import * as z from "zod"
+import * as z from "zod";
+import { Listing, MaterialType } from "./listing.types";
 export type AccountType = "INDIVIDUAL" | "BUSINESS" | "NGO";
 
 export type OnboardingFormValues = z.infer<typeof onboardingSchema>;
@@ -12,7 +13,7 @@ export interface UserAuth {
   isProfileComplete: boolean;
 }
 
-export type Status =  "INCOMPLETE" | "COMPLETE"
+export type Status = "INCOMPLETE" | "COMPLETE";
 
 export interface UserProfile {
   id: string;
@@ -34,8 +35,59 @@ export interface UserProfile {
   };
   referralCode?: string;
   avatarUrl?: string;
-  status:Status;
+  status: Status;
   isProfileComplete: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Activity {
+    id: string;
+    type: "SCAN_CONFIRMED";
+    entityId: string;
+    title: string;
+    materialType: MaterialType;
+    quantityKg: string;
+    amountNgn: string;
+    pointsAwarded: number;
+    imageUrl: string;
+    createdAt: string;
+  }
+
+export interface Dashboard {
+  context: {
+    accountType: AccountType;
+    activities: string[];
+    capabilities: {
+      canListMaterials: boolean;
+      canBrowseMarketplace: boolean;
+      canBuy: boolean;
+      canCollect: boolean;
+      canProcessRecycle: boolean;
+      canRunEnvironmentalCampaigns: boolean;
+      canOrganizeCollectionDrives: boolean;
+      canManageCommunityOutreach: boolean;
+      canPartnerWithRecyclers: boolean;
+    };
+  };
+  rewards: {
+    balance: number;
+    unit: "POINTS";
+  };
+  overview: {
+    confirmedScans: number;
+    listings: {
+      all: number;
+      draft: number;
+      available: number;
+      archived: number;
+    };
+    totalRecordedQuantityKg: string;
+    totalEstimatedListingValue: string;
+    quantityUnit: string;
+    totalActivities: number
+    valueCurrency: string;
+  };
+  recentListings: Listing[];
+  recentActivity: Activity[];
 }
