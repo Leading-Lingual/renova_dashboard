@@ -8,11 +8,12 @@ import { toast } from "sonner";
 import AccountCogOutlineIcon from "@iconify-react/mdi/account-cog-outline";
 import CustomerSupport1RemixIcon from "@iconify-react/streamline/customer-support-1-remix";
 import { ArrowLeft } from "lucide-react";
-import MarketplaceIcon from '@iconify-react/roentgen/marketplace';
-import ListingLabDarkIcon from '@iconify-react/selfhst/listing-lab-dark';
-import Pickup02Icon from '@iconify-react/hugeicons/pickup-02';
-import CreditcardIcon from '@iconify-react/quill/creditcard';
-import DecentWorkAndEconomicGrowthRemixIcon from '@iconify-react/streamline-sharp/decent-work-and-economic-growth-remix';
+import MarketplaceIcon from "@iconify-react/roentgen/marketplace";
+import ListingLabDarkIcon from "@iconify-react/selfhst/listing-lab-dark";
+import Pickup02Icon from "@iconify-react/hugeicons/pickup-02";
+import CreditcardIcon from "@iconify-react/quill/creditcard";
+import DecentWorkAndEconomicGrowthRemixIcon from "@iconify-react/streamline-sharp/decent-work-and-economic-growth-remix";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface SidebarItem {
   Icon: ForwardRefExoticComponent<
@@ -25,12 +26,15 @@ export interface SidebarItem {
 }
 
 const useSidebarItems = () => {
+  const queryClient = useQueryClient();
   const { mutate: logout } = useMutation(logoutMutation);
   const route = useRouter();
 
   function onSubmit() {
     logout(undefined, {
       onSuccess: (data) => {
+        queryClient.clear();
+
         toast.success(data.message ?? "Logout successful");
         route.push("/login");
       },
@@ -75,7 +79,7 @@ const useSidebarItems = () => {
         text: "Wallet & Transactions",
         route: "#",
       },
-            {
+      {
         Icon: DecentWorkAndEconomicGrowthRemixIcon,
         text: "Impact",
         route: "#",

@@ -4,19 +4,28 @@ import Pickup02Icon from "@iconify-react/hugeicons/pickup-02";
 import PersonDroppingTrashIntoWheelieBinIcon from "@iconify-react/pinhead/person-dropping-trash-into-wheelie-bin";
 import OverviewCard from "./OverviewCard";
 import Heading from "../Heading";
+import { formatDecimal, formatNumber } from "@/lib/utils";
 
-const Overview = () => {
+const Overview = ({
+  totalWasteRecovered,
+  totalValue,
+  ecosystemActivity,
+}: {
+  totalWasteRecovered?: string;
+  totalValue?: string;
+  ecosystemActivity?: number;
+}) => {
   const overviewItems = [
     {
       icon: PersonDroppingTrashIntoWheelieBinIcon,
       title: "Total Waste Recovered",
-      value: "0KG",
+      value: `${totalWasteRecovered ? formatDecimal(totalWasteRecovered) : 0}KG`,
       increase: 0,
     },
     {
       icon: MoneyIcon,
       title: "Total Value",
-      value: "0.00",
+      value: `₦ ${totalValue ? formatNumber(formatDecimal(totalValue)) : 0}`,
       increase: 0,
     },
     {
@@ -28,7 +37,7 @@ const Overview = () => {
     {
       icon: Pickup02Icon,
       title: "Ecosystem Activity",
-      value: "0 Activities",
+      value: `${ecosystemActivity ?? 0} Activities`,
       increase: 0,
     },
   ];

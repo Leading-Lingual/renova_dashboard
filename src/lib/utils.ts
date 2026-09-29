@@ -88,8 +88,16 @@ export const formatText = (value: string) =>
     .replace(/_/g, " ")
     .replace(/^./, (char) => char.toUpperCase());
 
-export const formatNumber = (num: number) => {
+export const formatNumber = (num: number|string) => {
   const toString = String(num);
   const formattedNumber = toString.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return formattedNumber;
+};
+
+export const formatDecimal = (value: number | string) => {
+  const number = Number(value);
+
+  if (Number.isNaN(number)) return value;
+
+  return number % 1 === 0 ? number : number.toFixed(1);
 };

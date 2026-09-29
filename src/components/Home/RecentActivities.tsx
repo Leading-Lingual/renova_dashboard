@@ -1,7 +1,12 @@
+import { Activity } from "@/types/user.type";
 import Heading from "../Heading";
 import RecentActivitiesCard from "./RecentActivitiesCard";
+import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(relativeTime);
 
-const RecentActivities = () => {
+
+const RecentActivities = ({activities}:{ activities :Activity[]}) => {
   return (
     <div className="md:border rounded-lg md:p-4 flex flex-col gap-2 md:gap-5.25">
       <Heading
@@ -15,13 +20,13 @@ const RecentActivities = () => {
         }
       />
       <div className="grid md:grid-cols-2 gap-4 md:gap-x-7 lg:gap-x-14">
-        {["a", "b", "c", "d", "e", "f"].map((item) => (
+        {activities.map((item) => (
           <RecentActivitiesCard
-            key={item}
-            name="Listed 5KG of Glass Bottle"
-            time="2 hours Ago"
-            amount="24 KG"
-            isBuying
+            key={item.id}
+            name={item.title}
+            time={dayjs(item.createdAt).fromNow() }
+            amount={item.amountNgn}
+            image={item.imageUrl}
           />
         ))}
       </div>

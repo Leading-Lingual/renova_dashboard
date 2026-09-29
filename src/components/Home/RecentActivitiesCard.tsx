@@ -1,3 +1,4 @@
+import { formatDecimal, formatNumber } from "@/lib/utils";
 import Image, { StaticImageData } from "next/image";
 
 const RecentActivitiesCard = ({
@@ -8,7 +9,7 @@ const RecentActivitiesCard = ({
   amount,
 }: {
   amount: string;
-  image?: StaticImageData;
+  image?: StaticImageData|string;
   name: string;
   time: string;
   isBuying?: boolean;
@@ -21,6 +22,8 @@ const RecentActivitiesCard = ({
             src={image}
             alt="activity image"
             className="size-10 rounded-lg"
+            width={40}
+            height={40}
           />
         ) : (
           <div className="size-10 rounded-lg bg-brand-300" />
@@ -33,7 +36,7 @@ const RecentActivitiesCard = ({
       <p
         className={`text-s font-bold ${isBuying ? "text-danger-600" : "text-brand-600"}`}
       >
-        {amount}
+       &#x20A6; {formatNumber(formatDecimal(amount))}
       </p>
     </div>
   );
