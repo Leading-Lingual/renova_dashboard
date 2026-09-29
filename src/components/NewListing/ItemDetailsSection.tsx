@@ -146,17 +146,29 @@ const ItemDetailsSection = ({
                 <Input
                   {...field}
                   id={field.name}
-                  disabled={isSubmitting}
                   aria-invalid={fieldState.invalid}
-                  type="number"
-                  placeholder="Enter amount"
-                  value={field.value ?? ""}
+                  disabled={isSubmitting}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Enter quantity"
+                  value={
+                    field.value === undefined || field.value === null
+                      ? ""
+                      : field.value.toLocaleString("en-NG")
+                  }
                   onChange={(event) => {
-                    const value = event.target.value;
+                    const value = event.target.value.replace(/,/g, "");
 
-                    field.onChange(value === "" ? undefined : Number(value));
+                    if (value === "") {
+                      field.onChange(undefined);
+                      return;
+                    }
+
+                    if (!/^\d*\.?\d*$/.test(value)) return;
+
+                    field.onChange(Number(value));
                   }}
-                  className="h-14! w-full border-black-200! border-[0.5px] px-3 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="h-14! w-full shrink-0 rounded-[12px] border-black-200! px-3 border-[0.5px]"
                 />
 
                 {fieldState.invalid && (

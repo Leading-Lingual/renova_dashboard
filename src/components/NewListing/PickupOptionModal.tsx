@@ -7,18 +7,24 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { MapPinIcon } from "lucide-react";
+import { Loader2, MapPinIcon } from "lucide-react";
 
 interface PickupOptionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (option: "ACCOUNT_ADDRESS" | "NEW_ADDRESS") => void;
+  handleSaveDraft: () => void;
+  isPending:boolean
+  isSubmittingDraft:boolean
 }
 
 const PickupOptionModal = ({
   open,
   onOpenChange,
   onSubmit,
+  handleSaveDraft,
+  isPending,
+  isSubmittingDraft,
 }: PickupOptionModalProps) => {
   const [selectedOption, setSelectedOption] = useState<
     "ACCOUNT_ADDRESS" | "NEW_ADDRESS"
@@ -63,7 +69,7 @@ const PickupOptionModal = ({
             {items.map((item) => (
               <div
                 key={item.text}
-                onClick={() => setSelectedOption(item.key)}
+                onClick={() => isPending ? null :setSelectedOption(item.key)}
                 className={`flex flex-col gap-2.5 border px-4 py-2.5 rounded-2xl flex-1 ${selectedOption === item.key ? "border-brand-400" : "border-black-50"}`}
               >
                 {item.icon}
@@ -77,14 +83,27 @@ const PickupOptionModal = ({
           <div className="flex gap-4 w-full">
             {selectedOption === "ACCOUNT_ADDRESS" && (
               <Button
-                onClick={() => onOpenChange(false)}
+                onClick={handleSaveDraft}
                 className="h-14 flex-1"
                 variant="outline"
+                disabled={isPending}
               >
+                {isPending && isSubmittingDraft && (
+                  <Loader2 className="animate-spin" />
+                )}
                 Save as Draft
               </Button>
             )}
-            <Button onClick={handleSubmit} className="h-14 flex-1">
+            <Button
+              type={selectedOption === "ACCOUNT_ADDRESS" ? "submit" : "button"}
+              onClick={handleSubmit}
+              className="h-14 flex-1"
+              disabled={isPending}
+            >
+              {isPending && !isSubmittingDraft && (
+                <Loader2 className="animate-spin" />
+              )}
+
               {selectedOption === "ACCOUNT_ADDRESS"
                 ? "List Waste Material"
                 : "Continue"}

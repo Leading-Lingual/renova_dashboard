@@ -9,10 +9,11 @@ export const locationSchema = object({
   placeId: string().optional(),
   latitude: number().optional(),
   longitude: number().optional(),
-  source: string(),
+  source: string().optional(),
 });
 
 export const listingSchema = object({
+  status: string(),
   materialType: string().min(1, "Please select a material type"),
   quantityKg: number("Please enter quantity")
     .nonnegative("Quantity must be a positive number")

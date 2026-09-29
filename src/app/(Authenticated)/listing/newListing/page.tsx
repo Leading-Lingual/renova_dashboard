@@ -1,9 +1,8 @@
 "use client";
-
 import Heading from "@/components/Heading";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import PickupSection from "@/components/NewListing/PickupSection";
 import PricingSection from "@/components/NewListing/PricingSection";
 import ItemDetailsSection from "@/components/NewListing/ItemDetailsSection";
@@ -12,19 +11,22 @@ import { listingFormValues } from "@/types/listing.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { listingSchema } from "@/validations/listing.validation";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CreateListingMutation } from "@/actions/listing/listing.mutation";
 import { toast } from "sonner";
 import { NewListingStages } from "./newListingEnum";
 import { ReactElement, useState } from "react";
 import PickUpInfoSection from "@/components/NewListing/PickUpInfoSection";
 import PickupOptionModal from "@/components/NewListing/PickupOptionModal";
+import { getUserProfile } from "@/actions/user/user.query";
 
 const { INITIAL, PICKUP_INFO } = NewListingStages;
 
 const NewListing = () => {
   const [stage, setStage] = useState<NewListingStages>(INITIAL);
   const [isPickupModalOpen, setIsPickupModalOpen] = useState(false);
+  const [isSubmittingDraft, setIsSubmittingDraft] = useState(false);
+  const { data } = useQuery(getUserProfile);
 
   const router = useRouter();
 
@@ -45,6 +47,7 @@ const NewListing = () => {
       unit: "KG",
       phoneNumber: "",
       location: undefined,
+      status: "AVAILABLE",
     },
   });
 
@@ -141,18 +144,35 @@ const NewListing = () => {
       return;
     }
 
+    form.setValue("status", "AVAILABLE");
+    setIsSubmittingDraft(false);
     form.handleSubmit(onSubmit)(event);
   };
 
   const handlePickupOption = (option: "ACCOUNT_ADDRESS" | "NEW_ADDRESS") => {
-    setIsPickupModalOpen(false);
-
     if (option === "ACCOUNT_ADDRESS") {
+      form.setValues({
+        location: {
+          country: data?.location.country ?? "",
+          state: data?.location.state ?? "",
+          formattedAddress: data?.location.formattedAddress ?? "",
+        },
+        phoneNumber: data?.phoneNumber,
+      });
+      form.setValue("status", "AVAILABLE");
+      setIsSubmittingDraft(false);
       form.handleSubmit(onSubmit)();
       return;
     }
 
     setStage(PICKUP_INFO);
+    setIsPickupModalOpen(false);
+  };
+
+  const handleSaveDraft = () => {
+    form.setValue("status", "DRAFT");
+    setIsSubmittingDraft(true);
+    form.handleSubmit(onSubmit)();
   };
 
   return (
@@ -182,15 +202,21 @@ const NewListing = () => {
         <div className="flex w-full gap-4">
           <Button
             type="button"
-            onClick={handleBack}
+            onClick={handleSaveDraft}
             variant="outline"
             className="h-14! flex-1"
             disabled={isPending}
           >
-            {stage === INITIAL ? "Cancel" : "Save as draft"}
+            {isPending && isSubmittingDraft && (
+              <Loader2 className="animate-spin" />
+            )}
+            Save as draft
           </Button>
 
           <Button disabled={isPending} type="submit" className="h-14! flex-1">
+            {isPending && !isSubmittingDraft && (
+              <Loader2 className="animate-spin" />
+            )}
             {isDropoff
               ? "List Waste Material"
               : stage === INITIAL
@@ -203,6 +229,12 @@ const NewListing = () => {
         open={isPickupModalOpen}
         onOpenChange={setIsPickupModalOpen}
         onSubmit={handlePickupOption}
+        handleSaveDraft={() => {
+          handleSaveDraft();
+          setIsPickupModalOpen(false);
+        }}
+        isPending={isPending}
+        isSubmittingDraft={isSubmittingDraft}
       />
     </div>
   );
