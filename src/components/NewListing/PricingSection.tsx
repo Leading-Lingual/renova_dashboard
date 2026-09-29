@@ -133,7 +133,7 @@ const PricingSection = ({
 
                   field.onChange(Number(value));
                 }}
-                className="h-11.25! w-full shrink-0 rounded-[12px] border-black-200! px-3 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="h-11.25! w-full shrink-0 rounded-[12px] border-black-200! px-3"
               />
 
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

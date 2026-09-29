@@ -18,6 +18,18 @@ export const CreateListingMutation = mutationOptions({
       formData.append("scanId", payload.scanId);
     }
 
+    if(payload.status){
+      formData.append("status",payload.status)
+    }
+
+    if(payload.location){
+      formData.append("location", JSON.stringify(payload.location))
+    }
+
+    if(payload.phoneNumber){
+      formData.append("phoneNumber", payload.phoneNumber)
+    }
+
     payload.images.forEach((image) => {
       formData.append("images", image);
     });
