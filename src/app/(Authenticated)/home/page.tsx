@@ -21,8 +21,9 @@ export default function Home() {
   const router = useRouter();
 
   const hasData =
-    dashboardData?.recentActivity.length !== 0 ||
-    dashboardData.recentListings.length !== 0;
+    dashboardData &&
+    (dashboardData?.recentActivity.length !== 0 ||
+      dashboardData.recentListings.length !== 0);
 
   const accountType = dashboardData?.context.accountType;
   const activities = dashboardData?.context.activities;
@@ -33,7 +34,7 @@ export default function Home() {
   const ecosystemActivity = dashboardData?.overview.totalActivities;
 
   return (
-    <div className="flex py-6 flex-col gap-8 h-full px-8 overflow-auto w-full">
+    <div className="flex py-6 flex-col gap-8 h-full px-6 md:px-8 overflow-auto w-full">
       {isPending ? (
         <Loader2 className="animate-spin m-auto" />
       ) : (

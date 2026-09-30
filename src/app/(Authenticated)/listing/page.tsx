@@ -208,7 +208,7 @@ const ListingPage = () => {
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex h-full w-full flex-col gap-8 overflow-auto px-8 py-6">
+    <div className="flex h-full w-full flex-col gap-8 overflow-auto px-6 md:px-8 py-6">
       <ListingHeading
         isOverview={false}
         showActions={data && data?.counts.all !== 0}
@@ -263,7 +263,7 @@ const ListingPage = () => {
 
           {totalPages > 1 && (
             <Pagination>
-              <PaginationContent className="gap-8">
+              <PaginationContent className="gap-4 md:gap-8">
                 <PaginationItem>
                   <PaginationLink
                     variant="secondary"
@@ -275,7 +275,7 @@ const ListingPage = () => {
                     className={
                       page === 1 || isResolvingPage
                         ? "pointer-events-none opacity-50"
-                        : "bg-black-100! hover:bg-black-200!"
+                        : "bg-black-100! hover:bg-black-200! size-6 md:size-8 rounded-md"
                     }
                   >
                     <ChevronsLeftIcon />
@@ -293,7 +293,7 @@ const ListingPage = () => {
                     className={
                       page === 1 || isResolvingPage
                         ? "pointer-events-none opacity-50"
-                        : "bg-black-50! hover:bg-black-100!"
+                        : "bg-black-50! hover:bg-black-100! size-6 md:size-8 rounded-md"
                     }
                   >
                     <ChevronLeft />
@@ -310,7 +310,7 @@ const ListingPage = () => {
                   }
 
                   return (
-                    <PaginationItem key={pageNumber}>
+                    <PaginationItem  key={pageNumber}>
                       <PaginationLink
                         href="#"
                         isActive={page === pageNumber}
@@ -323,7 +323,7 @@ const ListingPage = () => {
                           page === pageNumber
                             ? "bg-brand-700! text-white!"
                             : "border-black-50 "
-                        } ${isResolvingPage ? "pointer-events-none opacity-40" : ""}`}
+                        } ${isResolvingPage ? "pointer-events-none opacity-40" : ""} size-6 md:size-8 rounded-md text-s! font-bold`}
                       >
                         {pageNumber}
                       </PaginationLink>
@@ -342,7 +342,7 @@ const ListingPage = () => {
                     className={`pr-0! ${
                       !data?.nextCursor || page >= totalPages || isResolvingPage
                         ? "pointer-events-none opacity-50"
-                        : "bg-black-50! hover:bg-black-100!"
+                        : "bg-black-50! hover:bg-black-100! size-6 md:size-8 rounded-md"
                     }`}
                   >
                     <ChevronRight />
@@ -360,7 +360,7 @@ const ListingPage = () => {
                     className={`border! ${
                       page >= totalPages || isResolvingPage
                         ? "pointer-events-none opacity-50"
-                        : "bg-black-100!  hover:bg-black-200!"
+                        : "bg-black-100!  hover:bg-black-200! size-6 md:size-8 rounded-md"
                     }`}
                   >
                     <ChevronsRight />

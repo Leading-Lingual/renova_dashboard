@@ -116,8 +116,8 @@ const ListingNav = ({
   ];
 
   return (
-    <div className="flex flex-col md:flex-row justify-between gap-4 w-full">
-      <div className="flex border-b-2 gap-6 border-brand-50/50">
+    <div className="flex flex-col md:flex-row justify-between gap-4 w-full overflow-hidden">
+      <div className="flex border-b-2 gap-3 md:gap-6 border-brand-50/50 overflow-auto">
         {tabs.map((item) => (
           <button
             type="button"
@@ -138,13 +138,13 @@ const ListingNav = ({
             </span>}
 
             {status === item.value && (
-              <hr className="border-[1.5] w-full border-brand-500 absolute top-full right-0" />
+              <hr className="border-[1.5] w-full border-brand-500 absolute bottom-0 right-0" />
             )}
           </button>
         ))}
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex gap-4 md:gap-6">
         <InputGroup className="h-10! border-black-50 md:min-w-60">
           <InputGroupAddon>
             <SearchCategoryIcon className="m-auto size-4 text-black-500" />

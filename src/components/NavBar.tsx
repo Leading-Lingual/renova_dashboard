@@ -7,13 +7,17 @@ import SearchCategory from "./SearchCategories";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "@/actions/user/user.query";
 import { getFirstWord, getInitials } from "@/lib/utils";
+import { useWindowSize } from "@/hooks/useWindowSize";
+import { useShowNavBar } from "@/hooks/useShowNavBar";
 
 const NavBar = () => {
   const { isOpen, setIsOpen } = useSidebar();
   const { data } = useQuery(getUserProfile);
+  const { isMobile } = useWindowSize();
+  const showNavBar = useShowNavBar();
 
-  return (
-    <nav className="border-b border-b-black-50 py-4 w-full flex justify-between items-center px-8">
+  return !isMobile || showNavBar ? (
+    <nav className="border-b border-b-black-50 py-4 w-full flex justify-between items-center px-6 md:px-8">
       <div className="flex gap-4 items-center">
         <Menu onClick={() => setIsOpen(!isOpen)} className="block lg:hidden" />
         <div className="hidden md:flex flex-col">
@@ -43,16 +47,20 @@ const NavBar = () => {
         </div>
         <div className="hidden md:flex gap-3 ">
           <div className="flex rounded-full bg-brand-500 text-white size-10">
-            <p className="m-auto text-m-bold">{getInitials(data?.fullName ?? "")}</p>
+            <p className="m-auto text-m-bold">
+              {getInitials(data?.fullName ?? "")}
+            </p>
           </div>
           <div className="">
-            <p className="text-s font-semibold text-black-500">{data?.fullName}</p>
+            <p className="text-s font-semibold text-black-500">
+              {data?.fullName}
+            </p>
             <p className="text-2s-medium font-normal">{data?.email}</p>
           </div>
         </div>
       </div>
     </nav>
-  );
+  ) : null;
 };
 
 export default NavBar;

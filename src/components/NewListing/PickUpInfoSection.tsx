@@ -41,7 +41,7 @@ const PickUpInfoSection = ({
     : [];
 
   return (
-    <div className="flex w-full flex-col gap-10">
+    <div className="flex w-full flex-col gap-4 md:gap-10">
       <Controller
         control={form.control}
         name="phoneNumber"

@@ -1,5 +1,4 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { MoreVertical } from "lucide-react";
 import Image from "next/image";
 import dayjs from "dayjs";
 
@@ -9,36 +8,18 @@ import { Listing } from "@/types/listing.types";
 import { formatDecimal, formatNumber, formatText } from "@/lib/utils";
 
 import Pill from "../Pill";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-
 import { DataTableFeatures } from "./data-table-features";
+import ActionsDropdown from "./ActionsDropdown";
 
 const columnHelper = createColumnHelper<DataTableFeatures, Listing>();
 
-interface ListingColumnActions {
-  onArchive: (listingId: string) => void;
-  onRestore: (listingId: string) => void;
-  onPublish: (listingId: string) => void;
-  onUnPublish: (listingId: string) => void;
-}
-
-const statusVariant = {
+export const statusVariant = {
   ARCHIVED: "grey",
   DRAFT: "accent",
   AVAILABLE: "brand",
 } as const;
 
-export const getListingColumns = ({
-  onArchive,
-  onRestore,
-  onPublish,
-  onUnPublish,
-}: ListingColumnActions) =>
+export const getListingColumns = () =>
   columnHelper.columns([
     columnHelper.accessor("materialName", {
       header: "Listing",
@@ -72,7 +53,10 @@ export const getListingColumns = ({
               <div className="flex items-center gap-1 text-s">
                 <LocationIcon className="size-3" />
 
-                <p className="text-s">Lagos, NG</p>
+                <p className="text-s">
+                  {item.location?.city} {item.location?.state},{" "}
+                  {item.location?.country}
+                </p>
               </div>
             </div>
           </div>
@@ -150,49 +134,7 @@ export const getListingColumns = ({
         const listing = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <MoreVertical className="size-5" />
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent className="rounded-none">
-              {listing.status !== "ARCHIVED" && (
-                <DropdownMenuItem
-                  className="rounded-none hover:bg-brand-50!"
-                  onClick={() => onArchive(listing.id)}
-                >
-                  Archive listing
-                </DropdownMenuItem>
-              )}
-
-              {listing.status === "ARCHIVED" && (
-                <DropdownMenuItem
-                  className="rounded-none hover:bg-brand-50!"
-                  onClick={() => onRestore(listing.id)}
-                >
-                  Restore listing
-                </DropdownMenuItem>
-              )}
-
-              {listing.status === "DRAFT" && (
-                <DropdownMenuItem
-                  className="rounded-none hover:bg-brand-50!"
-                  onClick={() => onPublish(listing.id)}
-                >
-                  Publish listing
-                </DropdownMenuItem>
-              )}
-
-              {listing.status === "AVAILABLE" && (
-                <DropdownMenuItem
-                  className="rounded-none hover:bg-brand-50!"
-                  onClick={() => onUnPublish(listing.id)}
-                >
-                  Make draft
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ActionsDropdown listingId={listing.id} status={listing.status} />
         );
       },
     }),

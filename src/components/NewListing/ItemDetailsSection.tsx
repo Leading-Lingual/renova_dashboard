@@ -40,8 +40,8 @@ const ItemDetailsSection = ({
   ];
 
   return (
-    <div className="flex flex-col gap-2 lg:gap-8">
-      <div className="flex gap-12">
+    <div className="flex flex-col gap-6 lg:gap-8">
+      <div className="flex gap-4 md:gap-12 flex-col md:flex-row">
         <Controller
           control={form.control}
           name="materialType"
@@ -60,7 +60,7 @@ const ItemDetailsSection = ({
                   showIcon={false}
                   aria-invalid={fieldState.invalid}
                   disabled={isSubmitting}
-                  className="h-14! w-full border-black-200! border-[0.5px]"
+                  className="h-11.25! md:h-14! w-full border-black-200! border-[0.5px]"
                 >
                   <SearchCategoryIcon className="size-4 md:size-6" />
 
@@ -110,7 +110,7 @@ const ItemDetailsSection = ({
                     showIcon={false}
                     aria-invalid={fieldState.invalid}
                     disabled={isSubmitting}
-                    className="h-14! pointer-events-none w-full border-black-200! border-[0.5px] px-3 "
+                    className="h-11.25! md:h-14! pointer-events-none w-full border-black-200! border-[0.5px] px-3 "
                   >
                     <ScaleIcon className="size-4 shrink-0 md:size-5" />
 
@@ -168,7 +168,7 @@ const ItemDetailsSection = ({
 
                     field.onChange(Number(value));
                   }}
-                  className="h-14! w-full shrink-0 rounded-[12px] border-black-200! px-3 border-[0.5px]"
+                  className="h-11.25! md:h-14! w-full shrink-0 rounded-[12px] border-black-200! px-3 border-[0.5px]"
                 />
 
                 {fieldState.invalid && (

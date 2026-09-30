@@ -1,9 +1,12 @@
-import React from 'react'
+import ListingDetailsContent from "./ListingDetailsContent";
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
-}
+const ListingDetailPage = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  const listingId = (await params).id;
+  return <ListingDetailsContent listingId={listingId} />;
+};
 
-export default page
+export default ListingDetailPage;

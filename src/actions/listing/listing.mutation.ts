@@ -66,7 +66,7 @@ export const DeleteListingMutation = mutationOptions({
       predicate: (query) => {
         const key = query.queryKey;
 
-        return key.includes("listings") || key.includes("dashboard");
+        return key.includes("listings") || key.includes("dashboard") || key.includes("listingDetail");
       },    });
   },
 });
@@ -82,7 +82,7 @@ export const ArchiveListingMutation = mutationOptions({
       predicate: (query) => {
         const key = query.queryKey;
 
-        return key.includes("listings") || key.includes("dashboard");
+        return key.includes("listings") || key.includes("dashboard") || key.includes("listingDetail");
       },    });
   },
 });
@@ -98,7 +98,7 @@ export const RestoreListingMutation = mutationOptions({
       predicate: (query) => {
         const key = query.queryKey;
 
-        return key.includes("listings") || key.includes("dashboard");
+        return key.includes("listings") || key.includes("dashboard") || key.includes("listingDetail");
       },    });
   },
 });
@@ -114,7 +114,7 @@ export const PublishListingMutation = mutationOptions({
       predicate: (query) => {
         const key = query.queryKey;
 
-        return key.includes("listings") || key.includes("dashboard");
+        return key.includes("listings") || key.includes("dashboard") || key.includes("listingDetail");
       },    });
   },
 });
@@ -130,7 +130,7 @@ export const UnPublishListingMutation = mutationOptions({
       predicate: (query) => {
         const key = query.queryKey;
 
-        return key.includes("listings") || key.includes("dashboard");
+        return key.includes("listings") || key.includes("dashboard") || key.includes("listingDetail");
       },
     });
   },
