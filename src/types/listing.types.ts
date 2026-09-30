@@ -1,5 +1,6 @@
 import { listingSchema } from "@/validations/listing.validation";
 import * as z from "zod";
+import { Location } from "./user.type";
 
 export type listingFormValues = z.infer<typeof listingSchema>;
 
@@ -42,6 +43,7 @@ export interface Listing {
   archivedAt?: string;
   createdAt: string;
   updatedAt: string;
+  location?: Location
 }
 
 export interface Count {

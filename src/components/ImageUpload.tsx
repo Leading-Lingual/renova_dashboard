@@ -15,7 +15,7 @@ type ImageUploadProps = {
   error?: boolean;
   multiple?: boolean;
   maxImages?: number;
-  disabled?:boolean
+  disabled?: boolean;
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -26,7 +26,7 @@ const ImageUpload = ({
   error,
   multiple,
   maxImages = 3,
-  disabled
+  disabled,
 }: ImageUploadProps) => {
   const handleDrop = useCallback(
     (acceptedFiles: File[], _fileRejections: FileRejection[]) => {
@@ -82,7 +82,7 @@ const ImageUpload = ({
       {({ open, isDragActive }) => (
         <div
           onClick={value.length !== 0 ? undefined : open}
-          className={`flex ${value.length < 0 ? "cursor-pointer" : "cursor-default"} flex-col items-center justify-center gap-3`}
+          className={`flex ${value.length < 0 ? "cursor-pointer" : "cursor-default"} flex-col items-center justify-center gap-2 md:gap-3`}
         >
           {value.length > 0 ? (
             <>
@@ -94,8 +94,8 @@ const ImageUpload = ({
                   key={`${file.name}${index}`}
                   className="flex w-full justify-between items-center text-black-500"
                 >
-                  <div className="flex gap-4">
-                    <div className="w-26.5 h-18 rounded-[8px] overflow-hidden">
+                  <div className="flex gap-4 min-w-0">
+                    <div className="shrink-0 w-10 h-10 md:w-26.5 md:h-18 rounded-[8px] overflow-hidden">
                       <Image
                         width={106}
                         height={72}
@@ -104,13 +104,13 @@ const ImageUpload = ({
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="flex flex-col justify-center">
-                      <p className="text-m-bold">{file.name}</p>
+                    <div className="flex flex-col justify-center flex-1 min-w-0">
+                      <p className="text-s font-bold md:text-m-bold truncate">{file.name}</p>
                       <p className="text-s">{formatFileSize(file.size)}</p>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center shrink-0">
                     <FileSwap
                       onClick={() => replaceImage(index)}
                       className="size-6 cursor-pointer"
@@ -119,7 +119,7 @@ const ImageUpload = ({
                     <Button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="rounded-full  px-2 py-1 text-xs cursor-pointer"
+                      className="rounded-full  px-2 py-1 text-2s-medium! font-normal! md:text-xs cursor-pointer"
                     >
                       Remove
                     </Button>
@@ -129,23 +129,26 @@ const ImageUpload = ({
             </>
           ) : (
             <>
-              <UploadIcon className="text-black-700 w-[51.16px] h-[32.76px]" />
-              <p className="text-center font-medium">
+              <UploadIcon className="text-black-700 w-6 h-6 md:w-[51.16px] md:h-[32.76px]" />
+              <p className="text-center font-medium hidden md:flex">
                 {isDragActive
                   ? "Drop your images here"
                   : "Drag and drop your waste material images here"}
               </p>
+              <p className="text-s font-medium flex md:hidden">
+                Click and upload your waste material image here
+              </p>
 
-              <p>or</p>
+              <p className="hidden md:flex">or</p>
 
               <div className="flex flex-col gap-2 items-center justify-center">
                 <Button
                   type="button"
-                  className="h-12! w-full max-w-64.75 rounded-full bg-black-400 hover:bg-black-300"
+                  className="h-12! w-full max-w-64.75 rounded-full bg-black-400 hover:bg-black-300 hidden md:flex"
                 >
                   Select Image
                 </Button>
-                <p className="text-black-500 text-sm">
+                <p className="text-black-500 text-2s-medium font-normal md:text-sm text-center">
                   Accepted formats: PNG, JPEG, JPG, PNG (Max 5MB)
                 </p>
                 {maxImages && multiple && (

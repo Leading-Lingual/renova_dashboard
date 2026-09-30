@@ -55,7 +55,7 @@ const PickupOptionModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="min-w-178.5 p-10 rounded-[24px]">
+      <DialogContent className="w-full md:min-w-178.5 px-4 py-10 md:p-10 rounded-[24px]">
         <DialogHeader className="flex flex-col gap-1">
           <DialogTitle className="text-sm font-bold lg:text-2xl">
             Choose Pickup Option
@@ -65,7 +65,7 @@ const PickupOptionModal = ({
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-12">
-          <div className="flex no-scrollbar w-full gap-4">
+          <div className="flex flex-col md:flex-row no-scrollbar w-full gap-4">
             {items.map((item) => (
               <div
                 key={item.text}
@@ -80,11 +80,11 @@ const PickupOptionModal = ({
               </div>
             ))}
           </div>
-          <div className="flex gap-4 w-full">
+          <div className="flex flex-col md:flex-row gap-4 w-full">
             {selectedOption === "ACCOUNT_ADDRESS" && (
               <Button
                 onClick={handleSaveDraft}
-                className="h-14 flex-1"
+                className="h-14! w-full md:flex-1"
                 variant="outline"
                 disabled={isPending}
               >
@@ -97,7 +97,7 @@ const PickupOptionModal = ({
             <Button
               type={selectedOption === "ACCOUNT_ADDRESS" ? "submit" : "button"}
               onClick={handleSubmit}
-              className="h-14 flex-1"
+              className="h-14! w-full md:flex-1 "
               disabled={isPending}
             >
               {isPending && !isSubmittingDraft && (

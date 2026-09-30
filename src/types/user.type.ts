@@ -15,15 +15,7 @@ export interface UserAuth {
 
 export type Status = "INCOMPLETE" | "COMPLETE";
 
-export interface UserProfile {
-  id: string;
-  userId: string;
-  email: string;
-  accountType: AccountType;
-  activities?: string[];
-  fullName?: string;
-  phoneNumber?: string;
-  location: {
+export interface Location {
     country?: string;
     state?: string;
     city?: string;
@@ -32,7 +24,16 @@ export interface UserProfile {
     latitude?: string;
     longitude?: string;
     source?: string;
-  };
+  }
+export interface UserProfile {
+  id: string;
+  userId: string;
+  email: string;
+  accountType: AccountType;
+  activities?: string[];
+  fullName?: string;
+  phoneNumber?: string;
+  location: Location;
   referralCode?: string;
   avatarUrl?: string;
   status: Status;

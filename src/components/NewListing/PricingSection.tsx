@@ -29,6 +29,7 @@ const PricingSection = ({
   return (
     <div className="flex flex-col gap-2">
       <Heading
+        containerClass="hidden md:flex"
         title="Set Price"
         subtitle="Add your price per KG, ensure it is within the market range."
       />

@@ -40,17 +40,17 @@ const PickupSection = ({
               {options.map((item) => (
                 <div
                   key={item.key}
-                  className="flex w-full items-center gap-3 rounded-[8px] border border-black-50 p-2.5"
+                  className="flex w-full items-center gap-2.5 md:gap-3 rounded-[8px] border border-black-50 p-2.5"
                 >
                   <RadioGroupItem
                     value={item.key}
                     id={item.key}
-                    className="border-4"
+                    className="border-4 size-6"
                   />
 
                   <Label htmlFor={item.key} className="flex flex-col gap-1 items-start">
                     <span className="text-s font-bold">{item.text}</span>
-                    <span className="text-sm">{item.subtext}</span>
+                    <span className="text-s md:text-sm">{item.subtext}</span>
                   </Label>
                 </div>
               ))}

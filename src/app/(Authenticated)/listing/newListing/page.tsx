@@ -19,6 +19,7 @@ import { ReactElement, useState } from "react";
 import PickUpInfoSection from "@/components/NewListing/PickUpInfoSection";
 import PickupOptionModal from "@/components/NewListing/PickupOptionModal";
 import { getUserProfile } from "@/actions/user/user.query";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const { INITIAL, PICKUP_INFO } = NewListingStages;
 
@@ -27,6 +28,7 @@ const NewListing = () => {
   const [isPickupModalOpen, setIsPickupModalOpen] = useState(false);
   const [isSubmittingDraft, setIsSubmittingDraft] = useState(false);
   const { data } = useQuery(getUserProfile);
+  const { isMobile } = useWindowSize();
 
   const router = useRouter();
 
@@ -119,7 +121,7 @@ const NewListing = () => {
         children: <ItemDetailsSection form={form} isSubmitting={isPending} />,
       },
       {
-        title: "Pricing",
+        title: isMobile ? "Set your price" : "Pricing",
         children: <PricingSection form={form} isSubmitting={isPending} />,
       },
       {
@@ -130,7 +132,7 @@ const NewListing = () => {
     ],
     pickupInfo: [
       {
-        title: "Contact Info",
+        title: isMobile ? "" : "Contact Info",
         children: <PickUpInfoSection form={form} isSubmitting={isPending} />,
       },
     ],
@@ -176,7 +178,7 @@ const NewListing = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col gap-4 overflow-auto px-6 py-6 lg:gap-6 lg:px-8">
+    <div className="flex h-full w-full flex-col gap-4 overflow-auto px-6 py-6 md:gap-6 md:px-8">
       <ArrowLeft className="shrink-0 cursor-pointer" onClick={handleBack} />
 
       <Heading
@@ -186,25 +188,28 @@ const NewListing = () => {
             ? "Provide the necessary details of the material you want to sell."
             : "Provide the necessary details of where the material will be picked-up from, as well as how you can be contacted."
         }
-        titleClassName="text-2xl"
-        subTitleClassName="text-sm"
+        titleClassName="text-xl md:text-2xl"
+        subTitleClassName="text-s md:text-sm"
       />
 
-      <form onSubmit={handleFormSubmit} className="flex w-full flex-col gap-8">
+      <form
+        onSubmit={handleFormSubmit}
+        className="flex w-full flex-col gap-8 text-xl"
+      >
         {sections[stage === INITIAL ? "initial" : "pickupInfo"].map(
           ({ title, subtitle, children }) => (
-            <SectionWrapper key={title} title={title} subtitle={subtitle}>
+            <SectionWrapper containerClassName={`${stage === PICKUP_INFO ? "border-none px-0 py-0":""}`} key={title} title={title} subtitle={subtitle}>
               {children}
             </SectionWrapper>
           ),
         )}
 
-        <div className="flex w-full gap-4">
+        <div className="flex flex-col md:flex-row w-full gap-4">
           <Button
             type="button"
             onClick={handleSaveDraft}
             variant="outline"
-            className="h-14! flex-1"
+            className="h-14! w-full md:flex-1"
             disabled={isPending}
           >
             {isPending && isSubmittingDraft && (
@@ -213,7 +218,11 @@ const NewListing = () => {
             Save as draft
           </Button>
 
-          <Button disabled={isPending} type="submit" className="h-14! flex-1">
+          <Button
+            disabled={isPending}
+            type="submit"
+            className="h-14! w-full md:flex-1"
+          >
             {isPending && !isSubmittingDraft && (
               <Loader2 className="animate-spin" />
             )}
