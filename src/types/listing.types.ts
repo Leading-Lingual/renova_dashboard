@@ -1,6 +1,6 @@
 import { listingSchema } from "@/validations/listing.validation";
 import * as z from "zod";
-import { Location } from "./user.type";
+import { AccountType, Location } from "./user.type";
 
 export type listingFormValues = z.infer<typeof listingSchema>;
 
@@ -25,12 +25,23 @@ export type MaterialType =
 
 export type ListingSort = "NEWEST" | "OLDEST" | "PRICE_ASC" | "PRICE_DESC";
 
-export type ListingStatus = "DRAFT" | "AVAILABLE" | "ARCHIVED";
+export type ListingStatus =
+  | "DRAFT"
+  | "AVAILABLE"
+  | "ARCHIVED"
+  | "PENDING"
+  | "SOLD";
 
+export type SellerDetails = {
+  id: string;
+  fullName: string;
+  avatarUrl: string;
+  accountType: AccountType;
+};
 export interface Listing {
   id: string;
   scanId: string;
-  materialName:string;
+  materialName: string;
   materialType: MaterialType;
   quantityKg: string;
   pricePerKg: string;
@@ -43,7 +54,9 @@ export interface Listing {
   archivedAt?: string;
   createdAt: string;
   updatedAt: string;
-  location?: Location
+  location?: Location;
+  seller?: SellerDetails;
+  isSaved?: boolean;
 }
 
 export interface Count {
@@ -56,5 +69,5 @@ export interface Count {
 export interface GetListingResponse {
   items: Listing[];
   nextCursor: string;
-  counts:Count
+  counts: Count;
 }

@@ -8,7 +8,7 @@ import {
 } from "@/types/listing.types";
 import { queryOptions } from "@tanstack/react-query";
 
-interface GetListingParams {
+export interface GetListingParams {
   status?: ListingStatus;
   materialType?: MaterialType;
   q?: string;

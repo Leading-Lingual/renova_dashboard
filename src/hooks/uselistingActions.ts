@@ -1,11 +1,24 @@
 "use client";
 import { useCallback } from "react";
-import { useMutation, UseMutationOptions, WithRequired } from "@tanstack/react-query";
-import { toast } from "sonner"; 
-import { ArchiveListingMutation, PublishListingMutation, RestoreListingMutation, UnPublishListingMutation } from "@/actions/listing/listing.mutation";
+import {
+  useMutation,
+  UseMutationOptions,
+  WithRequired,
+} from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  ArchiveListingMutation,
+  PublishListingMutation,
+  RestoreListingMutation,
+  UnPublishListingMutation,
+} from "@/actions/listing/listing.mutation";
+import { saveListingMutation, unSaveListingMutation } from "@/actions/marketplace/marketplace.mutation";
 
 type ListingActionConfig = {
-  mutation: WithRequired<UseMutationOptions<"", Error, string, unknown>, "mutationKey">
+  mutation: WithRequired<
+    UseMutationOptions<"", Error, string, unknown>,
+    "mutationKey"
+  >;
   successMessage: string;
   errorMessage: string;
 };
@@ -53,11 +66,25 @@ export const useListingActions = () => {
     errorMessage: "Failed to convert to draft",
   });
 
+  const save = useListingAction({
+    mutation: saveListingMutation,
+    successMessage: "Listing saved!",
+    errorMessage: "Failed to save listing",
+  });
+
+  const unSave = useListingAction({
+    mutation: unSaveListingMutation,
+    successMessage: "Listing removed saved!",
+    errorMessage: "Failed to remove listing",
+  });
+
   const isAnyPending =
     archive.isPending ||
     restore.isPending ||
     publish.isPending ||
-    unPublish.isPending;
+    unPublish.isPending ||
+    save.isPending ||
+    unSave.isPending;
 
-  return { archive, restore, publish, unPublish, isAnyPending };
+  return { archive, restore, publish, unPublish, save, unSave, isAnyPending };
 };
