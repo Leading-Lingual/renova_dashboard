@@ -18,7 +18,7 @@ import * as z from "zod";
 import { loginSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { loginMutation } from "@/actions/auth/auth.mutation";
+import { loginMutation, resendOTP } from "@/actions/auth/auth.mutation";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -29,6 +29,7 @@ const LoginPage = () => {
   const { mutate: login, isPending } = useMutation(loginMutation);
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
   const router = useRouter();
+  const { mutate: resend } = useMutation(resendOTP);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -42,7 +43,6 @@ const LoginPage = () => {
     login(data, {
       onSuccess: (result) => {
         toast.success("Login successful");
-        router.push("/onboarding");
         if (result.isProfileComplete) {
           router.push("/home");
         } else {
@@ -52,6 +52,12 @@ const LoginPage = () => {
 
       onError: (error) => {
         toast.error(error.message);
+        if (error.message === "Verify your email to continue.") {
+          resend({ email: data.email });
+          router.push(
+            `/signup?stage=email-verification&email=${encodeURIComponent(data.email)}`,
+          );
+        }
       },
     });
   }

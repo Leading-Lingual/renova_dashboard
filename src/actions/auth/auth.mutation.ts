@@ -8,7 +8,6 @@ import {
   SignUpPayload,
   SignUpResponse,
   VerifyEmailPayload,
-  VerifyEmailResponse,
   VerifyPasswordOTP,
 } from "@/types/auth.types";
 
@@ -36,7 +35,7 @@ export const signUpMutation = mutationOptions({
 export const verifyEmailMutation = mutationOptions({
   mutationKey: ["verify-email"],
   mutationFn: (payload: VerifyEmailPayload) =>
-    apiClient<VerifyEmailResponse>("/api/auth", {
+    apiClient<LoginResponse>("/api/auth", {
       method: "POST",
       body: JSON.stringify({ action: "signup", ...payload }),
     }),

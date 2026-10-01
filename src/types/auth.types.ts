@@ -33,6 +33,7 @@ export interface LoginResponse {
   expiresIn: number;
   csrfToken: string;
   isProfileComplete: boolean;
+  message:string
 }
 
 export interface VerifyEmailResponse {
