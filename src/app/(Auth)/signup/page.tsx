@@ -8,7 +8,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import AuthWrapper from "@/components/AuthWrapper";
 import PasswordIcon from "@iconify-react/mdi/password";
 import EmailFilledIcon from "@iconify-react/griddy-icons/email-filled";
@@ -36,12 +36,16 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useResendCountdown } from "@/hooks/useResendCountdown";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+import useQueryParams from "@/hooks/useQueryParams";
 
 const { INITIAL, EMAIL_VERIFICATION } = SignUpStages;
 
 const SignupPage = () => {
+  const { get } = useQueryParams();
   const [inputType, setInputType] = useState<"password" | "text">("password");
-  const [stage, setStage] = useState<SignUpStages>(INITIAL);
+  const [stage, setStage] = useState<SignUpStages>(() =>
+    get("stage") === "email-verification" ? EMAIL_VERIFICATION : INITIAL,
+  );
   const isInitialStage = stage === INITIAL;
   const { mutate: signup, isPending: isLoadingSignUp } =
     useMutation(signUpMutation);
@@ -64,7 +68,7 @@ const SignupPage = () => {
   const otpForm = useForm<z.infer<typeof verifyEmailSchema>>({
     resolver: zodResolver(verifyEmailSchema),
     defaultValues: {
-      email: "",
+      email: get("email") ?? "",
       otp: "",
     },
   });
@@ -91,9 +95,13 @@ const SignupPage = () => {
 
   function onCodeSubmit(data: z.infer<typeof verifyEmailSchema>) {
     verifyEmail(data, {
-      onSuccess(data) {
-        toast.success(data.message);
-        router.push("/login");
+      onSuccess(result) {
+        toast.success(result.message);
+        if (result.isProfileComplete) {
+          router.push("/login");
+        } else {
+          router.push("/onboarding");
+        }
       },
 
       onError: (error) => {
@@ -406,4 +414,10 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default function Signup() {
+  return (
+    <Suspense fallback={null}>
+      <SignupPage />
+    </Suspense>
+  );
+}
