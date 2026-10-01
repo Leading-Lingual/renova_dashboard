@@ -62,7 +62,7 @@ const useSidebarItems = () => {
       {
         Icon: MarketplaceIcon,
         text: "Marketplace",
-        route: "#",
+        route: "/marketplace",
       },
       {
         Icon: MarketplaceIcon,
