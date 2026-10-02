@@ -2,23 +2,17 @@
 import { Button } from "@/components/ui/button";
 import EyeHideSolidIcon from "@iconify-react/clarity/eye-hide-solid";
 import MoneyIcon from "@iconify-react/tdesign/money";
-import EmptyStateImage from "../../../../public/bro.svg";
-import EmptyState from "@/components/EmptyState";
 import Overview from "@/components/Home/Overview";
-import Heading from "@/components/Heading";
 import ListingOverveiw from "@/components/Home/ListingOverveiw";
 import RecentActivities from "@/components/Home/RecentActivities";
 import Pill from "@/components/Pill";
-import { Loader2, Plus } from "lucide-react";
-import ScanFilledIcon from "@iconify-react/boxicons/scan-filled";
+import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboard } from "@/actions/user/user.query";
-import { useRouter } from "next/navigation";
+import HomeEmptyState from "@/components/Home/HomeEmptyState";
 
 export default function Home() {
   const { data: dashboardData, isPending } = useQuery(getDashboard);
-
-  const router = useRouter();
 
   const hasData =
     dashboardData &&
@@ -32,6 +26,8 @@ export default function Home() {
   const totalWasteRecovered = dashboardData?.overview.totalRecordedQuantityKg;
   const totalValue = dashboardData?.overview.totalEstimatedListingValue;
   const ecosystemActivity = dashboardData?.overview.totalActivities;
+
+  const isSeller = activities?.includes("SELL");
 
   return (
     <div className="flex py-6 flex-col gap-8 h-full px-6 md:px-8 overflow-auto w-full">
@@ -91,30 +87,11 @@ export default function Home() {
           </div>
           {hasData ? (
             <>
-              <ListingOverveiw listing={recentListing ?? []} />
+              {isSeller && <ListingOverveiw listing={recentListing ?? []} />}
               <RecentActivities activities={recentActivities ?? []} />
             </>
           ) : (
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <Heading
-                  title="My Activities"
-                  subtitle="View and manage all the waste materiasl here"
-                />
-              </div>
-              <EmptyState
-                title="No Activities"
-                subtile="You currently do not have any listed waste material, purchase
-                made or pickup to make."
-                image={EmptyStateImage}
-                firstButton={{ text: "Scan Material", icon: ScanFilledIcon }}
-                secondButton={{
-                  text: "Create New Listing",
-                  icon: Plus,
-                  onClick: () => router.push("/listing/newListing"),
-                }}
-              />
-            </div>
+            <HomeEmptyState activities={dashboardData?.context.activities} />
           )}
         </>
       )}

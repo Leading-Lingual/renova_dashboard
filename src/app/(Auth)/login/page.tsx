@@ -17,7 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { loginSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginMutation, resendOTP } from "@/actions/auth/auth.mutation";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,7 @@ import { Loader2 } from "lucide-react";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 const LoginPage = () => {
+  const queryClient = useQueryClient();
   const [inputType, setInputType] = useState<"password" | "text">("password");
   const { mutate: login, isPending } = useMutation(loginMutation);
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
@@ -42,6 +43,7 @@ const LoginPage = () => {
   function onSubmit(data: z.infer<typeof loginSchema>) {
     login(data, {
       onSuccess: (result) => {
+        queryClient.resetQueries()
         toast.success("Login successful");
         if (result.isProfileComplete) {
           router.push("/home");

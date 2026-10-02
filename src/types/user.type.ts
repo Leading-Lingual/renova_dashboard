@@ -15,16 +15,29 @@ export interface UserAuth {
 
 export type Status = "INCOMPLETE" | "COMPLETE";
 
+export const ACTIVITIES = {
+  SELL: "SELL",
+  BUY: "BUY",
+  COLLECT: "COLLECT",
+  PROCESS_RECYCLE: "PROCESS_RECYCLE",
+  RUN_ENVIRONMENTAL_CAMPAIGNS: "RUN_ENVIRONMENTAL_CAMPAIGNS",
+  ORGANIZE_COLLECTION_DRIVES: "ORGANIZE_COLLECTION_DRIVES",
+  MANAGE_COMMUNITY_OUTREACH: "MANAGE_COMMUNITY_OUTREACH",
+  PARTNER_WITH_RECYCLERS: "PARTNER_WITH_RECYCLERS",
+} as const;
+
+export type UserAppActivity = (typeof ACTIVITIES)[keyof typeof ACTIVITIES];
+
 export interface Location {
-    country?: string;
-    state?: string;
-    city?: string;
-    formattedAddress?: string;
-    placeId?: string;
-    latitude?: string;
-    longitude?: string;
-    source?: string;
-  }
+  country?: string;
+  state?: string;
+  city?: string;
+  formattedAddress?: string;
+  placeId?: string;
+  latitude?: string;
+  longitude?: string;
+  source?: string;
+}
 export interface UserProfile {
   id: string;
   userId: string;
@@ -43,17 +56,17 @@ export interface UserProfile {
 }
 
 export interface Activity {
-    id: string;
-    type: "SCAN_CONFIRMED";
-    entityId: string;
-    title: string;
-    materialType: MaterialType;
-    quantityKg: string;
-    amountNgn: string;
-    pointsAwarded: number;
-    imageUrl: string;
-    createdAt: string;
-  }
+  id: string;
+  type: "SCAN_CONFIRMED";
+  entityId: string;
+  title: string;
+  materialType: MaterialType;
+  quantityKg: string;
+  amountNgn: string;
+  pointsAwarded: number;
+  imageUrl: string;
+  createdAt: string;
+}
 
 export interface Dashboard {
   context: {
@@ -86,7 +99,7 @@ export interface Dashboard {
     totalRecordedQuantityKg: string;
     totalEstimatedListingValue: string;
     quantityUnit: string;
-    totalActivities: number
+    totalActivities: number;
     valueCurrency: string;
   };
   recentListings: Listing[];
