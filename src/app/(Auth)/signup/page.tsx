@@ -26,7 +26,7 @@ import { signUpSchema, verifyEmailSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   resendOTP,
   signUpMutation,
@@ -42,6 +42,7 @@ const { INITIAL, EMAIL_VERIFICATION } = SignUpStages;
 
 const SignupPage = () => {
   const { get } = useQueryParams();
+  const queryClient = useQueryClient();
   const [inputType, setInputType] = useState<"password" | "text">("password");
   const [stage, setStage] = useState<SignUpStages>(() =>
     get("stage") === "email-verification" ? EMAIL_VERIFICATION : INITIAL,
@@ -96,6 +97,7 @@ const SignupPage = () => {
   function onCodeSubmit(data: z.infer<typeof verifyEmailSchema>) {
     verifyEmail(data, {
       onSuccess(result) {
+        queryClient.resetQueries();
         toast.success(result.message);
         if (result.isProfileComplete) {
           router.push("/login");

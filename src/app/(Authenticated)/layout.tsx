@@ -2,6 +2,7 @@
 import { getUserProfile } from "@/actions/user/user.query";
 import NavBar from "@/components/NavBar";
 import SideBar from "@/components/SideBar";
+import UserActivityGuard from "@/components/UserActivityGuard";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ const AuthenticatedLayout: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (data && !data.isProfileComplete) {
-      // handleRoute(() => router.replace("/onboarding"));
+      handleRoute(() => router.replace("/onboarding"));
     }
   }, [data, router]);
 
@@ -28,8 +29,10 @@ const AuthenticatedLayout: React.FC<{ children: React.ReactNode }> = ({
         <>
           <SideBar />
           <div className="flex flex-col w-full">
-            <NavBar />
-            {children}
+            <UserActivityGuard>
+              <NavBar />
+              {children}
+            </UserActivityGuard>
           </div>
         </>
       )}

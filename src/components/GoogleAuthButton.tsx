@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "./ui/button";
 import { GoogleLogo } from "@/assets/GoogleLogo";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import {
@@ -22,6 +22,7 @@ export function GoogleAuthButton({
   onAuthStateChange,
 }: GoogleAuthButtonProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { mutate: googleLogin, isPending: loggingIn } =
     useMutation(googleLoginMutation);
@@ -43,6 +44,7 @@ export function GoogleAuthButton({
           { code },
           {
             onSuccess: (result) => {
+              queryClient.resetQueries();
               toast.success("Sign in successful");
               if (result.isProfileComplete) {
                 router.push("/home");
@@ -60,6 +62,7 @@ export function GoogleAuthButton({
           { code },
           {
             onSuccess: (result) => {
+              queryClient.resetQueries();
               toast.success("Login successful");
               if (result.isProfileComplete) {
                 router.push("/home");

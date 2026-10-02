@@ -12,7 +12,7 @@ const EmptyState = ({
 }: {
   title: string;
   subtile: string;
-  image: StaticImageData;
+  image: StaticImageData | string;
   firstButton?: {
     text: string;
     icon: ForwardRefExoticComponent<
