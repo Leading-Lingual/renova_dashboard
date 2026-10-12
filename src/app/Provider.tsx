@@ -6,14 +6,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { SidebarProvider } from "@/context/SidebarProvider";
 import { ResetPasswordProvider } from "@/context/ResetPasswordProvider";
-import { useCartStore } from "@/stores/cart.store";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(createQueryClient);
-
-  useEffect(() => {
-    void useCartStore.persist.rehydrate();
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
