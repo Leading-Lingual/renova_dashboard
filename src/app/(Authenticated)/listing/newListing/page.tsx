@@ -133,7 +133,19 @@ const NewListing = () => {
     pickupInfo: [
       {
         title: isMobile ? "" : "Contact Info",
-        children: <PickUpInfoSection form={form} isSubmitting={isPending} />,
+        children: (
+          <PickUpInfoSection
+            control={form.control}
+            resetField={form.resetField}
+            isSubmitting={isPending}
+            names={{
+              phoneNumber: "phoneNumber",
+              country: "location.country",
+              state: "location.state",
+              address: "location.formattedAddress",
+            }}
+          />
+        ),
       },
     ],
   };
@@ -198,7 +210,12 @@ const NewListing = () => {
       >
         {sections[stage === INITIAL ? "initial" : "pickupInfo"].map(
           ({ title, subtitle, children }) => (
-            <SectionWrapper containerClassName={`${stage === PICKUP_INFO ? "border-none px-0 py-0":""}`} key={title} title={title} subtitle={subtitle}>
+            <SectionWrapper
+              containerClassName={`${stage === PICKUP_INFO ? "border-none px-0 py-0" : ""}`}
+              key={title}
+              title={title}
+              subtitle={subtitle}
+            >
               {children}
             </SectionWrapper>
           ),
@@ -209,7 +226,7 @@ const NewListing = () => {
             type="button"
             onClick={handleSaveDraft}
             variant="outline"
-            className="h-14! w-full md:flex-1"
+            className="h-12 md:h-14! w-full md:flex-1"
             disabled={isPending}
           >
             {isPending && isSubmittingDraft && (
@@ -221,7 +238,7 @@ const NewListing = () => {
           <Button
             disabled={isPending}
             type="submit"
-            className="h-14! w-full md:flex-1"
+            className="h-12 md:h-14! w-full md:flex-1"
           >
             {isPending && !isSubmittingDraft && (
               <Loader2 className="animate-spin" />

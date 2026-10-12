@@ -70,7 +70,7 @@ const ListingPage = () => {
       ) : data?.counts.all === 0 ? (
         <EmptyState
           title="No Listing"
-          subtile="You currently do not have any listed waste material"
+          subtitle="You currently do not have any listed waste material"
           image={EmptyStateImg}
           firstButton={{
             text: "Scan Material",

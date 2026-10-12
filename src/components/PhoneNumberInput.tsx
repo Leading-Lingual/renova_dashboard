@@ -33,6 +33,8 @@ interface PhoneNumberInputProps extends Omit<
   defaultCountry?: CountryCode;
   invalid?: boolean;
   placeholder?: string;
+  flagContainerClassName?:string
+  phoneInputClassName?:string
 }
 
 const PhoneNumberInput = forwardRef<HTMLInputElement, PhoneNumberInputProps>(
@@ -45,6 +47,8 @@ const PhoneNumberInput = forwardRef<HTMLInputElement, PhoneNumberInputProps>(
       invalid,
       className,
       placeholder,
+      phoneInputClassName,
+      flagContainerClassName,
       ...props
     },
     ref,
@@ -115,7 +119,7 @@ const PhoneNumberInput = forwardRef<HTMLInputElement, PhoneNumberInputProps>(
           {/* Country */}
           <Select value={country} onValueChange={handleCountryChange}>
             <SelectTrigger
-              className="h-14! w-full shrink-0 rounded-[12px] px-3 border-black-200!"
+              className={`h-14! w-full shrink-0 rounded-[12px] px-3 border-black-200! ${flagContainerClassName}`}
               aria-invalid={invalid}
             >
               <div className="flex w-full items-center gap-2">
@@ -170,7 +174,7 @@ const PhoneNumberInput = forwardRef<HTMLInputElement, PhoneNumberInputProps>(
           >
             Phone Number
           </FieldLabel>
-          <InputGroup className="h-14 min-w-0 flex-1" data-invalid={invalid}>
+          <InputGroup className={`h-14 min-w-0 flex-1 ${phoneInputClassName}`} data-invalid={invalid}>
             <InputGroupAddon>
               <PhoneFilledIcon className="size-6 rotate-90" />
             </InputGroupAddon>

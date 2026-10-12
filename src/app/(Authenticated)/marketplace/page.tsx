@@ -64,7 +64,7 @@ const MarketplacePage = () => {
       ) : data?.counts.available === 0 ? (
         <EmptyState
           title="No Listing"
-          subtile="There is currently no listed waste material, check back later!"
+          subtitle="There is currently no listed waste material, check back later!"
           image={EmptyStateImg}
         />
       ) : (

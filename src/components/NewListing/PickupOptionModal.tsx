@@ -1,4 +1,4 @@
-import { ReactElement, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,15 +7,16 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Loader2, MapPinIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import AddressSelector from "../AddressSelector";
 
 interface PickupOptionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (option: "ACCOUNT_ADDRESS" | "NEW_ADDRESS") => void;
   handleSaveDraft: () => void;
-  isPending:boolean
-  isSubmittingDraft:boolean
+  isPending: boolean;
+  isSubmittingDraft: boolean;
 }
 
 const PickupOptionModal = ({
@@ -29,25 +30,6 @@ const PickupOptionModal = ({
   const [selectedOption, setSelectedOption] = useState<
     "ACCOUNT_ADDRESS" | "NEW_ADDRESS"
   >("ACCOUNT_ADDRESS");
-  const items: {
-    icon: ReactElement;
-    key: "ACCOUNT_ADDRESS" | "NEW_ADDRESS";
-    title: string;
-    text: string;
-  }[] = [
-    {
-      icon: <MapPinIcon />,
-      key: "ACCOUNT_ADDRESS",
-      title: "Use my account address",
-      text: "We’ll use the address you created your account with for pickup",
-    },
-    {
-      icon: <MapPinIcon />,
-      key: "NEW_ADDRESS",
-      title: "Use a new address",
-      text: "Add a different pickup location for this material",
-    },
-  ];
 
   const handleSubmit = () => {
     onSubmit(selectedOption);
@@ -65,21 +47,11 @@ const PickupOptionModal = ({
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-12">
-          <div className="flex flex-col md:flex-row no-scrollbar w-full gap-4">
-            {items.map((item) => (
-              <div
-                key={item.text}
-                onClick={() => isPending ? null :setSelectedOption(item.key)}
-                className={`flex flex-col gap-2.5 border px-4 py-2.5 rounded-2xl flex-1 ${selectedOption === item.key ? "border-brand-400" : "border-black-50"}`}
-              >
-                {item.icon}
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-bold">{item.title}</p>
-                  <p className="text-s">{item.text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <AddressSelector
+            disabled={isPending}
+            selected={selectedOption}
+            onSelect={(selected) => setSelectedOption(selected)}
+          />
           <div className="flex flex-col md:flex-row gap-4 w-full">
             {selectedOption === "ACCOUNT_ADDRESS" && (
               <Button

@@ -142,7 +142,7 @@ const HomeEmptyState = ({ activities }: { activities?: string[] }) => {
       </div>
       <EmptyState
         title={details.title}
-        subtile={details.subText}
+        subtitle={details.subText}
         image={details.image}
         firstButton={details.firstButton}
         secondButton={details.secondButton}

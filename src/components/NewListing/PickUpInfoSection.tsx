@@ -1,5 +1,3 @@
-import { listingFormValues } from "@/types/listing.types";
-import { Controller, UseFormReturn, useWatch } from "react-hook-form";
 import PhoneNumberInput from "../PhoneNumberInput";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import {
@@ -18,17 +16,36 @@ import {
 import { Country, State } from "country-state-city";
 import LocationIcon from "@iconify-react/mi/location";
 
-const PickUpInfoSection = ({
-  form,
-  isSubmitting,
-}: {
-  form: UseFormReturn<listingFormValues>;
-  isSubmitting: boolean;
-}) => {
-  const selectedCountry = useWatch({
-    control: form.control,
-    name: "location.country",
-  });
+import {
+  Control,
+  Controller,
+  FieldPathByValue,
+  FieldValues,
+  UseFormResetField,
+  useWatch,
+} from "react-hook-form";
+
+type PickUpInfoSectionProps<T extends FieldValues> = {
+  control: Control<T>;
+  resetField: UseFormResetField<T>;
+  names: {
+    phoneNumber: FieldPathByValue<T, string | undefined>;
+    country: FieldPathByValue<T, string | undefined>;
+    state: FieldPathByValue<T, string | undefined>;
+    address: FieldPathByValue<T, string | undefined>;
+  };
+  isSubmitting?: boolean;
+  isSmall?: boolean;
+};
+
+const PickUpInfoSection = <T extends FieldValues>({
+  control,
+  resetField,
+  names,
+  isSubmitting = false,
+  isSmall,
+}: PickUpInfoSectionProps<T>) => {
+  const selectedCountry = useWatch({ control, name: names.country }) as string;
 
   const countryList = Country.getAllCountries();
 
@@ -41,10 +58,10 @@ const PickUpInfoSection = ({
     : [];
 
   return (
-    <div className="flex w-full flex-col gap-4 md:gap-10">
+    <div className={`flex w-full flex-col gap-6 ${isSmall ? "" : "md:gap-10"}`}>
       <Controller
-        control={form.control}
-        name="phoneNumber"
+        control={control}
+        name={names.phoneNumber}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <PhoneNumberInput
@@ -55,6 +72,8 @@ const PickUpInfoSection = ({
               defaultCountry="NG"
               placeholder="9012356781"
               disabled={isSubmitting}
+              phoneInputClassName={`h-11.25! ${isSmall ? "" : "md:h-14!"}`}
+              flagContainerClassName={`h-11.25! ${isSmall ? "" : "md:h-14!"}`}
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
@@ -62,8 +81,8 @@ const PickUpInfoSection = ({
       />
       <div className="flex gap-6 w-full flex-col md:flex-row">
         <Controller
-          control={form.control}
-          name="location.country"
+          control={control}
+          name={names.country}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="flex-1 ">
               <FieldLabel
@@ -78,16 +97,16 @@ const PickUpInfoSection = ({
                 value={field.value}
                 onValueChange={(value) => {
                   field.onChange(value ? value : "");
-                  form.setValue("location.state", "");
+                  resetField(names.state);
                 }}
                 items={countryList.map((country) => country.name)}
                 disabled={isSubmitting}
               >
                 <ComboboxInput
                   aria-invalid={fieldState.invalid}
-                    disabled={isSubmitting}
+                  disabled={isSubmitting}
                   placeholder="Select a country"
-                  className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
+                  className={`h-11.25! ${isSmall ? "" : "md:h-14!"} w-full shrink-0 rounded-[12px] border-black-200! `}
                 >
                   <InputGroupAddon>
                     <LocationIcon className="size-6" />
@@ -114,8 +133,8 @@ const PickUpInfoSection = ({
           )}
         />
         <Controller
-          control={form.control}
-          name="location.state"
+          control={control}
+          name={names.state}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="flex-1">
               <FieldLabel
@@ -140,7 +159,7 @@ const PickUpInfoSection = ({
                       ? "Select state"
                       : "Select a country first"
                   }
-                  className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
+                  className={`h-11.25! ${isSmall ? "" : "md:h-14!"} w-full shrink-0 rounded-[12px] border-black-200!`}
                 >
                   <InputGroupAddon>
                     <LocationIcon className="size-6" />
@@ -167,8 +186,8 @@ const PickUpInfoSection = ({
         />
       </div>
       <Controller
-        control={form.control}
-        name="location.formattedAddress"
+        control={control}
+        name={names.address}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel
@@ -177,7 +196,7 @@ const PickUpInfoSection = ({
             >
               Address
             </FieldLabel>
-            <InputGroup className="h-14">
+            <InputGroup className={`h-11.25! ${isSmall ? "" : "md:h-14! "}`}>
               <InputGroupAddon>
                 <LocationIcon className="size-6" />
               </InputGroupAddon>

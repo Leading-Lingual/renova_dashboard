@@ -2,6 +2,7 @@
 import { useSidebar } from "@/context/SidebarProvider";
 import BaselineStarRateIcon from "@iconify-react/ic/baseline-star-rate";
 import NotificationIcon from "@iconify-react/iconamoon/notification";
+import Cart from "@iconify-react/ant-design/shopping-cart-outlined"
 import { Menu } from "lucide-react";
 import SearchCategory from "./SearchCategories";
 import { useQuery } from "@tanstack/react-query";
@@ -9,12 +10,15 @@ import { getUserProfile } from "@/actions/user/user.query";
 import { getFirstWord, getInitials } from "@/lib/utils";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { useShowNavBar } from "@/hooks/useShowNavBar";
+import Link from "next/link";
+import { getCartItems } from "@/actions/cart/cart.query";
 
 const NavBar = () => {
   const { isOpen, setIsOpen } = useSidebar();
   const { data } = useQuery(getUserProfile);
   const { isMobile } = useWindowSize();
   const showNavBar = useShowNavBar();
+  const {data:cartData, isLoading} = useQuery(getCartItems)
 
   return !isMobile || showNavBar ? (
     <nav className="border-b border-b-black-50 py-4 w-full flex justify-between items-center px-6 md:px-8">
@@ -37,6 +41,14 @@ const NavBar = () => {
       </div>
       <div className="flex gap-6 md:gap-7">
         <SearchCategory />
+        <Link href={"/cart"} className="relative">
+          {cartData?.items.length !== 0 && !isLoading && <div className="absolute rounded-full size-5 bg-danger-500 flex -right-1 -top-1">
+            <p className="text-white m-auto text-2s-medium">{cartData?.items.length}</p>
+          </div>}
+          <div className="rounded-full size-8 md:size-10 bg-black-50 flex">
+            <Cart className="m-auto size-4 md:size-6 text-black-500" />
+          </div>
+        </Link>
         <div className="relative">
           <div className="absolute rounded-full size-5 bg-danger-500 flex -right-1 -top-1">
             <p className="text-white m-auto text-2s-medium">2</p>

@@ -6,7 +6,7 @@ import Pill from "@/components/Pill";
 import { Button } from "@/components/ui/button";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { formatDecimal, formatText } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,11 @@ import { Badge } from "@/components/ui/badge";
 import SaveRibbonIcon from "@iconify-react/stash/save-ribbon";
 import ShoppingCartOutlinedIcon from "@iconify-react/ant-design/shopping-cart-outlined";
 import { getMarketplaceListingDetailQuery } from "@/actions/marketplace/marketplace.query";
-// import Payment24RegularIcon from '@iconify-react/fluent/payment-24-regular';
+import { useBuyNowStore } from "@/stores/buyNow.store";
+import { getCartItems } from "@/actions/cart/cart.query";
+import { addToCartMutation } from "@/actions/cart/cart.mutation";
+import { toast } from "sonner";
+import Payment24RegularIcon from "@iconify-react/fluent/payment-24-regular";
 
 type detail = { title: string; value: ReactNode };
 
@@ -35,12 +39,30 @@ const ListingDetailsContent = ({
   const { isMobile } = useWindowSize();
   const router = useRouter();
   const { save, unSave } = useListingActions();
+  const setBuyNowItem = useBuyNowStore((state) => state.setBuyNowItem);
 
   const { data, isPending, error } = useQuery(
     isMarketPlace
       ? getMarketplaceListingDetailQuery(listingId)
       : getListingDetailQuery(listingId),
   );
+
+  const { data: cartData } = useQuery(getCartItems);
+  const { mutate: addToCart } = useMutation(addToCartMutation);
+
+  const handleAddTocart = (listingId: string) => {
+    addToCart(
+      { listingId },
+      {
+        onError: () => {
+          toast.error("failed to add");
+        },
+      },
+    );
+  };
+
+  const isInCart = cartData?.items.some((item) => item.listingId === listingId);
+
   const { archive, restore, isAnyPending } = useListingActions();
 
   const details: detail[] = [
@@ -193,12 +215,25 @@ const ListingDetailsContent = ({
               </div>
               {isMarketPlace ? (
                 <div className="flex w-full gap-4">
-                  <Button variant="outline" className="flex-1 h-12!">
+                  <Button
+                    variant="outline"
+                    className="flex-1 h-12!"
+                    disabled={isInCart}
+                    onClick={() => handleAddTocart(data.id)}
+                  >
                     <ShoppingCartOutlinedIcon />
-                    Add to cart
+                    {isInCart ? "Added to cart" : "Add to cart"}
                   </Button>
-                  {/* <Payment24RegularIcon/> */}
-                  <Button className="flex-1 h-12!">Buy Now</Button>
+                  <Button
+                    className="flex-1 h-12!"
+                    onClick={() => {
+                      setBuyNowItem(data);
+                      router.push("/checkout?how=buynow");
+                    }}
+                  >
+                    <Payment24RegularIcon />
+                    Buy Now
+                  </Button>
                 </div>
               ) : (
                 <Button
