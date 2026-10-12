@@ -11,9 +11,11 @@ import DetailsDrawer from "./DetailsDrawer";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { useBuyNowStore } from "@/stores/buyNow.store";
 
 const MarkertPlaceCard = ({ listing }: { listing: Listing }) => {
   const { save, unSave } = useListingActions();
+  const setBuyNowItem = useBuyNowStore((state) => state.setBuyNowItem);
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { isMobile } = useWindowSize();
@@ -64,14 +66,20 @@ const MarkertPlaceCard = ({ listing }: { listing: Listing }) => {
           <p className="md:font-bold text-2s-medium md:text-s">
             {formatDecimal(listing.pricePerKg)} Per KG
           </p>
-          <p className="text-2s-medium font-normal md:text-s">{formatDecimal(listing.quantityKg)} KG</p>
+          <p className="text-2s-medium font-normal md:text-s">
+            {formatDecimal(listing.quantityKg)} KG
+          </p>
         </div>
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center">
-            <p className="text-2s-medium md:text-s font-medium">By {listing.seller?.fullName}</p>
+            <p className="text-2s-medium md:text-s font-medium">
+              By {listing.seller?.fullName}
+            </p>
             <div className="flex gap-0.5 md:gap-1">
               <BaselineStarRateIcon className="size-4 text-accent-600" />
-              <p className="text-2s-medium md:text-s md:font-bold text-black-400">4.3</p>
+              <p className="text-2s-medium md:text-s md:font-bold text-black-400">
+                4.3
+              </p>
             </div>
           </div>
 
@@ -87,13 +95,23 @@ const MarkertPlaceCard = ({ listing }: { listing: Listing }) => {
       </div>
       <div className="flex gap-2">
         <Button
-          onClick={() => isMobile ?router.push(`/marketplace/${listing.id}`):setOpen(true)}
+          onClick={() =>
+            isMobile ? router.push(`/marketplace/${listing.id}`) : setOpen(true)
+          }
           variant="outline"
           className="bg-brand-500 text-white  md:bg-transparent md:text-brand-500 flex-1 text-s! font-bold!"
         >
           View Details
         </Button>
-        <Button className="hidden md:flex flex-1">Buy Now</Button>
+        <Button
+          onClick={() => {
+            setBuyNowItem(listing);
+            router.push("/checkout?how=buynow");
+          }}
+          className="hidden md:flex flex-1"
+        >
+          Buy Now
+        </Button>
       </div>
       <DetailsDrawer
         isMarketPlace

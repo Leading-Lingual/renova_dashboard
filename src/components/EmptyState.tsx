@@ -5,14 +5,14 @@ import { IconProps } from "@iconify-react/griddy-icons/activity";
 
 const EmptyState = ({
   title,
-  subtile,
+  subtitle,
   image,
   firstButton,
   secondButton,
 }: {
   title: string;
-  subtile: string;
-  image: StaticImageData | string;
+  subtitle: string;
+  image?: StaticImageData | string;
   firstButton?: {
     text: string;
     icon: ForwardRefExoticComponent<
@@ -33,14 +33,14 @@ const EmptyState = ({
   return (
     <div className="text-center flex flex-col gap-12 justify-center items-center p-6 rounded-lg shadow-[0px_2px_6px_2px_#00000026,0px_1px_2px_0px_#0000004D]">
       <div className="flex flex-col ">
-        <Image
+       {image && <Image
           src={image}
           alt="empty-state h-[136.59px] w-[157px] md:h-auto md:w-auto"
           className="m-auto"
-        />
+        />}
         <div className="flex flex-col gap-1 text-black-500">
           <p className="text-heading-xs-semibold ">{title}</p>
-          <p className="text-s font-normal max-w-87.5">{subtile}</p>
+          <p className="text-s font-normal max-w-87.5">{subtitle}</p>
         </div>
       </div>
       {(firstButton || secondButton) && (
