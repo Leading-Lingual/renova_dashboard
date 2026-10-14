@@ -29,7 +29,18 @@ const NotificationDrawer = ({
 
   const limit = 10;
 
-  const { data, isPending, reset } = useCursorPagination({
+  const {
+    data,
+    isPending,
+    isFetching,
+    isResolvingPage,
+    hasPrevious,
+    goToPreviousPage,
+    goToPage,
+    page,
+    reset,
+    hasNext,
+  } = useCursorPagination({
     limit: limit,
     buildQuery: (cursor) =>
       getNotificationQuery({
@@ -86,8 +97,8 @@ const NotificationDrawer = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} swipeDirection="right">
-      <DrawerContent className="px-4 pt-4 pb-10 md:p-10 w-full md:w-114 ">
-        <div className="flex flex-col gap-6 md:gap-4.5 ">
+      <DrawerContent className="px-4 pt-4 pb-10 md:p-10 w-full md:w-114 h-dvh max-h-dvh overflow-hidden">
+        <div className="flex h-full min-h-0 flex-col gap-6 md:gap-4.5">
           <div className="flex flex-col gap-4">
             <DrawerClose
               className="flex md:hidden"
@@ -137,8 +148,8 @@ const NotificationDrawer = ({
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
-              <div className="flex border-b-2 gap-3 md:gap-6 border-brand-50/50 overflow-auto">
+            <div className="flex min-h-0 flex-1 flex-col gap-4">
+              <div className="flex shrink-0 border-b-2 gap-3 md:gap-6 border-brand-50/50 overflow-auto">
                 {tabs.map((item) => (
                   <button
                     type="button"
@@ -170,9 +181,26 @@ const NotificationDrawer = ({
                   </button>
                 ))}
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain">
+                {hasPrevious && (
+                  <button
+                    type="button"
+                    onClick={goToPreviousPage}
+                    disabled={isFetching || isResolvingPage}
+                    className="shrink-0 self-center text-sm text-brand-500 disabled:opacity-60"
+                  >
+                    {isFetching || isResolvingPage ? (
+                      <LoadingBubbles />
+                    ) : (
+                      "View earlier"
+                    )}
+                  </button>
+                )}
                 {visibleNotifications.map((item, index) => (
-                  <div key={item.id} className="flex flex-col gap-2 w-full">
+                  <div
+                    key={item.id}
+                    className="flex shrink-0 flex-col gap-2 w-full"
+                  >
                     <button
                       type="button"
                       onClick={() => {
@@ -213,6 +241,20 @@ const NotificationDrawer = ({
                     )}
                   </div>
                 ))}
+                {hasNext && (
+                  <button
+                    type="button"
+                    onClick={() => goToPage(page + 1)}
+                    disabled={isFetching || isResolvingPage || !hasNext}
+                    className="shrink-0 self-center text-sm text-brand-500 disabled:opacity-60"
+                  >
+                    {isFetching || isResolvingPage ? (
+                      <LoadingBubbles />
+                    ) : (
+                      "View older"
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -221,5 +263,22 @@ const NotificationDrawer = ({
     </Drawer>
   );
 };
+
+const LoadingBubbles = () => (
+  <span
+    className="inline-flex items-center gap-1"
+    aria-label="Loading notifications"
+  >
+    <span className="size-1.5 animate-bounce rounded-full bg-brand-500" />
+    <span
+      className="size-1.5 animate-bounce rounded-full bg-brand-500"
+      style={{ animationDelay: "150ms" }}
+    />
+    <span
+      className="size-1.5 animate-bounce rounded-full bg-brand-500"
+      style={{ animationDelay: "300ms" }}
+    />
+  </span>
+);
 
 export default NotificationDrawer;
