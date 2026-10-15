@@ -1,4 +1,4 @@
-import { formatDecimal, formatText } from "@/lib/utils";
+import { formatDecimal, formatNumber, formatText } from "@/lib/utils";
 import { Listing } from "@/types/listing.types";
 import Image from "next/image";
 import SaveRibbonIcon from "@iconify-react/stash/save-ribbon";
@@ -64,7 +64,7 @@ const MarkertPlaceCard = ({ listing }: { listing: Listing }) => {
         </div>
         <div className="flex justify-between items-center">
           <p className="md:font-bold text-2s-medium md:text-s">
-            {formatDecimal(listing.pricePerKg)} Per KG
+            &#x20A6;{formatNumber(formatDecimal(listing.pricePerKg))} Per KG
           </p>
           <p className="text-2s-medium font-normal md:text-s">
             {formatDecimal(listing.quantityKg)} KG

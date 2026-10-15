@@ -9,6 +9,7 @@ interface SectionCardProps {
   subTitleClassName?: string;
   useAccordion?: boolean;
   children: ReactNode;
+  headingDetail?: ReactNode
 }
 
 const SectionCard = ({
@@ -18,6 +19,7 @@ const SectionCard = ({
   subTitleClassName,
   useAccordion = true,
   children,
+  headingDetail
 }: SectionCardProps) => {
   const [showBody, setShowBody] = useState(true);
   return (
@@ -36,6 +38,7 @@ const SectionCard = ({
               className={`transition-all duration-300 ${showBody ? "" : "rotate-180"}`}
             />
           )}
+          {headingDetail}
         </div>
         <div
           className={`w-full transition-all ease-linear ${showBody ? "opacity-100 max-h-full duration-300" : "opacity-0 max-h-0 duration-200"}`}

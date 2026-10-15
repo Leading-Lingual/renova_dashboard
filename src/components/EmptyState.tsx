@@ -9,11 +9,18 @@ const EmptyState = ({
   image,
   firstButton,
   secondButton,
+  containerClassName,
+  titleClassName,
+  subtitleClassName,
 }: {
+  containerClassName?: string;
+  titleClassName?: string;
+  subtitleClassName?: string;
   title: string;
   subtitle: string;
   image?: StaticImageData | string;
   firstButton?: {
+    className?: string;
     text: string;
     icon: ForwardRefExoticComponent<
       Omit<SVGProps<SVGSVGElement>, "viewBox" | "width" | "height" | "xmlns"> &
@@ -28,19 +35,28 @@ const EmptyState = ({
         IconProps
     >;
     onClick?: () => void;
+    className?: string;
   };
 }) => {
   return (
-    <div className="text-center flex flex-col gap-12 justify-center items-center p-6 rounded-lg shadow-[0px_2px_6px_2px_#00000026,0px_1px_2px_0px_#0000004D]">
+    <div
+      className={`text-center flex flex-col gap-12 justify-center items-center p-6 rounded-lg shadow-[0px_2px_6px_2px_#00000026,0px_1px_2px_0px_#0000004D] ${containerClassName}`}
+    >
       <div className="flex flex-col ">
-       {image && <Image
-          src={image}
-          alt="empty-state h-[136.59px] w-[157px] md:h-auto md:w-auto"
-          className="m-auto"
-        />}
+        {image && (
+          <Image
+            src={image}
+            alt="empty-state h-[136.59px] w-[157px] md:h-auto md:w-auto"
+            className="m-auto"
+          />
+        )}
         <div className="flex flex-col gap-1 text-black-500">
-          <p className="text-heading-xs-semibold ">{title}</p>
-          <p className="text-s font-normal max-w-87.5">{subtitle}</p>
+          <p className={`text-heading-xs-semibold ${titleClassName}`}>
+            {title}
+          </p>
+          <p className={`text-s font-normal max-w-87.5 ${subtitleClassName}`}>
+            {subtitle}
+          </p>
         </div>
       </div>
       {(firstButton || secondButton) && (
@@ -49,7 +65,7 @@ const EmptyState = ({
             <Button
               onClick={firstButton.onClick}
               variant="outline"
-              className="border-brand-500! h-12 md:h-14 px-4! w-full! md:w-fit!"
+              className={`border-brand-500! h-12 md:h-14 px-4! w-full! md:w-fit! ${firstButton.className}`}
             >
               <firstButton.icon className="size-6 text-brand-700" />
               <p className="text-brand-700 text-heading-xs-semibold">
@@ -60,7 +76,7 @@ const EmptyState = ({
           {secondButton && (
             <Button
               onClick={secondButton.onClick}
-              className="h-12 md:h-14 w-full! md:w-fit! px-4! "
+              className={`h-12 md:h-14 w-full! md:w-fit! px-4! ${secondButton.className}`}
             >
               <secondButton.icon className="size-6" />
               <p className="text-heading-xs-semibold">{secondButton.text}</p>
