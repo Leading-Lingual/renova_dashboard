@@ -12,10 +12,12 @@ const OrderSummary = ({
   isCheckout,
   cartListing,
   showProceed,
+  onProceed,
 }: {
   isCheckout?: boolean;
   cartListing?: CartListingsResponse;
   showProceed?: boolean;
+  onProceed?: () => void;
 }) => {
   const [showBody, setShowBody] = useState(true);
   const detailsId = useId();
@@ -192,7 +194,7 @@ const OrderSummary = ({
         </div>
         {(showProceed || !isCheckout) && (
           <Button
-            onClick={() => (isCheckout ? router.push("/payment") : router.push("/checkout?how=cart"))}
+            onClick={() => (isCheckout ? onProceed?.() : router.push("/checkout?how=cart"))}
             className="h-12"
           >
             {isCheckout ? "Continue to Payment" : "Continue to Checkout"}

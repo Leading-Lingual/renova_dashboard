@@ -5,7 +5,9 @@ import OrderSummary from "@/components/Checkout/OrderSummary";
 import Heading from "@/components/Heading";
 import SectionCard from "@/components/SectionCard";
 import { getUserProfile } from "@/actions/user/user.query";
-import { checkoutFormValues } from "@/types/checkout.types";
+import { CheckoutRequest } from "@/types/checkout.types";
+import { saveCheckoutRequest } from "@/lib/checkout-session";
+import { toast } from "sonner";
 import { CheckoutSchema } from "@/validations/checkout.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, X } from "lucide-react";
@@ -25,42 +27,35 @@ const CheckoutPage = () => {
   const { data: userProfile } = useQuery(getUserProfile);
   const { data: cartData } = useQuery(getCartItems);
   const buyNowItem = useBuyNowStore((state) => state.item);
+  const isBuyNow = get("how") === "buynow";
 
   const checkoutData = useMemo(
-    () => (get("how") === "buynow" && buyNowItem ? buyNowItem : cartData),
-    [buyNowItem, cartData, get],
+    () => (isBuyNow ? buyNowItem ?? undefined : cartData),
+    [buyNowItem, cartData, isBuyNow],
   );
 
   const checkoutListings = useMemo(
-    () => ( get("how") === "buynow" && buyNowItem ? buyNowItem?.items : cartData?.items),
-    [buyNowItem, cartData, get],
+    () => (isBuyNow ? buyNowItem?.items ?? [] : cartData?.items),
+    [buyNowItem, cartData, isBuyNow],
   );
   const [addressPreference, setAddressPrefence] = useState<OptionType | null>(
     null,
   );
-  const listingIds = useMemo(
-    () => checkoutListings?.map((l) => l.listingId),
-    [checkoutListings],
-  );
 
-  const form = useForm<checkoutFormValues>({
+  const defaultValues: CheckoutRequest = {
+    ...(isBuyNow ? { mode: "BUY_NOW", listingId: buyNowItem?.items[0]?.listingId ?? "" } : { mode: "CART" }),
+    deliveryLocation: { country: "", state: "", formattedAddress: "", source: "MANUAL" },
+  };
+  const form = useForm<CheckoutRequest>({
     resolver: zodResolver(CheckoutSchema),
     mode: "onChange",
-    defaultValues: {
-      listingIds: listingIds,
-      phoneNumber: "",
-      location: undefined,
-    },
+    defaultValues,
   });
   const { setValue, trigger } = form;
 
-  const phoneNumber = useWatch({ control: form.control, name: "phoneNumber" });
-  const location = useWatch({ control: form.control, name: "location" });
-  const showProceed = CheckoutSchema.safeParse({
-    listingIds,
-    phoneNumber,
-    location,
-  }).success;
+  const values = useWatch({ control: form.control });
+  const location = values.deliveryLocation;
+  const showProceed = CheckoutSchema.safeParse(values).success && !!checkoutListings?.length;
   const isAddressFilled = Boolean(
     location?.formattedAddress?.trim() &&
     location.state?.trim() &&
@@ -68,34 +63,33 @@ const CheckoutPage = () => {
   );
 
   useEffect(() => {
-    setValue("listingIds", listingIds ?? [], { shouldValidate: true });
-    void trigger();
-  }, [checkoutListings, listingIds, setValue, trigger]);
+    if (isBuyNow) {
+      setValue("mode", "BUY_NOW");
+      setValue("listingId", buyNowItem?.items[0]?.listingId ?? "", { shouldValidate: true });
+    } else {
+      setValue("mode", "CART");
+      form.unregister("listingId");
+    }
+  }, [isBuyNow, buyNowItem, setValue, form]);
 
   useEffect(() => {
     if (addressPreference !== "ACCOUNT_ADDRESS" || !userProfile) return;
 
     setValue(
-      "location",
+      "deliveryLocation",
       {
-        country: userProfile.location.country ?? "",
-        state: userProfile.location.state ?? "",
-        formattedAddress: userProfile.location.formattedAddress ?? "",
+        country: userProfile.location?.country ?? "",
+        state: userProfile.location?.state ?? "",
+        formattedAddress: userProfile.location?.formattedAddress ?? "",
+        source: "MANUAL",
       },
       { shouldValidate: true },
     );
-    setValue("phoneNumber", userProfile.phoneNumber ?? "", {
-      shouldValidate: true,
-    });
     void trigger();
   }, [addressPreference, setValue, trigger, userProfile]);
 
   const clearAddress = () => {
-    form.reset({
-      listingIds,
-      phoneNumber: "",
-      location: undefined,
-    });
+    form.reset(defaultValues);
     setAddressPrefence(null);
   };
   return (
@@ -162,11 +156,7 @@ const CheckoutPage = () => {
               open={isOpen}
               onOpenChange={setIsOpen}
               onAdd={(address) => {
-                setValue("location", address.location, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
-                setValue("phoneNumber", address.phoneNumber, {
+                setValue("deliveryLocation", { ...address.location, source: address.location.source || "MANUAL" }, {
                   shouldDirty: true,
                   shouldValidate: true,
                 });
@@ -180,6 +170,14 @@ const CheckoutPage = () => {
             isCheckout
             cartListing={checkoutData}
             showProceed={showProceed}
+            onProceed={() => void form.handleSubmit((body) => {
+              try {
+                saveCheckoutRequest(body);
+                route.push("/payment");
+              } catch {
+                toast.error("Unable to save checkout. Please enable browser storage and try again.");
+              }
+            })()}
           />
         </div>
       )}
