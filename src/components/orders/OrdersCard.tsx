@@ -1,11 +1,23 @@
 import Image from "next/image";
 import { Badge } from "../ui/badge";
-import { Order } from "@/types/orders.types";
-import { formatDecimal, formatNumber, formatText } from "@/lib/utils";
+import { Order, OrderStatus } from "@/types/orders.types";
+import { cn, formatDecimal, formatNumber, formatText } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+
+const statusColors: Record<OrderStatus, string> = {
+  AWAITING_PAYMENT: "bg-accent-400",
+  PAID: "bg-accent-400 ",
+  READY_FOR_FULFILLMENT: "bg-accent-400",
+  COMPLETED: "bg-brand-400",
+  PAYMENT_FAILED: "bg-danger-400",
+  EXPIRED:"bg-danger-400 ",
+};
 
 const OrdersCard = ({ order }: { order?: Order }) => {
   const router = useRouter();
+  const statusColor =
+    (order?.status && statusColors[order.status]) ??
+    "bg-black-50 text-black-400";
   return (
     <div
       onClick={() => router.push(`/orders/${order?.id}`)}
@@ -13,15 +25,16 @@ const OrdersCard = ({ order }: { order?: Order }) => {
     >
       <div className="flex md:flex-col gap-3 md:gap-3.75 w-full">
         <div className="relative border rounded-md bg-black-50  md:h-40.75">
-          <Badge className="hidden md:flex absolute top-3 right-3 bg-accent-400">
+          <Badge className={cn("hidden md:flex absolute top-3 right-3 z-20", statusColor)}>
             {formatText(order?.status ?? "")}
           </Badge>
-          <Image
+          {order?.items?.[0].imageUrl  && <Image
+          fill
             src={order?.items?.[0].imageUrl ?? ""}
             alt="product-img"
             className="size-16 md:w-full md:h-full  "
-          />
-          {order?.items && order?.items?.length > 0 && (
+          />}
+          {order?.items && order?.items?.length > 1 && (
             <Badge className="hidden md:flex absolute bottom-3 right-3 bg-white text-black-500">
               1/{order?.items.length}
             </Badge>

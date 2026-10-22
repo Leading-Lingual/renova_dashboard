@@ -2,7 +2,7 @@ import { CartListing } from "@/types/cart.types";
 import SectionCard from "../SectionCard";
 import { formatDecimal, formatNumber } from "@/lib/utils";
 import dayjs from "dayjs";
-import { Button } from "../ui/button";
+// import { Button } from "../ui/button";
 import Image from "next/image";
 import BaselineStarRateIcon from "@iconify-react/ic/baseline-star-rate";
 
@@ -43,6 +43,8 @@ const OrderDetailCard = ({
         <div className="px-4 pt-4 flex gap-5.5 w-full">
           <div className="size-16 overflow-hidden rounded-[8px]">
             <Image
+              width={64}
+              height={64}
               src={detail.imageUrl ?? ""}
               alt="product-img"
               className="size-16 rounded-[8px]"
@@ -59,7 +61,7 @@ const OrderDetailCard = ({
             </div>
 
             <div className="md:hidden text-s text-bold">
-                <p className="">Order ID: {detail.listingId}</p>
+              <p className="">Order ID: {detail.listingId}</p>
             </div>
 
             <div className="flex justify-between items-center">
@@ -82,13 +84,13 @@ const OrderDetailCard = ({
             </div>
           </div>
         </div>
-        <Button
+        {/* <Button
           onClick={() => setIsOpen(true)}
           variant="ghost"
           className="text-brand-500 font-bold hover:text-brand-300 cursor-pointer"
         >
           Track Order
-        </Button>
+        </Button> */}
       </div>
       <OrderTrackingDrawer
         role={role}

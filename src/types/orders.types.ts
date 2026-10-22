@@ -37,7 +37,7 @@ export interface OrderTimeline {
   type: OrderTimeLineType;
   paymentAttemptId: string;
   metadata: {
-    additionalProp1: string;
+    purchaseId: string;
   };
   occurredAt: string;
 }

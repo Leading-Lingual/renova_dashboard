@@ -4,7 +4,7 @@ import { getUserProfile } from "@/actions/user/user.query";
 import { useQuery } from "@tanstack/react-query";
 import ShoppingCartArrowUp from "@iconify-react/carbon/shopping-cart-arrow-up";
 import ShoppingCartArrowDown from "@iconify-react/carbon/shopping-cart-arrow-down";
-import { ReactElement, useState } from "react";
+import { ReactElement, Suspense, useState } from "react";
 import EmptyOrderImg from "@/assets/emptyOrder.svg";
 import Image from "next/image";
 import OrdersCard from "@/components/orders/OrdersCard";
@@ -14,18 +14,29 @@ import { useCursorPagination } from "@/hooks/useCursorPagination";
 // import { ListingSort } from "@/types/listing.types";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import PaginationControls from "@/components/PaginationControls";
+import useQueryParams from "@/hooks/useQueryParams";
 
 type tabTypes = "SELLER" | "BUYER";
 type orderTabTypes = "COMPLETED" | "IN_PROGRESS" | "ALL";
 
 const OrdersPage = () => {
+  const [completedCounts, setCompletedCounts] = useState<
+    Partial<Record<tabTypes, number>>
+  >({});
+  const { get, set } = useQueryParams();
   const { data } = useQuery(getUserProfile);
   const userActivities = data?.activities;
   const hasSell = userActivities?.includes("SELL");
   const hasBuy = userActivities?.includes("BUY");
   const hasBoth = hasBuy && hasSell;
-  const [tab, setTab] = useState<tabTypes>("SELLER");
-  const [orderTab, setOrderTab] = useState<orderTabTypes>("ALL");
+  const tabParam = get("tab");
+  const viewParam = get("view");
+  const tab: tabTypes = tabParam === "BUYER" || tabParam === "SELLER"
+    ? tabParam
+    : hasBuy && !hasSell ? "BUYER" : "SELLER";
+  const orderTab: orderTabTypes = viewParam === "IN_PROGRESS" || viewParam === "COMPLETED"
+    ? viewParam
+    : "ALL";
 
   // const [search, setSearch] = useState("");
   // const [from, setFrom] = useState("");
@@ -40,6 +51,7 @@ const OrdersPage = () => {
     data: orders,
     isPending,
     controlProps,
+    reset,
   } = useCursorPagination({
     limit: limit,
     buildQuery: (cursor) =>
@@ -69,6 +81,16 @@ const OrdersPage = () => {
 
   const ordersList = orders?.items ?? [];
 
+  if (orderTab === "ALL" && orders) {
+    const completedCount = orders.items.filter(
+      (order) => order.status === "COMPLETED",
+    ).length;
+
+    if (completedCounts[tab] !== completedCount) {
+      setCompletedCounts({ ...completedCounts, [tab]: completedCount });
+    }
+  }
+
   const ordersListLength = orders?.counts.all ?? 0;
 
   const tabs: { title: string; key: tabTypes; icon: ReactElement }[] = [
@@ -84,7 +106,7 @@ const OrdersPage = () => {
     },
   ];
 
-  const ordersTabs: { title: string; key: orderTabTypes; count: number }[] = [
+  const ordersTabs: { title: string; key: orderTabTypes; count?: number }[] = [
     {
       title: "All sales",
       key: "ALL",
@@ -93,12 +115,12 @@ const OrdersPage = () => {
     {
       title: "In-progress",
       key: "IN_PROGRESS",
-      count: 0,
+      count: orders?.counts.inProgress,
     },
     {
       title: "Completed",
       key: "COMPLETED",
-      count: 0,
+      count: completedCounts[tab] ?? 0,
     },
   ];
 
@@ -113,7 +135,10 @@ const OrdersPage = () => {
             {tabs.map((item) => (
               <div
                 key={item.key}
-                onClick={() => setTab(item.key)}
+                onClick={() => {
+                  set({ tab: item.key });
+                  reset();
+                }}
                 className={`rounded-md xl:rounded-none  cursor-pointer py-1.5 xl:py-4 text-black-500 flex gap-4 items-center justify-center xl:justify-start w-full ${tab === item.key ? "xl:border-l-8 xl:border-brand-500 xl:px-2 bg-brand-50 font-bold" : "border xl:border-none xl:px-4 font-medium"}`}
               >
                 {item.icon}
@@ -146,7 +171,8 @@ const OrdersPage = () => {
                   type="button"
                   key={item.title}
                   onClick={() => {
-                    setOrderTab(item.key);
+                    set({ tab, view: item.key });
+                    reset();
                   }}
                   className={`cursor-pointer flex items-center justify-center gap-2 px-2.5 py-1 md:p-2.5 border-b-2 ${orderTab === item.key ? "border-brand-500 md:border-black-500" : "border-transparent"}`}
                 >
@@ -160,8 +186,8 @@ const OrdersPage = () => {
                 </button>
               ))}
             </div>
-            {currentTabObject?.key !== "ALL" &&
-            currentTabObject?.count === 0 ? (
+            {currentTabObject && currentTabObject.key !== "ALL" &&
+            ordersList.length === 0 ? (
               <div className="flex flex-col gap-8 items-center justify-center text-center mt-10 lg:mt-[83.14px]">
                 <Image
                   src={EmptyOrderImg}
@@ -183,7 +209,6 @@ const OrdersPage = () => {
                   {ordersList.map((item) => (
                     <OrdersCard key={item.id} order={item} />
                   ))}
-                  <OrdersCard />
                 </div>
                 <PaginationControls {...controlProps} />
               </div>
@@ -195,4 +220,10 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage;
+export default function Orders() {
+  return (
+    <Suspense fallback={null}>
+      <OrdersPage />
+    </Suspense>
+  );
+}
