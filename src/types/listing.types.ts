@@ -36,7 +36,10 @@ export type SellerDetails = {
   id: string;
   fullName: string;
   avatarUrl: string;
-  accountType: AccountType;
+  accountType?: AccountType;
+  phoneNumber?: string;
+  averageRating: string;
+  reviewCount: number;
 };
 export interface Listing {
   id: string;

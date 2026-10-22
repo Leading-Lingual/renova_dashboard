@@ -77,7 +77,7 @@ const useSidebarItems = () => {
       },
       {
         allowed: ACCESS.orders,
-        item: { Icon: ShoppingCartOutlinedIcon, text: "Orders", route: "#" },
+        item: { Icon: ShoppingCartOutlinedIcon, text: "Orders", route: "/orders" },
       },
       {
         allowed: ACCESS.pickups,
