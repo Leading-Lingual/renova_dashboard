@@ -38,12 +38,12 @@ const OrderTrackingDrawer = ({
       date: "",
       done: true,
     },
-    {
-      title: "Collector assigned",
-      detail: "John Victor has been assigned as the collector",
-      date: "",
-      done: true,
-    },
+    // {
+    //   title: "Collector assigned",
+    //   detail: "John Victor has been assigned as the collector",
+    //   date: "",
+    //   done: true,
+    // },
     {
       title: "Material picked up",
       detail:
@@ -77,12 +77,12 @@ const OrderTrackingDrawer = ({
       date: "",
       done: true,
     },
-    {
-      title: "Collector Assigned",
-      detail: "John Victor has been assigned to collect your material.",
-      date: "",
-      done: true,
-    },
+    // {
+    //   title: "Collector Assigned",
+    //   detail: "John Victor has been assigned to collect your material.",
+    //   date: "",
+    //   done: true,
+    // },
     {
       title: "Material Collected",
       detail: "Your material has been successfully picked up from the you at 28 Toyin street Allen, Ikeja, Lagos, Nigeria.",
