@@ -22,7 +22,7 @@ const EmptyState = ({
   firstButton?: {
     className?: string;
     text: string;
-    icon: ForwardRefExoticComponent<
+    icon?: ForwardRefExoticComponent<
       Omit<SVGProps<SVGSVGElement>, "viewBox" | "width" | "height" | "xmlns"> &
         IconProps
     >;
@@ -30,7 +30,7 @@ const EmptyState = ({
   };
   secondButton?: {
     text: string;
-    icon: ForwardRefExoticComponent<
+    icon?: ForwardRefExoticComponent<
       Omit<SVGProps<SVGSVGElement>, "viewBox" | "width" | "height" | "xmlns"> &
         IconProps
     >;
@@ -67,7 +67,9 @@ const EmptyState = ({
               variant="outline"
               className={`border-brand-500! h-12 md:h-14 px-4! w-full! md:w-fit! ${firstButton.className}`}
             >
-              <firstButton.icon className="size-6 text-brand-700" />
+              {firstButton.icon && (
+                <firstButton.icon className="size-6 text-brand-700" />
+              )}
               <p className="text-brand-700 text-heading-xs-semibold">
                 {firstButton.text}
               </p>
@@ -78,7 +80,7 @@ const EmptyState = ({
               onClick={secondButton.onClick}
               className={`h-12 md:h-14 w-full! md:w-fit! px-4! ${secondButton.className}`}
             >
-              <secondButton.icon className="size-6" />
+              {secondButton.icon && <secondButton.icon className="size-6" />}
               <p className="text-heading-xs-semibold">{secondButton.text}</p>
             </Button>
           )}

@@ -15,7 +15,7 @@ const OverviewCard = ({
       IconProps
   >;
   value: string|number;
-  increase: number;
+  increase?: number;
 }) => {
   return (
     <div
@@ -28,9 +28,9 @@ const OverviewCard = ({
       <div className="flex flex-col gap-1">
         <p className="text-2s-medium font-normal lg:text-s">{title}</p>
         <p className=" text-s font-bold lg:text-m-bold">{value}</p>
-        <Badge className="bg-brand-50 text-brand-800 text-2s-medium! font-normal ">
+        {increase ? <Badge className="bg-brand-50 text-brand-800 text-2s-medium! font-normal ">
           +{increase}% this month
-        </Badge>
+        </Badge> :""}
       </div>
     </div>
   );
