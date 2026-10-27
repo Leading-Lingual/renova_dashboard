@@ -88,7 +88,7 @@ const useSidebarItems = () => {
         item: {
           Icon: CreditcardIcon,
           text: "Wallet & Transactions",
-          route: "#",
+          route: "/wallet-and-transactions",
         },
       },
     ];

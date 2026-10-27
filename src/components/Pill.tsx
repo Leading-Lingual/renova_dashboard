@@ -8,6 +8,7 @@ const pillVariants = cva("rounded-md px-2.5 w-fit", {
       brand: "bg-brand-50/50 text-brand-700!",
       accent: "bg-accent-50 text-accent-700!",
       grey: "bg-black-50 text-black-700!",
+      error: "bg-danger-50 text-danger-700!",
     },
     small: {
       true: "py-1.5 text-2s-medium",

@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import EyeHideSolidIcon from "@iconify-react/clarity/eye-hide-solid";
+import EyeSolidIcon from "@iconify-react/clarity/eye-solid";
 import MoneyIcon from "@iconify-react/tdesign/money";
 import Overview from "@/components/Home/Overview";
 import ListingOverveiw from "@/components/Home/ListingOverveiw";
@@ -10,8 +11,12 @@ import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboard } from "@/actions/user/user.query";
 import HomeEmptyState from "@/components/Home/HomeEmptyState";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const router = useRouter();
   const { data: dashboardData, isPending } = useQuery(getDashboard);
 
   const hasData =
@@ -63,13 +68,26 @@ export default function Home() {
                 <div className="flex flex-col">
                   <p className="text-s">Wallet Balance</p>
                   <div className="flex gap-6 items-center">
-                    <p className=""> 0.00</p>
-                    <EyeHideSolidIcon className="size-4" />
+                    <p className="">{isBalanceVisible ? "₦ 0.00" : "₦ ••••••"}</p>
+                    <button
+                      type="button"
+                      onClick={() => setIsBalanceVisible((visible) => !visible)}
+                      aria-label={isBalanceVisible ? "Hide balance" : "Show balance"}
+                      aria-pressed={isBalanceVisible}
+                      className="cursor-pointer"
+                    >
+                      {isBalanceVisible ? (
+                        <EyeSolidIcon className="size-4" aria-hidden="true" />
+                      ) : (
+                        <EyeHideSolidIcon className="size-4" aria-hidden="true" />
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
               <Button
                 variant="outline"
+                onClick={() => router.push("/wallet-and-transactions")}
                 className="rounded-full md:rounded-md bg-transparent border-white md:border-brand-500! h-fit md:h-8  md:px-4!"
               >
                 <p className="text-s font-semibold md:text-heading-xs-semibold text-white md:text-brand-700">
