@@ -10,7 +10,7 @@ import CustomerSupport1RemixIcon from "@iconify-react/streamline/customer-suppor
 import { ArrowLeft } from "lucide-react";
 import MarketplaceIcon from "@iconify-react/roentgen/marketplace";
 import ListingLabDarkIcon from "@iconify-react/selfhst/listing-lab-dark";
-import Pickup02Icon from "@iconify-react/hugeicons/pickup-02";
+// import Pickup02Icon from "@iconify-react/hugeicons/pickup-02";
 import CreditcardIcon from "@iconify-react/quill/creditcard";
 import DecentWorkAndEconomicGrowthRemixIcon from "@iconify-react/streamline-sharp/decent-work-and-economic-growth-remix";
 import ShoppingCartOutlinedIcon from "@iconify-react/ant-design/shopping-cart-outlined";
@@ -79,10 +79,10 @@ const useSidebarItems = () => {
         allowed: ACCESS.orders,
         item: { Icon: ShoppingCartOutlinedIcon, text: "Orders", route: "/orders" },
       },
-      {
-        allowed: ACCESS.pickups,
-        item: { Icon: Pickup02Icon, text: "Pickups", route: "#" },
-      },
+      // {
+      //   allowed: ACCESS.pickups,
+      //   item: { Icon: Pickup02Icon, text: "Pickups", route: "#" },
+      // },
       {
         allowed: ACCESS.wallet,
         item: {

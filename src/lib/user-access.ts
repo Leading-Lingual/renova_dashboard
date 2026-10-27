@@ -1,14 +1,18 @@
 
 import { ACTIVITIES } from "@/types/user.type";
 
-const { SELL, BUY, PROCESS_RECYCLE, COLLECT } = ACTIVITIES;
+const { SELL, BUY, PROCESS_RECYCLE,
+  //  COLLECT
+   } = ACTIVITIES;
 
 export const ACCESS = {
   listings: [SELL],
   marketplace: [BUY, PROCESS_RECYCLE],
   orders: [SELL, BUY, PROCESS_RECYCLE],
-  pickups: [SELL, BUY, PROCESS_RECYCLE, COLLECT],
-  wallet: [SELL, BUY, PROCESS_RECYCLE, COLLECT],
+  // pickups: [SELL, BUY, PROCESS_RECYCLE, COLLECT],
+  wallet: [SELL, BUY, PROCESS_RECYCLE,
+    //  COLLECT
+    ],
 } as const;
 
 export const hasAccess = (
@@ -20,7 +24,7 @@ const ROUTE_RULES = [
   { prefix: "/listing", anyOf: ACCESS.listings },
   { prefix: "/marketplace", anyOf: ACCESS.marketplace },
   { prefix: "/orders", anyOf: ACCESS.orders },
-  { prefix: "/pickup", anyOf: ACCESS.pickups },
+  // { prefix: "/pickup", anyOf: ACCESS.pickups },
   { prefix: "/wallet", anyOf: ACCESS.wallet },
 ];
 
