@@ -2,8 +2,8 @@ import { createColumnHelper, TableFeatures } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { formatDecimal, formatNumber, formatText } from "@/lib/utils";
 import Pill from "../Pill";
-import { WalletTransaction } from "./WalletTransactionsTable";
 import { Button } from "../ui/button";
+import { WalletTransaction } from "@/types/wallet.types";
 
 const columnHelper = createColumnHelper<TableFeatures, WalletTransaction>();
 

@@ -100,7 +100,7 @@ const useSidebarItems = () => {
 
   const generalItems: SidebarItem[] = [
     { Icon: AccountCogOutlineIcon, text: "Account", route: "#" },
-    { Icon: CustomerSupport1RemixIcon, text: "Help & Support", route: "#" },
+    { Icon: CustomerSupport1RemixIcon, text: "Help & Support", route: "/support" },
     { Icon: ArrowLeft, text: "Logout", onClick: onSubmit },
   ];
 
