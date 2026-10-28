@@ -39,7 +39,7 @@ const WalletPage = () => {
     },
   ];
   return (
-    <div className="flex text-[24px] h-full w-full overflow-auto px-6 py-6 md:gap-6 md:px-8 ">
+    <div className="flex h-full w-full overflow-auto px-6 py-6 md:gap-6 md:px-8 ">
       <div className="flex flex-col gap-5 w-full">
         <Heading
           title="Wallet & Transactions"
