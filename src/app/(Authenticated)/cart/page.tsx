@@ -8,11 +8,12 @@ import Image from "next/image";
 import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import BaselineStarRateIcon from "@iconify-react/ic/baseline-star-rate";
-import EmptyState from "@/components/EmptyState";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getCartItems } from "@/actions/cart/cart.query";
 import { removefromCartMutation } from "@/actions/cart/cart.mutation";
 import { toast } from "sonner";
+import Cart from "@iconify-react/ant-design/shopping-cart-outlined";
+import MarketplaceIcon from "@iconify-react/roentgen/marketplace";
 
 const CartPage = () => {
   const route = useRouter();
@@ -35,10 +36,21 @@ const CartPage = () => {
       />
       <Heading title="Cart" titleClassName="text-[24px]" />
       {cartData?.items.length === 0 ? (
-        <EmptyState
-          title="Nothing in cart"
-          subtitle="Add items to cart to view items here"
-        />
+        <div className="pt-10 w-full flex justify-center items-center">
+          <div className="flex flex-col gap-8 md:gap-12">
+            <div className="flex flex-col gap-4 items-center">
+              <Cart className="size-10 md:size-21 text-black-300" />
+              <Heading
+                title="Your cart is empty"
+                subtitle="Looks like you haven’t added anything to your cart yet. Explore our marketplace and give waste a second life."
+                containerClass="justify-center! text-center! max-w-[340px]"
+              />
+            </div>
+            <Button onClick={() => route.push("/marketplace")} className="h-14">
+             <MarketplaceIcon className="size-6"/> Browse Marketplace
+            </Button>
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col md:flex-row gap-4 ">
           <div className="w-full flex flex-col">
