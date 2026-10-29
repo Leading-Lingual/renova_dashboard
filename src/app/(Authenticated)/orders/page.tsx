@@ -31,12 +31,16 @@ const OrdersPage = () => {
   const hasBoth = hasBuy && hasSell;
   const tabParam = get("tab");
   const viewParam = get("view");
-  const tab: tabTypes = tabParam === "BUYER" || tabParam === "SELLER"
-    ? tabParam
-    : hasBuy && !hasSell ? "BUYER" : "SELLER";
-  const orderTab: orderTabTypes = viewParam === "IN_PROGRESS" || viewParam === "COMPLETED"
-    ? viewParam
-    : "ALL";
+  const tab: tabTypes =
+    tabParam === "BUYER" || tabParam === "SELLER"
+      ? tabParam
+      : hasBuy && !hasSell
+        ? "BUYER"
+        : "SELLER";
+  const orderTab: orderTabTypes =
+    viewParam === "IN_PROGRESS" || viewParam === "COMPLETED"
+      ? viewParam
+      : "ALL";
 
   // const [search, setSearch] = useState("");
   // const [from, setFrom] = useState("");
@@ -61,7 +65,8 @@ const OrdersPage = () => {
         limit,
         cursor,
         role: tab,
-        view: orderTab,
+        view: orderTab === "COMPLETED" ? undefined : orderTab,
+        status: orderTab === "COMPLETED" ? orderTab : undefined,
         // from,
         // to,
       }),
@@ -120,7 +125,7 @@ const OrdersPage = () => {
     {
       title: "Completed",
       key: "COMPLETED",
-      count: completedCounts[tab] ?? 0,
+      count: orders?.counts.completed,
     },
   ];
 
@@ -186,7 +191,8 @@ const OrdersPage = () => {
                 </button>
               ))}
             </div>
-            {currentTabObject && currentTabObject.key !== "ALL" &&
+            {currentTabObject &&
+            currentTabObject.key !== "ALL" &&
             ordersList.length === 0 ? (
               <div className="flex flex-col gap-8 items-center justify-center text-center mt-10 lg:mt-[83.14px]">
                 <Image

@@ -30,6 +30,13 @@ export interface OrderCount {
   readyForFulfillment: number;
   paymentFailed: number;
   expired: number;
+  fulfillmentReview: number;
+  fulfillmentFailed: number;
+  cancelled: number;
+  refundPending: number;
+  partiallyRefunded: number;
+  refunded: number;
+  disputed: number;
 }
 
 export interface OrderTimeline {
