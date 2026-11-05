@@ -1,15 +1,19 @@
 "use client";
+import { getWalletPayoutAccountsQuery } from "@/actions/wallet/wallet.query";
 import Heading from "@/components/Heading";
 import { Button } from "@/components/ui/button";
 import AddBankAccount from "@/components/Withdraw/AddBankAccount";
 import Withdraw from "@/components/Withdraw/Withdraw";
-import { ArrowLeft, Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const WithdrawPage = () => {
   const router = useRouter();
-  const [hasAccount, setHasAccount] = useState(false);
+  const { data, isPending } = useQuery(getWalletPayoutAccountsQuery);
+  
+  const hasAccount = data?.items.length !== 0;
   const handleBack = () => router.back();
   const [showAdd, setShowAdd] = useState(false);
 
@@ -29,7 +33,9 @@ const WithdrawPage = () => {
           subTitleClassName="text-s "
         />
       </div>
-      {hasAccount ? (
+      {isPending ? (
+        <Loader2 className="animate-spin m-auto" />
+      ) : hasAccount ? (
         <Withdraw />
       ) : (
         <div className="w-full">
@@ -44,7 +50,6 @@ const WithdrawPage = () => {
             open={showAdd}
             onOpenChange={setShowAdd}
             onAdd={() => {
-              setHasAccount(true);
               setShowAdd(false);
             }}
           />

@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import calendar from "dayjs/plugin/calendar";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import TransactionCard from "./TransactionCard";
-import { WalletTransaction } from "@/types/wallet.types";
+import { Transaction } from "@/types/wallet.types";
 
 dayjs.extend(calendar);
 dayjs.extend(advancedFormat);
@@ -31,14 +31,14 @@ const AllTransactions = ({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  transactions?: WalletTransaction[];
+  transactions?: Transaction[];
 }) => {
   const [showFilter, setShowFilter] = useState(false);
   const [search, setSearch] = useState("");
   const transactionsByDay = transactions?.reduce<
-    Record<string, WalletTransaction[]>
+    Record<string, Transaction[]>
   >((groups, transaction) => {
-    const day = dayjs(transaction.date);
+    const day = dayjs(transaction.createdAt);
     const key = day.isValid() ? day.format("YYYY-MM-DD") : "unknown";
     (groups[key] ??= []).push(transaction);
     return groups;
