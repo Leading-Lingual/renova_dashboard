@@ -14,17 +14,17 @@ import { features } from "../Listing/data-table-features";
 import { useState } from "react";
 import TransactionDetail from "./TransactionDetail";
 import TransactionCard from "./TransactionCard";
-import { WalletTransaction } from "@/types/wallet.types";
+import { Transaction } from "@/types/wallet.types";
 
 interface WalletTransactionsTableProps {
-  transactions?: WalletTransaction[];
+  transactions?: Transaction[];
 }
 
 const WalletTransactionsTable = ({
   transactions = [],
 }: WalletTransactionsTableProps) => {
   const [selectedTransaction, setSelectedTransaction] =
-    useState<WalletTransaction | null>(null);
+    useState<Transaction | null>(null);
   const columns = getWalletTransactionColumns(setSelectedTransaction);
   const table = useTable({
     features,
@@ -95,7 +95,7 @@ const WalletTransactionsTable = ({
         setIsOpen={(open) => {
           if (!open) setSelectedTransaction(null);
         }}
-        trasactionDetal={selectedTransaction ?? undefined}
+        transactionDetail={selectedTransaction ?? undefined}
       />
     </>
   );

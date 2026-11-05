@@ -1,23 +1,18 @@
 import { Dialog, DialogClose, DialogContent } from "../ui/dialog";
 import dayjs from "dayjs";
-import { formatDecimal, formatNumber } from "@/lib/utils";
+import { formatDecimal, formatNumber, formatText } from "@/lib/utils";
 import { X } from "lucide-react";
 import { Button } from "../ui/button";
+import { Transaction } from "@/types/wallet.types";
 
 const TransactionDetail = ({
   open,
   setIsOpen,
-  trasactionDetal,
+  transactionDetail,
 }: {
   open?: boolean;
   setIsOpen?: (value: boolean) => void;
-  trasactionDetal?: {
-    amount: string;
-    description: string;
-    reference?: string;
-    date: string;
-    status: string;
-  };
+  transactionDetail?: Transaction;
 }) => {
   return (
     <Dialog open={open} onOpenChange={setIsOpen}>
@@ -37,31 +32,36 @@ const TransactionDetail = ({
         </DialogClose>
         <div className="flex flex-col gap-2">
           <p className="font-bold text-xl text-center">
-            ₦ {formatNumber(formatDecimal(trasactionDetal?.amount ?? "0"))}
+            ₦ {formatNumber(formatDecimal(transactionDetail?.amount ?? "0"))}
           </p>
           <hr className="w-full mx-1" />
           <div className="grid grid-cols-2">
             <p className="font-bold">Narration</p>
-            <p className="text-s">{trasactionDetal?.description ?? "—"}</p>
+            <p className="text-s">{transactionDetail?.description ?? "—"}</p>
           </div>
           <hr className="w-full mx-1" />
           <div className="grid grid-cols-2">
             <p className="font-bold">Reference</p>
-            <p className="text-s">{trasactionDetal?.reference ?? "—"}</p>
+            <p className="text-s">{transactionDetail?.reference ?? "—"}</p>
           </div>
           <hr className="w-full mx-1" />
           <div className="grid grid-cols-2">
             <p className="font-bold">Date</p>
             <p className="text-s">
-              {trasactionDetal?.date && dayjs(trasactionDetal.date).isValid()
-                ? dayjs(trasactionDetal.date).format("MMMM DD, YYYY · hh:mm A")
+              {transactionDetail?.createdAt &&
+              dayjs(transactionDetail.createdAt).isValid()
+                ? dayjs(transactionDetail.createdAt).format(
+                    "MMMM DD, YYYY · hh:mm A",
+                  )
                 : "—"}
             </p>
           </div>
           <hr className="w-full mx-1" />
           <div className="grid grid-cols-2">
-            <p className="font-bold">Status</p>
-            <p className="text-s">{trasactionDetal?.status ?? "—"}</p>
+            <p className="font-bold">Type</p>
+            <p className="text-s">
+              {formatText(transactionDetail?.relatedEntity.type ?? "") ?? "—"}
+            </p>
           </div>
         </div>
       </DialogContent>

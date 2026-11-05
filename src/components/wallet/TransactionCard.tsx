@@ -1,17 +1,17 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
 import Pill from "../Pill";
 import { formatDecimal, formatNumber, formatText } from "@/lib/utils";
-import { transactionStatusVariant } from "./WalletTableColumn";
+import { transactionTypeVariant } from "./WalletTableColumn";
 import dayjs from "dayjs";
-import { WalletTransaction } from "@/types/wallet.types";
+import { Transaction } from "@/types/wallet.types";
 
 const TransactionCard = ({
   transaction,
 }: {
-  transaction: WalletTransaction;
+  transaction: Transaction;
 }) => {
-  const isCredit = transaction.type === "CREDIT";
-  const isPending = transaction.status === "PENDING";
+  const isCredit = true;
+  const isPending = false;
   return (
     <div className="flex items-center justify-between w-full">
       <div className="flex gap-2 items-center">
@@ -35,10 +35,10 @@ const TransactionCard = ({
           <p className="text-sm font-medium">{transaction.description}</p>
           <div className="flex gap-1 text-s">
             <p className="text-sm">
-              {dayjs(transaction.date).format("MMM DD")},
+              {dayjs(transaction.createdAt).format("MMM DD")},
             </p>
             <p className="text-sm">
-              {dayjs(transaction.date).format("hh:mm A")}
+              {dayjs(transaction.createdAt).format("hh:mm A")}
             </p>
           </div>{" "}
         </div>
@@ -46,17 +46,15 @@ const TransactionCard = ({
 
       <div className="flex flex-col justify-end items-end gap-0.75">
         <p className="text-s font-medium">
-          <span className="font-bold">{isCredit ? "+" : "-"} ₦ </span>
+          {/* <span className="font-bold">{isCredit ? "+" : "-"} ₦ </span> */}
           {`${formatNumber(formatDecimal(transaction.amount))}`}
         </p>
         <Pill
           variant={
-              transactionStatusVariant[
-                transaction.status.toUpperCase() === "PENDING" ? transaction.status.toUpperCase() : transaction.type
-              ] ?? "grey"
+              transactionTypeVariant[transaction.relatedEntity.type] ?? "grey"
             }
           >
-            {formatText(transaction.status.toUpperCase() === "PENDING" ? transaction.status : transaction.type)}
+            {formatText(transaction.relatedEntity.type)}
         </Pill>
       </div>
     </div>

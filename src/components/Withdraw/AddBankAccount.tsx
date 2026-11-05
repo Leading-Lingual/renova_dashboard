@@ -11,7 +11,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, Loader2, X } from "lucide-react";
 import { bankSchema } from "@/validations/wallet.validation";
 import { bankFormValues } from "@/types/wallet.types";
 import { Field, FieldError, FieldLabel } from "../ui/field";
@@ -23,6 +23,15 @@ import {
   SelectTrigger,
 } from "../ui/select";
 import { Input } from "../ui/input";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getBanks } from "@/actions/wallet/wallet.query";
+import {
+  addPayoutAccountMutation,
+  getAccountOtpMutation,
+} from "@/actions/wallet/wallet.mutation";
+import { useState } from "react";
+import { toast } from "sonner";
+import AccountOtp from "./AccountOtp";
 
 const AddBankAccount = ({
   open,
@@ -34,29 +43,73 @@ const AddBankAccount = ({
   onAdd: () => void;
 }) => {
   const { isMobile } = useWindowSize();
+  const { data: banksData, isPending: getingbanks } = useQuery(getBanks);
+  const { mutate: getAccountOtp, isPending: isGettingOtp } = useMutation(
+    getAccountOtpMutation,
+  );
+  const { mutate: addAccount, isPending: isSubmitting } = useMutation(
+    addPayoutAccountMutation,
+  );
+
+  const [showOtp, setShowOtp] = useState(false);
+
   const form = useForm({
     resolver: zodResolver(bankSchema),
     defaultValues: {
       accountNumber: "",
-      bank: "",
+      bankCode: "",
     },
   });
 
   const onSubmit = (data: bankFormValues) => {
-    const bankName = items.find((item) => item.value === data.bank)?.label;
-    if (!bankName) return;
+    const bank = items?.find((item) => item.value === data.bankCode);
+    if (!bank) {
+      toast.error("Please select a valid bank");
+      return;
+    }
 
-    onAdd();
-    form.reset();
+    getAccountOtp(
+      { action: "ADD" },
+      {
+        onSuccess: () => {
+          setShowOtp(true);
+        },
+        onError: (error) => {
+          toast.error(
+            error.message ?? "Cannot add at this time, try again later",
+          );
+        },
+      },
+    );
   };
 
-  const items = [
-    { label: "Access", value: "000" },
-    { label: "GTB", value: "111" },
-    { label: "Union", value: "222" },
-    { label: "Opay", value: "333" },
-    { label: "PalmPay", value: "444" },
-  ];
+  const items = banksData?.map((item) => ({
+    label: item.name,
+    value: item.code,
+  }));
+
+  const submitAccount = (otp: string) => {
+    setShowOtp(false);
+    const { bankCode, accountNumber } = form.getValues();
+
+    addAccount(
+      { bankCode, accountNumber, otp },
+      {
+        onSuccess: () => {
+          setShowOtp(false);
+          onAdd();
+          form.reset();
+          toast.success("Account added");
+        },
+        onError: (error) => {
+          toast.error(
+            error.message ?? "Cannot add at this time, try again later",
+          );
+          setShowOtp(false);
+        },
+      },
+    );
+  };
 
   const handleOpenChange = (value: boolean) => {
     onOpenChange(value);
@@ -91,7 +144,7 @@ const AddBankAccount = ({
           <div className="flex flex-col gap-6">
             <Controller
               control={form.control}
-              name="bank"
+              name="bankCode"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid} className="flex-1 ">
                   <FieldLabel
@@ -106,12 +159,12 @@ const AddBankAccount = ({
                       id={field.name}
                       showIcon={false}
                       aria-invalid={fieldState.invalid}
-                      // disabled={isSubmitting}
+                      disabled={isSubmitting || isGettingOtp || showOtp}
                       className="h-11.25! md:h-14! w-full border-black-200! border-[0.5px]"
                     >
                       <p className="flex-1 text-start">
                         {field.value
-                          ? items.find((item) => item.value === field.value)
+                          ? items?.find((item) => item.value === field.value)
                               ?.label
                           : "-- Select bank --"}
                       </p>
@@ -121,11 +174,15 @@ const AddBankAccount = ({
 
                     <SelectContent alignItemWithTrigger={false}>
                       <SelectGroup>
-                        {items.map((item) => (
-                          <SelectItem key={item.value} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
+                        {getingbanks ? (
+                          <SelectItem>Loading banks....</SelectItem>
+                        ) : (
+                          items?.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>
+                              {item.label}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -155,7 +212,7 @@ const AddBankAccount = ({
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    // disabled={isSubmitting}
+                    disabled={isSubmitting || isGettingOtp || showOtp}
                     type="text"
                     inputMode="numeric"
                     value={field.value}
@@ -175,10 +232,18 @@ const AddBankAccount = ({
             />
           </div>
 
-          <Button type="submit" className="h-12!">
+          <Button
+            disabled={isSubmitting || isGettingOtp || showOtp}
+            type="submit"
+            className="h-12!"
+          >
+            {isSubmitting ||
+              isGettingOtp ||
+              (showOtp && <Loader2 className="animate-spin" />)}
             Verify Account
           </Button>
         </form>
+        <AccountOtp open={showOtp} onSubmit={submitAccount} />
       </DialogContent>
     </Dialog>
   ) : (
@@ -206,7 +271,7 @@ const AddBankAccount = ({
           <div className="flex flex-col gap-6">
             <Controller
               control={form.control}
-              name="bank"
+              name="bankCode"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid} className="flex-1 ">
                   <FieldLabel
@@ -221,12 +286,12 @@ const AddBankAccount = ({
                       id={field.name}
                       showIcon={false}
                       aria-invalid={fieldState.invalid}
-                      // disabled={isSubmitting}
+                      disabled={isSubmitting || isGettingOtp || showOtp}
                       className="h-11.25! md:h-14! w-full border-black-200! border-[0.5px]"
                     >
                       <p className="flex-1 text-start">
                         {field.value
-                          ? items.find((item) => item.value === field.value)
+                          ? items?.find((item) => item.value === field.value)
                               ?.label
                           : "-- Select bank --"}
                       </p>
@@ -236,11 +301,15 @@ const AddBankAccount = ({
 
                     <SelectContent alignItemWithTrigger={false}>
                       <SelectGroup>
-                        {items.map((item) => (
-                          <SelectItem key={item.value} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
+                        {getingbanks ? (
+                          <SelectItem>Loading banks....</SelectItem>
+                        ) : (
+                          items?.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>
+                              {item.label}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -270,7 +339,7 @@ const AddBankAccount = ({
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    // disabled={isSubmitting}
+                    disabled={isSubmitting || isGettingOtp || showOtp}
                     type="text"
                     inputMode="numeric"
                     value={field.value}
@@ -289,10 +358,18 @@ const AddBankAccount = ({
               )}
             />
           </div>
-          <Button type="submit" className="h-12!">
+          <Button
+            disabled={isSubmitting || isGettingOtp || showOtp}
+            type="submit"
+            className="h-12!"
+          >
+            {isSubmitting ||
+              isGettingOtp ||
+              (showOtp && <Loader2 className="animate-spin" />)}
             Verify Account
           </Button>
         </form>
+        <AccountOtp open={showOtp} onSubmit={submitAccount} />
       </DrawerContent>
     </Drawer>
   );
