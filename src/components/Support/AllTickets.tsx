@@ -1,4 +1,4 @@
-import { ArrowLeft, ListFilter } from "lucide-react";
+import { ArrowLeft, ListFilter, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Drawer, DrawerClose, DrawerContent } from "../ui/drawer";
 // import FilterDrawer from "./FilterDrawer";
@@ -8,7 +8,8 @@ import dayjs from "dayjs";
 import calendar from "dayjs/plugin/calendar";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import TicketCard from "./TicketCard";
-import { TicketType } from "@/types/support.types";
+import { Ticket } from "@/types/support.types";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(calendar);
 dayjs.extend(advancedFormat);
@@ -28,21 +29,24 @@ const AllTickets = ({
   open,
   onOpenChange,
   tickets,
+  isLoading,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tickets?: TicketType[];
+  tickets?: Ticket[];
+  isLoading?: boolean;
 }) => {
   const [showFilter, setShowFilter] = useState(false);
   const [search, setSearch] = useState("");
-  const ticketsByDay = tickets?.reduce<
-    Record<string, TicketType[]>
-  >((groups, ticket) => {
-    const day = dayjs(ticket.date);
-    const key = day.isValid() ? day.format("YYYY-MM-DD") : "unknown";
-    (groups[key] ??= []).push(ticket);
-    return groups;
-  }, {});
+  const ticketsByDay = tickets?.reduce<Record<string, Ticket[]>>(
+    (groups, ticket) => {
+      const day = dayjs(ticket.createdAt);
+      const key = day.isValid() ? day.format("YYYY-MM-DD") : "unknown";
+      (groups[key] ??= []).push(ticket);
+      return groups;
+    },
+    {},
+  );
   const dayKeys = ticketsByDay
     ? Object.keys(ticketsByDay).sort((a, b) => {
         if (a === "unknown") return 1;
@@ -50,6 +54,8 @@ const AllTickets = ({
         return b.localeCompare(a);
       })
     : [];
+
+  const router = useRouter();
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} swipeDirection="right">
@@ -85,26 +91,33 @@ const AllTickets = ({
             </div>
           </div>
           <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain">
-            {dayKeys.map((dayKey) => (
-              <section key={dayKey} className="flex flex-col gap-3">
-                <h2 className="text-sm font-semibold text-black-500">
-                  {dayKey === "unknown"
-                    ? "Unknown date"
-                    : formatRelativeOrDate(dayKey)}
-                </h2>
-                <div className="flex flex-col gap-4 p-4 rounded-[12px] bg-[#F8F8F8]">
-                  {ticketsByDay?.[dayKey].map((ticket) => (
-                    <div
-                      key={ticket.id}
-                      className="flex group flex-col gap-2 w-full"
-                    >
-                      <TicketCard ticket={ticket} />
-                      <hr className=" mx-1 group-last:hidden" />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
+            {isLoading ? (
+              <Loader2 className="animate-spin m-auto" />
+            ) : (
+              dayKeys.map((dayKey) => (
+                <section key={dayKey} className="flex flex-col gap-3">
+                  <h2 className="text-sm font-semibold text-black-500">
+                    {dayKey === "unknown"
+                      ? "Unknown date"
+                      : formatRelativeOrDate(dayKey)}
+                  </h2>
+                  <div className="flex flex-col gap-4 p-4 rounded-[12px] bg-[#F8F8F8]">
+                    {ticketsByDay?.[dayKey].map((ticket) => (
+                      <div
+                        key={ticket.id}
+                        className="flex group flex-col gap-2 w-full"
+                      >
+                        <TicketCard
+                          ticket={ticket}
+                          onClick={() => router.push(`/support/${ticket.id}`)}
+                        />
+                        <hr className=" mx-1 group-last:hidden" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))
+            )}
           </div>
         </div>
       </DrawerContent>

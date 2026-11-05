@@ -3,10 +3,10 @@ import Pill from "../Pill";
 import { formatText } from "@/lib/utils";
 import dayjs from "dayjs";
 import { ticketStatusVariant } from "./TicketTableColumn";
-import { TicketType } from "@/types/support.types";
+import { Ticket } from "@/types/support.types";
 
-const TicketCard = ({ ticket, onClick }: { ticket: TicketType, onClick?:()=>void }) => {
-  const isPending = ticket.status === "INPROGRESS";
+const TicketCard = ({ ticket, onClick }: { ticket: Ticket, onClick?:()=>void }) => {
+  const isPending = ticket.status === "IN_PROGRESS";
   return (
     <div onClick={onClick} className="flex items-center justify-between w-full">
       <div className="flex gap-2 items-center">
@@ -21,17 +21,17 @@ const TicketCard = ({ ticket, onClick }: { ticket: TicketType, onClick?:()=>void
           <ArrowDown className="size-5" />
         </div>
         <div className="flex flex-col">
-          <p className="text-sm font-medium">{ticket.description}</p>
+          <p className="text-sm font-medium">{ticket.descriptionPreview}</p>
           <div className="flex gap-1 text-s">
-            <p className="text-sm">{dayjs(ticket.date).format("MMM DD")},</p>
-            <p className="text-sm">{dayjs(ticket.date).format("hh:mm A")}</p>
+            <p className="text-sm">{dayjs(ticket.createdAt).format("MMM DD")},</p>
+            <p className="text-sm">{dayjs(ticket.createdAt).format("hh:mm A")}</p>
           </div>{" "}
         </div>
       </div>
 
       <div className="flex flex-col justify-end items-end gap-0.75">
         <Pill
-          variant={ticketStatusVariant[ticket.status.toUpperCase()] ?? "grey"}
+          variant={ticketStatusVariant[ticket.status] ?? "grey"}
         >
           {formatText(ticket.status.toUpperCase())}
         </Pill>

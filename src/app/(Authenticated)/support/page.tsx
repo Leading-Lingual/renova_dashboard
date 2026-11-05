@@ -13,11 +13,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AllTickets from "@/components/Support/AllTickets";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { useQuery } from "@tanstack/react-query";
+import { GetTicketsQuery } from "@/actions/support/support.query";
 
 const SupportPage = () => {
   const [showAll, setShowAll] = useState(false);
   const { isMobile } = useWindowSize();
   const router = useRouter();
+  const { data, isPending } = useQuery(GetTicketsQuery({ limit: 10 }));
 
   const showAllMobile = isMobile && showAll;
 
@@ -87,11 +90,15 @@ const SupportPage = () => {
                 </p>
               </Button>
             </div>
-            <TicketTable  />
+            <TicketTable
+              isLoading={isPending}
+              tickets={data?.items.slice(0, showAll ? undefined : 3)}
+            />
             <AllTickets
               onOpenChange={setShowAll}
               open={showAllMobile}
-              
+              tickets={data?.items}
+              isLoading={isPending}
             />
           </div>
         </div>

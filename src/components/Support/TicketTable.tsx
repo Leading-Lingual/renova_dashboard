@@ -10,18 +10,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { features } from "../Listing/data-table-features";
-import { useState } from "react";
 
 import TicketCard from "./TicketCard";
 import { getTicketColumns } from "./TicketTableColumn";
-import { TicketType } from "@/types/support.types";
+import { Ticket } from "@/types/support.types";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 interface TicketTableProps {
-  tickets?: TicketType[];
+  tickets?: Ticket[];
+  isLoading?: boolean;
 }
 
-const TicketTable = ({ tickets = [] }: TicketTableProps) => {
+const TicketTable = ({ tickets = [], isLoading }: TicketTableProps) => {
   const router = useRouter();
   const columns = getTicketColumns((ticket) =>
     router.push(`/support/${ticket.id}`),
@@ -36,7 +37,9 @@ const TicketTable = ({ tickets = [] }: TicketTableProps) => {
     <>
       <div className="overflow-x-auto">
         <div className="md:hidden pb-8 flex flex-col gap-3">
-          {table.getRowModel().rows.length ? (
+          {isLoading ? (
+            <Loader2 className="animate-spin m-auto" />
+          ) : table.getRowModel().rows.length ? (
             table
               .getRowModel()
               .rows.slice(0, 3)
@@ -77,7 +80,16 @@ const TicketTable = ({ tickets = [] }: TicketTableProps) => {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 "
+                >
+                  <Loader2 className="animate-spin m-auto" />
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getAllCells().map((cell) => (
