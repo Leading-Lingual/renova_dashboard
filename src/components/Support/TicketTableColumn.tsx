@@ -3,39 +3,40 @@ import dayjs from "dayjs";
 import { formatText } from "@/lib/utils";
 import Pill from "../Pill";
 import { Button } from "../ui/button";
-import { TicketType } from "@/types/support.types";
+import { Ticket, TicketStatus } from "@/types/support.types";
 
-const columnHelper = createColumnHelper<TableFeatures, TicketType>();
+const columnHelper = createColumnHelper<TableFeatures, Ticket>();
 
 export const ticketStatusVariant: Record<
-  string,
-  "brand" | "accent" | "grey" | "error"
+  TicketStatus,
+  "brand" | "accent" | "grey" | "error"|"secondary"
 > = {
+  OPEN:"secondary",
   RESOLVED: "brand",
-  INPROGRESS: "accent",
+  IN_PROGRESS: "accent",
 };
 
 export const getTicketColumns = (
-  onViewTransaction: (ticket: TicketType) => void,
+  onViewTransaction: (ticket: Ticket) => void,
 ) =>
   columnHelper.columns([
     columnHelper.accessor("subject", {
       header: "Subject",
     }),
-    columnHelper.accessor("description", {
+    columnHelper.accessor("descriptionPreview", {
       header: "Description",
     }),
-    columnHelper.accessor("date", {
+    columnHelper.accessor("createdAt", {
       header: "Date & Time",
       cell: ({ row }) => {
-        const date = dayjs(row.original.date);
+        const date = dayjs(row.original.createdAt);
         return date.isValid() ? (
           <div className="flex gap-1">
             <p className="text-sm">{date.format("MMM DD")},</p>
             <p className="text-sm">{date.format("hh:mm A")}</p>
           </div>
         ) : (
-          row.original.date
+          row.original.createdAt
         );
       },
     }),
@@ -44,7 +45,7 @@ export const getTicketColumns = (
       cell: ({ row }) => {
         const status = row.original.status;
         return (
-          <Pill variant={ticketStatusVariant[status.toUpperCase()] ?? "grey"}>
+          <Pill variant={ticketStatusVariant[status] ?? "grey"}>
             {formatText(status.toUpperCase())}
           </Pill>
         );
@@ -56,7 +57,7 @@ export const getTicketColumns = (
         <Button
           variant="ghost"
           type="button"
-          aria-label={`View details for ${row.original.description}`}
+          aria-label={`View details for ${row.original.id}`}
           className="p-2 text-brand-500"
           onClick={() => onViewTransaction(row.original)}
         >
