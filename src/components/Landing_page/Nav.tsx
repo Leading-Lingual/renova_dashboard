@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import logo from "../../../public/logo.svg";
+import logo from "@/assets/logo.png";
 import LandingPageButton from "./LandingPageButton";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "@/actions/user/user.query";
@@ -21,7 +21,7 @@ export default function Nav() {
             <Image
               src={logo}
               alt=""
-              className="size-20 lg:size-auto"
+              className="w-20 lg:w-40"
               unoptimized
             />
           </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Logo from "@/assets/logo3.svg";
+import Logo from "@/assets/logo.png";
 import { usePathname } from "next/navigation";
 import useSidebarItems from "@/hooks/useSideBarItems";
 import Link from "next/link";
@@ -37,7 +37,7 @@ const SideBar = () => {
       >
         <div className="flex items-center justify-between">
           <X onClick={close} className="md:hidden"/>
-          <Image alt="logo" src={Logo} className="w-19.25 h-6 md:w-auto md:h-auto" />
+          <Image alt="logo" src={Logo} className="w-24 lg:w-48" />
         </div>
         <hr className="my-2.5 bg-brand-100 hidden md:block" />
         <div className="flex flex-col gap-6 overflow-auto no-scrollbar">
