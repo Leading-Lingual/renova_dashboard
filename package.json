@@ -19,6 +19,7 @@
     "@iconify-react/boxicons": "^1.0.2",
     "@iconify-react/carbon": "gitlab:iconify-icons/react#carbon",
     "@iconify-react/clarity": "^1.0.2",
+    "@iconify-react/codicon": "gitlab:iconify-icons/react#codicon",
     "@iconify-react/famicons": "^1.0.2",
     "@iconify-react/fluent": "gitlab:iconify-icons/react#fluent",
     "@iconify-react/griddy-icons": "^1.0.0",
