@@ -1,9 +1,36 @@
+"use client";
+import { logoutMutation } from "@/actions/auth/auth.mutation";
 import Heading from "@/components/Heading";
 import Pill from "@/components/Pill";
 import SectionCard from "@/components/SectionCard";
 import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const SessionManagement = () => {
+  const queryClient = useQueryClient();
+  const { mutate: logout } = useMutation(logoutMutation);
+  const route = useRouter();
+
+  function onSubmit() {
+    logout(undefined, {
+      onSettled: (data) => {
+        toast.success(data?.message ?? " successful");
+        route.replace("/login");
+        setTimeout(() => queryClient.clear(), 300);
+      },
+    });
+  }
+
+  const sessions = [
+    {
+      id: "1",
+      isCurrentSession: true,
+      type: "",
+      details: "Chrome Approximate location: Nigeria Last active: Active now",
+    },
+  ];
   return (
     <div className="flex flex-col gap-10 flex-1">
       <Heading
@@ -16,42 +43,33 @@ const SessionManagement = () => {
         useAccordion
       >
         <div className="flex flex-col gap-1.5 w-full">
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <div className=" flex gap-20">
-                <p className="text-sm font-bold">This device</p>
-                <Pill small className="rounded-2xl!">Current device</Pill>
+          {sessions.map((session, index) => (
+            <div key={session.id} className="flex flex-col gap-1.5 w-full">
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col gap-2">
+                  <div className=" flex gap-20">
+                    <p className="text-sm font-bold">
+                      {session.isCurrentSession ? " This device" : session.type}
+                    </p>
+                    {session.isCurrentSession && (
+                      <Pill small className="rounded-2xl!">
+                        Current device
+                      </Pill>
+                    )}
+                  </div>
+                  <p className="max-w-56.5 text-sm">{session.details}</p>
+                </div>
+                <Button
+                  onClick={onSubmit}
+                  variant="outline"
+                  className="text-danger-600 hover:text-danger-400 border-danger-100! font-bold!"
+                >
+                  Logout
+                </Button>
               </div>
-              <p className="max-w-56.5 text-sm">
-                Chrome on Windows Approximate location: Lagos, Nigeria Last
-                active: Active now
-              </p>
+              {index !== sessions.length - 1 && <hr className="my-3" />}
             </div>
-            <Button
-              variant="outline"
-              className="text-danger-600 border-danger-100! font-bold!"
-            >
-              Logout
-            </Button>
-          </div>
-          <hr className="my-3" />
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <div className="">
-                <p className="text-sm font-bold">Tablet</p>
-              </div>
-              <p className="max-w-56.5 text-sm">
-                Safari on iPad Approximate location: Ikeja, Lagos Last active:
-                12 Oct, 4:15 PM
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              className="text-danger-600 border-danger-100! font-bold"
-            >
-              Logout
-            </Button>
-          </div>
+          ))}
         </div>
       </SectionCard>
     </div>
