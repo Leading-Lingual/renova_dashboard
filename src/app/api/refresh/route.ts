@@ -1,4 +1,5 @@
 import { getCookieValue } from "@/lib/utils";
+import { getClientRequestHeaders } from "@/lib/client-request-headers";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${API_URL}/v1/auth/refresh`, {
       method: "POST",
       headers: {
+        ...getClientRequestHeaders(request),
         Cookie: [
           `refreshToken=${refreshToken}`,
           ...(csrfToken ? [`csrfToken=${csrfToken}`] : []),

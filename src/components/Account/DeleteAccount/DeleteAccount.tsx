@@ -52,7 +52,14 @@ const DeleteAccount = () => {
     deleteAccount(payload, {
       onSuccess: async (result) => {
         toast.success(result.message || "Account deleted");
-        await logout();
+        try {
+          await logout();
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "Unable to log out",
+          );
+          return;
+        }
         queryClient.clear();
         router.replace("/login");
         router.refresh();
