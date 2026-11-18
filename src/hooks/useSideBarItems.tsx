@@ -34,11 +34,12 @@ const useSidebarItems = () => {
 
   function onSubmit() {
     logout(undefined, {
-      onSettled: (data) => {
+      onSuccess: (data) => {
         toast.success(data?.message ?? " successful");
         route.replace("/login");
         setTimeout(() => queryClient.clear(), 300);
       },
+      onError: (error) => toast.error(error.message || "Unable to log out"),
     });
   }
 
