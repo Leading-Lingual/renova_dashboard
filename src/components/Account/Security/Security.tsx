@@ -11,9 +11,18 @@ import { validatePassword } from "@/lib/utils";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import PasswordIcon from "@iconify-react/mdi/password";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { updatePasswordMutation } from "@/actions/user/user.mutation";
+import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { changePasswordSchema } from "@/validations/auth.validation";
+import { ChangePasswordType } from "@/types/user.type";
 
 const Security = () => {
+  const { mutate: updatePassword, isPending } = useMutation(
+    updatePasswordMutation,
+  );
   const [passwordInputType, setPasswordInputType] = useState<
     "text" | "password"
   >("password");
@@ -24,23 +33,35 @@ const Security = () => {
     "text" | "password"
   >("password");
   const form = useForm({
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
-      confirmPassword: "",
+      confirmNewPassword: "",
     },
   });
 
   const password = useWatch({ control: form.control, name: "newPassword" });
 
   const ValidPassword = validatePassword(password);
+
+  const handleSubmit = (data: ChangePasswordType) => {
+    updatePassword(data, {
+      onSuccess: () => toast.success("Passowrd updated"),
+      onError: (error) => toast.error(error.message || "Failed to update"),
+    });
+  };
+
   return (
     <div className="flex flex-col gap-10 flex-1">
       <Heading
         title="Security"
         subtitle="Manage security to protect your account. Change your password periodically to increase security of your account"
       />
-      <form className="flex flex-col gap-16">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="flex flex-col gap-16"
+      >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-6">
             <Controller
@@ -65,10 +86,11 @@ const Security = () => {
                       aria-invalid={fieldState.invalid}
                       type={oldPasswordInputType}
                       placeholder="Create your password"
+                      disabled={isPending}
                     />
                     <InputGroupAddon align="inline-end">
                       <PasswordToggle
-                        inputType={passwordInputType}
+                        inputType={oldPasswordInputType}
                         onAction={() =>
                           setOldPasswordInputType((prev) =>
                             prev === "password" ? "text" : "password",
@@ -105,6 +127,7 @@ const Security = () => {
                       aria-invalid={fieldState.invalid}
                       type={passwordInputType}
                       placeholder="Create your password"
+                      disabled={isPending}
                     />
                     <InputGroupAddon align="inline-end">
                       <PasswordToggle
@@ -125,7 +148,7 @@ const Security = () => {
             />
             <Controller
               control={form.control}
-              name="confirmPassword"
+              name="confirmNewPassword"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel
@@ -145,6 +168,7 @@ const Security = () => {
                       aria-invalid={fieldState.invalid}
                       type={confirmPasswordInputType}
                       placeholder="Confirm your password"
+                      disabled={isPending}
                     />
                     <InputGroupAddon align="inline-end">
                       <PasswordToggle
@@ -184,12 +208,13 @@ const Security = () => {
             </div>
           </div>
         </div>
-        <div className="flex justify-center gap-10">
-          <Button variant="outline" className="h-14 max-w-67.75 flex-1">
-            Cancel
-          </Button>
-          <Button className="h-14 max-w-67.75 flex-1">Save</Button>
-        </div>
+        <Button
+          disabled={isPending}
+          type="submit"
+          className="h-14 m-auto w-full max-w-xl"
+        >
+          {isPending && <Loader2 className="animate-spin" />}Save
+        </Button>
       </form>
     </div>
   );

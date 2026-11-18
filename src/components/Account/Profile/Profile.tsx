@@ -16,19 +16,36 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { useRef } from "react";
 import UserFillIcon from "@iconify-react/ri/user-fill";
 import LocationIcon from "@iconify-react/mi/location";
 // import CouponFillIcon from "@iconify-react/mingcute/coupon-fill";
 import { Country, State } from "country-state-city";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "@/actions/user/user.query";
 import Image from "next/image";
+import {
+  deleteAvatarMutation,
+  updateAvatarMutation,
+  updateProfileMutation,
+} from "@/actions/user/user.mutation";
+import { toast } from "sonner";
+import { OnboardingFormValues } from "@/types/user.type";
+import { Loader2 } from "lucide-react";
 
 const Profile = () => {
   const { data } = useQuery(getUserProfile);
   const accountType = data?.accountType;
+  const { mutate: updateProfile, isPending: isSubmiting } = useMutation(
+    updateProfileMutation,
+  );
+  const { mutate: updateAvatar, isPending: isAvatarUploading } =
+    useMutation(updateAvatarMutation);
+  const { mutate: deleteAvatar, isPending: isAvatardeleting } =
+    useMutation(deleteAvatarMutation);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm({
+  const form = useForm<OnboardingFormValues>({
     defaultValues: {
       accountType: data?.accountType || "INDIVIDUAL",
       activities: data?.activities || [],
@@ -37,13 +54,11 @@ const Profile = () => {
       location: data?.location || {
         country: "",
         state: "",
-        city: undefined,
         formattedAddress: "",
-        placeId: undefined,
-        latitude: undefined,
-        longitude: undefined,
+
         source: "MANUAL",
       },
+      referralCode: data?.referralCode || "",
     },
   });
 
@@ -69,10 +84,53 @@ const Profile = () => {
         ? "Business Name"
         : "Organization Name";
 
+  const handleSubmit = (data: OnboardingFormValues) => {
+    updateProfile(data, {
+      onSuccess: () => {
+        toast.success("Profile updated");
+      },
+      onError: (error) => {
+        toast.error(error.message ? error.message : "failed to update");
+      },
+    });
+  };
+
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (!["image/png", "image/jpeg"].includes(file.type)) {
+      toast.error("Choose a PNG or JPEG image");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be under 10 MB");
+      return;
+    }
+
+    updateAvatar(
+      { avatar: file },
+      {
+        onSuccess: () => toast.success("Profile picture updated"),
+        onError: (error) =>
+          toast.error(error.message || "Unable to upload image"),
+      },
+    );
+  };
+
+  const handleRemoveAvatar = () => {
+    deleteAvatar(undefined, {
+      onSuccess: () => toast.success("Profile picture removed"),
+      onError: (error) =>
+        toast.error(error.message || "Unable to remove image"),
+    });
+  };
+
   return (
     <div className="flex flex-col gap-10 flex-1">
       <div className="flex gap-2.25">
-        <div className="size-16 rounded-full overflow-hidden border flex justify-center items-center">
+        <div className="relative size-16 rounded-full overflow-hidden border flex justify-center items-center">
           {data?.avatarUrl ? (
             <Image
               width={256}
@@ -84,21 +142,56 @@ const Profile = () => {
           ) : (
             <UserFillIcon className="size-10 text-brand-500" />
           )}
+          {(isAvatarUploading || isAvatardeleting) && (
+            <div
+              className="absolute inset-0 flex items-center justify-center bg-black/45 text-white"
+              aria-label="Uploading profile picture"
+            >
+              <Loader2 className="size-6 animate-spin" />
+            </div>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold">Profile Picture</p>
           <div className="flex gap-3.5">
-            <Button>Upload Image</Button>
-            <Button variant="outline" className="border-black-100">
-              Remove
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              className="sr-only"
+              onChange={handleAvatarChange}
+              disabled={isAvatarUploading || isAvatardeleting}
+              aria-label="Choose profile picture"
+            />
+            <Button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={isAvatarUploading || isAvatardeleting}
+            >
+              Upload Image
             </Button>
+            {data?.avatarUrl && (
+              <Button
+                type="button"
+                variant="outline"
+                className="border-black-100"
+                disabled={isAvatarUploading || isAvatardeleting}
+                title="Avatar removal is not available yet"
+                onClick={handleRemoveAvatar}
+              >
+                Remove
+              </Button>
+            )}
           </div>
           <p className="text-black-400 text-s">
-            We support PNGs, JPEGs under 10mb
+            We support PNGs and JPEGs under 10 MB
           </p>
         </div>
       </div>
-      <form className="flex flex-col gap-16">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="flex flex-col gap-16"
+      >
         <div className="flex flex-col gap-6">
           <Controller
             control={form.control}
@@ -125,7 +218,7 @@ const Profile = () => {
                         ? "Enter your first and last name"
                         : "Enter your business name"
                     }
-                    // disabled={isSubmiting}
+                    disabled={isSubmiting}
                   />
                 </InputGroup>
                 {fieldState.invalid && (
@@ -146,7 +239,7 @@ const Profile = () => {
                   invalid={fieldState.invalid}
                   defaultCountry="NG"
                   placeholder="9012356781"
-                  //   disabled={isSubmiting}
+                  disabled={isSubmiting}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -175,11 +268,11 @@ const Profile = () => {
                       form.setValue("location.state", "");
                     }}
                     items={countryList.map((country) => country.name)}
-                    // disabled={isSubmiting}
+                    disabled={isSubmiting}
                   >
                     <ComboboxInput
                       aria-invalid={fieldState.invalid}
-                      //   disabled={isSubmiting}
+                      disabled={isSubmiting}
                       placeholder="Select a country"
                       className="h-14! w-full shrink-0 rounded-[12px] border-black-200!"
                     >
@@ -228,17 +321,11 @@ const Profile = () => {
                       field.onChange(value ? value : "")
                     }
                     items={statesOfSelectedCountry.map((state) => state.name)}
-                    disabled={
-                      !selectedCountryCode
-                      // || isSubmiting
-                    }
+                    disabled={!selectedCountryCode || isSubmiting}
                   >
                     <ComboboxInput
                       aria-invalid={fieldState.invalid}
-                      disabled={
-                        !selectedCountryCode
-                        // || isSubmiting
-                      }
+                      disabled={!selectedCountryCode || isSubmiting}
                       placeholder={
                         selectedCountryCode
                           ? "Select state"
@@ -293,7 +380,7 @@ const Profile = () => {
                     aria-invalid={fieldState.invalid}
                     type="text"
                     placeholder="Enter your location"
-                    // disabled={isSubmiting}
+                    disabled={isSubmiting}
                   />
                 </InputGroup>
                 {/* <FieldLabel className="flex gap-2 text-brand-400 items-center">
@@ -309,12 +396,14 @@ const Profile = () => {
             )}
           />
         </div>
-        <div className="flex justify-center gap-10">
-          <Button variant="outline" className="h-14 max-w-67.75 flex-1">
-            Cancel
+
+          <Button
+            type="submit"
+            disabled={isSubmiting}
+            className="h-14 m-auto w-full max-w-xl"
+          >
+            {isSubmiting && <Loader2 className="animate-spin" />} Save
           </Button>
-          <Button className="h-14 max-w-67.75 flex-1">Save</Button>
-        </div>
       </form>
     </div>
   );

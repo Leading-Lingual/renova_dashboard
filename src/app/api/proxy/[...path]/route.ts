@@ -1,3 +1,4 @@
+import { getCookieValue } from "@/lib/utils";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -17,7 +18,7 @@ async function handler(
 
   const accessToken = cookieStore.get("access_token")?.value;
 
-  const incomingUrl =new URL(request.url)
+  const incomingUrl = new URL(request.url);
 
   const targetUrl = `${API_URL}/${path.join("/")}${incomingUrl.search}`;
 
@@ -43,17 +44,101 @@ async function handler(
     cache: "no-store",
   });
 
+  const isPasswordChange = path.join("/") === "v1/auth/password/change";
+  const data = isPasswordChange
+    ? ((await response
+        .clone()
+        .json()
+        .catch(() => ({}))) as {
+        accessToken?: string;
+        refreshToken?: string;
+        csrfToken?: string;
+        expiresIn?: number;
+      })
+    : undefined;
+
   const responseHeaders = new Headers(response.headers);
 
   responseHeaders.delete("content-encoding");
   responseHeaders.delete("content-length");
   responseHeaders.delete("transfer-encoding");
 
-  return new NextResponse(response.body, {
+  const nextResponse = new NextResponse(response.body, {
     status: response.status,
     statusText: response.statusText,
     headers: responseHeaders,
   });
+
+  if (response.status === 401) {
+    for (const name of ["access_token", "refresh_token", "csrf_token"]) {
+      nextResponse.cookies.set({
+        name,
+        value: "",
+        httpOnly: name !== "csrf_token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 0,
+      });
+    }
+  }
+
+  if (isPasswordChange && response.ok) {
+    const backendCookies = response.headers.getSetCookie();
+
+    const refreshCookie = backendCookies.find((cookie) =>
+      cookie.startsWith("refreshToken="),
+    );
+
+    const csrfCookie = backendCookies.find((cookie) =>
+      cookie.startsWith("csrfToken="),
+    );
+
+    const refreshToken =
+      getCookieValue(refreshCookie) ?? data?.refreshToken;
+    const csrfToken = getCookieValue(csrfCookie) ?? data?.csrfToken;
+
+    // Access token — 15 minutes
+    if (data?.accessToken) {
+      nextResponse.cookies.set({
+        name: "access_token",
+        value: data.accessToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: data.expiresIn ?? 60 * 15,
+      });
+    }
+
+    // Refresh token — 7 days
+    if (refreshToken) {
+      nextResponse.cookies.set({
+        name: "refresh_token",
+        value: refreshToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    }
+
+    // CSRF token — JavaScript may need to read this
+    if (csrfToken) {
+      nextResponse.cookies.set({
+        name: "csrf_token",
+        value: csrfToken,
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    }
+  }
+
+  return nextResponse;
 }
 
 export const GET = handler;

@@ -1,4 +1,4 @@
-import { email, object, string } from "zod";
+import { boolean, email, object, string } from "zod";
 
 export const loginSchema = object({
   email: email("Please enter your email address"),
@@ -24,7 +24,7 @@ export const signUpSchema = object({
 });
 
 export const verifyEmailSchema = object({
-  email:  email("Please enter your email address"),
+  email: email("Please enter your email address"),
   otp: string().trim().min(6, "Please input your 6-digit verification code"),
 });
 
@@ -47,4 +47,30 @@ export const resetPasswordSchema = object({
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: "Passwords do not match.",
   path: ["confirmPassword"],
+});
+
+export const changePasswordSchema = object({
+  currentPassword: string().trim().min(1, "Enter your password"),
+  newPassword: string()
+    .min(8, "New password must be at least 8 characters.")
+    .regex(/[a-z]/, "New password must contain at least one lowercase letter.")
+    .regex(/[A-Z]/, "New password must contain at least one uppercase letter.")
+    .regex(/[0-9]/, "New password must contain at least one number.")
+    .regex(
+      /[^A-Za-z0-9]/,
+      "New password must contain at least one special character.",
+    ),
+  confirmNewPassword: string(),
+}).refine((data) => data.newPassword === data.confirmNewPassword, {
+  message: "Passwords do not match.",
+  path: ["confirmNewPassword"],
+});
+
+
+export const deleteAccountSchema = object({
+  fullName: string().trim().nonempty("Please enter your full name"),
+  password: string().trim().nonempty("Please enter your password"),
+  acknowledged: boolean().refine((acknowledged) => acknowledged, {
+    message: "Please confirm that you understand the consequences.",
+  }),
 });
