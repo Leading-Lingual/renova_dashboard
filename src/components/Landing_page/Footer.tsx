@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import logo from "../../../public/logo2.png";
+import logo from "@/assets/logo.png";
 import FacebookFillIcon from "@iconify-react/ri/facebook-fill";
 import InstagramIcon from "@iconify-react/mdi/instagram";
 import LinkedinSolidIcon from "@iconify-react/basil/linkedin-solid";
@@ -39,7 +39,7 @@ export default function Footer() {
               className="flex items-center gap-2"
               aria-label="Renova home"
             >
-              <Image src={logo} alt="logo" unoptimized />
+              <Image className="w-34.75" src={logo} alt="logo" unoptimized />
             </Link>
 
             <p className="max-w-76.25 text-base leading-normal">
