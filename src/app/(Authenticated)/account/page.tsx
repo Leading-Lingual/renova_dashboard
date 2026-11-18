@@ -1,9 +1,6 @@
 "use client";
 
-import { getUserProfile } from "@/actions/user/user.query";
-import { useQuery } from "@tanstack/react-query";
 import { ReactElement, Suspense } from "react";
-import { useWindowSize } from "@/hooks/useWindowSize";
 import useQueryParams from "@/hooks/useQueryParams";
 import Profile from "@/components/Account/Profile/Profile";
 import Kyc from "@/components/Account/KYC/Kyc";
@@ -11,7 +8,7 @@ import Settings from "@/components/Account/Settings/Settings";
 import Security from "@/components/Account/Security/Security";
 import DeleteAccount from "@/components/Account/DeleteAccount/DeleteAccount";
 import UserIcon from "@iconify-react/ri/user-line";
-import IdIcon from "@iconify-react/mdi/badge-account-horizontal-outline";
+// import IdIcon from "@iconify-react/mdi/badge-account-horizontal-outline";
 import SecurityIcon from "@iconify-react/hugeicons/web-security";
 import { SettingsIcon } from "lucide-react";
 import UserRemoveIcon from "@iconify-react/ri/user-minus-line";
@@ -28,12 +25,9 @@ type tabTypes =
 
 const AccountPage = () => {
   const { get, set } = useQueryParams();
-  const { data } = useQuery(getUserProfile);
 
   const tabParam = get("tab");
   const tab: tabTypes = (tabParam as tabTypes) ?? "Profile";
-
-  const { isMobile, isSmallLaptop } = useWindowSize();
 
   const tabs: { title: string; key: tabTypes; icon: ReactElement }[] = [
     {
@@ -41,11 +35,11 @@ const AccountPage = () => {
       key: "Profile",
       icon: <UserIcon className="size-5 hidden md:flex" />,
     },
-    {
-      title: "KYC",
-      key: "KYC",
-      icon: <IdIcon className="size-5 hidden md:flex" />,
-    },
+    // {
+    //   title: "KYC",
+    //   key: "KYC",
+    //   icon: <IdIcon className="size-5 hidden md:flex" />,
+    // },
     {
       title: "Security",
       key: "Security",

@@ -9,7 +9,7 @@ import PersonalInfo from "../PersonalInfo";
 import { onboardingSchema } from "@/validations/onboarding.validation";
 import { OnboardingFormValues } from "@/types/user.type";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { completeOnboardingMutation } from "@/actions/user/user.mutation";
+import { updateProfileMutation } from "@/actions/user/user.mutation";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getUserProfile } from "@/actions/user/user.query";
@@ -18,7 +18,7 @@ const { INITIAL, PERSONAL_INFO } = OnbaordingStages;
 const OnboardingPage = () => {
   const [stage, setStage] = useState<OnbaordingStages>(INITIAL);
   const { mutate: completeOnboarding, isPending } = useMutation(
-    completeOnboardingMutation,
+    updateProfileMutation,
   );
   const router = useRouter();
   const { data } = useQuery(getUserProfile);

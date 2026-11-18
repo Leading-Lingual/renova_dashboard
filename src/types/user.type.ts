@@ -1,9 +1,14 @@
 import { onboardingSchema } from "@/validations/onboarding.validation";
 import * as z from "zod";
 import { Listing, MaterialType } from "./listing.types";
+import { changePasswordSchema, deleteAccountSchema } from "@/validations/auth.validation";
 export type AccountType = "INDIVIDUAL" | "BUSINESS" | "NGO";
 
 export type OnboardingFormValues = z.infer<typeof onboardingSchema>;
+
+export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
+
+export type AccountDeletionType = z.infer<typeof deleteAccountSchema>
 
 export interface UserAuth {
   id: string;
@@ -29,13 +34,13 @@ export const ACTIVITIES = {
 export type UserAppActivity = (typeof ACTIVITIES)[keyof typeof ACTIVITIES];
 
 export interface Location {
-  country?: string;
-  state?: string;
-  city?: string;
-  formattedAddress?: string;
+  country: string;
+  state: string;
+  city: string;
+  formattedAddress: string;
   placeId?: string;
-  latitude?: string;
-  longitude?: string;
+  latitude?: number;
+  longitude?: number;
   source?: string;
 }
 export interface UserProfile {
@@ -105,3 +110,35 @@ export interface Dashboard {
   recentListings: Listing[];
   recentActivity: Activity[];
 }
+
+export interface UserPreference {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  hideBalance: boolean;
+  updatedAt: string;
+}
+
+export interface SessionData {
+  id: string;
+  deviceName: string;
+  browser: string;
+  operatingSystem: string;
+  approximateLocation: string;
+  isCurrent: true;
+  createdAt: string;
+  lastActiveAt: string;
+  expiresAt: string;
+}
+
+export interface GetSessionsResponse {
+  sessions: SessionData[];
+}
+export interface BlockerType {
+  code: string;
+  message: string;
+}
+export interface DeletionCheckResponse {
+  canDelete: boolean;
+  blockers: BlockerType[];
+}
+
