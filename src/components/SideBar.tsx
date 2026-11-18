@@ -37,7 +37,7 @@ const SideBar = () => {
       >
         <div className="flex items-center justify-between">
           <X onClick={close} className="md:hidden"/>
-          <Image alt="logo" src={Logo} className="w-24 lg:w-48" />
+          <Image alt="logo" src={Logo} className="w-24 lg:w-26.75 md:m-auto" />
         </div>
         <hr className="my-2.5 bg-brand-100 hidden md:block" />
         <div className="flex flex-col gap-6 overflow-auto no-scrollbar">

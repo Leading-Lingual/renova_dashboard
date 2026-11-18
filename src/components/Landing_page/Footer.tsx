@@ -39,7 +39,7 @@ export default function Footer() {
               className="flex items-center gap-2"
               aria-label="Renova home"
             >
-              <Image className="w-40" src={logo} alt="logo" unoptimized />
+              <Image className="w-34.75" src={logo} alt="logo" unoptimized />
             </Link>
 
             <p className="max-w-76.25 text-base leading-normal">

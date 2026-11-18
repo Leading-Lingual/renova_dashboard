@@ -21,7 +21,7 @@ export default function Nav() {
             <Image
               src={logo}
               alt=""
-              className="w-20 lg:w-40"
+              className="w-20 lg:w-34.75"
               unoptimized
             />
           </Link>
