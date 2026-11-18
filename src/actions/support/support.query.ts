@@ -65,7 +65,7 @@ export const getTicketDetailQuery = (ticketId: string) =>
 
   export const GetArticlesQuery = (params: GetTicketsParams = {}) =>
   queryOptions({
-    queryKey: ["tickets", params],
+    queryKey: ["articles", params],
     queryFn: () => {
       const searchParams = new URLSearchParams();
 

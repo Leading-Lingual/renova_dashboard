@@ -7,6 +7,7 @@ const Heading = ({
   titleClassName,
   subTitleClassName,
   containerClass,
+  onClick
 }: {
   title: string;
   subtitle?: string;
@@ -14,9 +15,10 @@ const Heading = ({
   titleClassName?: string;
   subTitleClassName?: string;
   containerClass?:string
+  onClick?:()=>void
 }) => {
   return (
-    <div className={`flex md:justify-between md:items-center w-full flex-col md:flex-row gap-6 md:gap-0 ${containerClass}`}>
+    <div onClick={onClick} className={`flex md:justify-between md:items-center w-full flex-col md:flex-row gap-6 md:gap-0 ${containerClass}`}>
       <div className="flex flex-col gap-1 text-black-500">
         <p className={`text-heading-xs-semibold ${titleClassName}`}>{title}</p>
         {subtitle && (
