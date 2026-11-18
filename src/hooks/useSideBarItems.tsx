@@ -95,11 +95,11 @@ const useSidebarItems = () => {
 
     const allowedItems = gated.filter((g) => can(g.allowed)).map((g) => g.item);
 
-    return [...allowedItems, impactItem];
+    return [...allowedItems];
   }, [userActivities]);
 
   const generalItems: SidebarItem[] = [
-    { Icon: AccountCogOutlineIcon, text: "Account", route: "#" },
+    { Icon: AccountCogOutlineIcon, text: "Account", route: "/account" },
     { Icon: CustomerSupport1RemixIcon, text: "Help & Support", route: "/support" },
     { Icon: ArrowLeft, text: "Logout", onClick: onSubmit },
   ];

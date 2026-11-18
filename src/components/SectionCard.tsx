@@ -8,6 +8,9 @@ interface SectionCardProps {
   titleClassName?: string;
   subTitleClassName?: string;
   useAccordion?: boolean;
+  defaultShowBody?: boolean;
+  showBody?: boolean;
+  onShowBodyChange?: (showBody: boolean) => void;
   children: ReactNode;
   headingDetail?: ReactNode
 }
@@ -18,10 +21,21 @@ const SectionCard = ({
   titleClassName,
   subTitleClassName,
   useAccordion = true,
+  defaultShowBody = true,
+  showBody: controlledShowBody,
+  onShowBodyChange,
   children,
   headingDetail
 }: SectionCardProps) => {
-  const [showBody, setShowBody] = useState(true);
+  const [uncontrolledShowBody, setUncontrolledShowBody] = useState(defaultShowBody);
+  const isControlled = controlledShowBody !== undefined;
+  const showBody = isControlled ? controlledShowBody : uncontrolledShowBody;
+
+  const handleShowBodyChange = () => {
+    const nextShowBody = !showBody;
+    if (!isControlled) setUncontrolledShowBody(nextShowBody);
+    onShowBodyChange?.(nextShowBody);
+  };
   return (
     <div className=" flex flex-col w-full border rounded-[8px] gap-1 py-2 h-fit transition-all duration-200 ">
       <div className="flex flex-col">
@@ -34,8 +48,8 @@ const SectionCard = ({
           />
           {useAccordion && (
             <ChevronDown
-              onClick={() => setShowBody(!showBody)}
-              className={`transition-all duration-300 ${showBody ? "" : "rotate-180"}`}
+              onClick={handleShowBodyChange}
+              className={`transition-all duration-300 ${showBody ? "" : "-rotate-90"}`}
             />
           )}
           {headingDetail}

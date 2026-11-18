@@ -12,6 +12,7 @@ import { useShowNavBar } from "@/hooks/useShowNavBar";
 import Link from "next/link";
 import { getCartItems } from "@/actions/cart/cart.query";
 import Notification from "./Notification/Notification";
+import Image from "next/image";
 
 const NavBar = () => {
   const { isOpen, setIsOpen } = useSidebar();
@@ -55,10 +56,18 @@ const NavBar = () => {
         </Link>
         <Notification />
         <div className="hidden md:flex gap-3 ">
-          <div className="flex rounded-full bg-brand-500 text-white size-10">
-            <p className="m-auto text-m-bold">
-              {getInitials(data?.fullName ?? "")}
-            </p>
+          <div className="relative flex rounded-full bg-brand-500 text-white size-10 overflow-hidden items-center justify-center">
+            {data?.avatarUrl ? (
+              <Image
+                src={data.avatarUrl}
+                alt={`${data.fullName || "Profile"} profile picture`}
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
+            ) : (
+              <p className="text-m-bold">{getInitials(data?.fullName ?? "")}</p>
+            )}
           </div>
           <div className="">
             <p className="text-s font-semibold text-black-500">
