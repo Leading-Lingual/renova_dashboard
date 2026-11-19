@@ -123,7 +123,52 @@ const ListingDetailsContent = ({
           )}
         </div>
         {isPending ? (
-          <Loader2 className="m-auto animate-spin" />
+          <div
+            aria-label="Loading listing details"
+            aria-busy="true"
+            className="flex flex-col gap-4"
+          >
+            {isMarketPlace && (
+              <div className="flex justify-between items-center">
+                <div className="h-5 w-36 animate-pulse rounded bg-black-50" />
+                <div className="h-4 w-10 animate-pulse rounded bg-black-50" />
+              </div>
+            )}
+            <div className="flex flex-col w-full gap-14">
+              <div className="flex flex-col gap-6">
+                <div className="h-56.5 w-full animate-pulse rounded-lg bg-black-50" />
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between">
+                    <div className="flex flex-col gap-3">
+                      <div className="h-5 w-44 animate-pulse rounded bg-black-50" />
+                      <div className="h-4 w-20 animate-pulse rounded bg-black-50" />
+                      <div className="h-4 w-40 animate-pulse rounded bg-black-50" />
+                    </div>
+                    {!isMarketPlace && (
+                      <div className="h-6 w-20 animate-pulse rounded-full bg-black-50" />
+                    )}
+                  </div>
+                  <hr className="bg-brand-100 w-full h-[0.5px] border-none my-2.5" />
+                  <div className="flex flex-col gap-4">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <div key={index} className="flex justify-between">
+                        <div className="h-4 w-24 animate-pulse rounded bg-black-50" />
+                        <div className="h-4 w-20 animate-pulse rounded bg-black-50" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {isMarketPlace ? (
+                <div className="flex w-full gap-4">
+                  <div className="h-12 flex-1 animate-pulse rounded-md bg-black-50" />
+                  <div className="h-12 flex-1 animate-pulse rounded-md bg-black-50" />
+                </div>
+              ) : (
+                <div className="h-12 w-full animate-pulse rounded-md bg-black-50" />
+              )}
+            </div>
+          </div>
         ) : data ? (
           <div className="flex flex-col gap-4">
             {isMarketPlace && (

@@ -1,29 +1,27 @@
 "use client";
 
 import { getUserProfile } from "@/actions/user/user.query";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ShoppingCartArrowUp from "@iconify-react/carbon/shopping-cart-arrow-up";
 import ShoppingCartArrowDown from "@iconify-react/carbon/shopping-cart-arrow-down";
-import { ReactElement, Suspense, useState } from "react";
+import { ReactElement, Suspense } from "react";
 import EmptyOrderImg from "@/assets/emptyOrder.svg";
 import Image from "next/image";
 import OrdersCard from "@/components/orders/OrdersCard";
 import { getOrdersQuery } from "@/actions/orders/orders.query";
-import { Loader2 } from "lucide-react";
 import { useCursorPagination } from "@/hooks/useCursorPagination";
 // import { ListingSort } from "@/types/listing.types";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import PaginationControls from "@/components/PaginationControls";
 import useQueryParams from "@/hooks/useQueryParams";
+import type { GetOrdersResponse } from "@/types/orders.types";
 
 type tabTypes = "SELLER" | "BUYER";
 type orderTabTypes = "COMPLETED" | "IN_PROGRESS" | "ALL";
 
 const OrdersPage = () => {
-  const [completedCounts, setCompletedCounts] = useState<
-    Partial<Record<tabTypes, number>>
-  >({});
   const { get, set } = useQueryParams();
+  const queryClient = useQueryClient();
   const { data } = useQuery(getUserProfile);
   const userActivities = data?.activities;
   const hasSell = userActivities?.includes("SELL");
@@ -54,6 +52,7 @@ const OrdersPage = () => {
   const {
     data: orders,
     isPending,
+    isFetching,
     controlProps,
     reset,
   } = useCursorPagination({
@@ -85,18 +84,17 @@ const OrdersPage = () => {
   });
 
   const ordersList = orders?.items ?? [];
-
-  if (orderTab === "ALL" && orders) {
-    const completedCount = orders.items.filter(
-      (order) => order.status === "COMPLETED",
-    ).length;
-
-    if (completedCounts[tab] !== completedCount) {
-      setCompletedCounts({ ...completedCounts, [tab]: completedCount });
-    }
-  }
-
+  const isLoadingOrders = isPending || isFetching;
   const ordersListLength = orders?.counts.all ?? 0;
+  const cachedOrdersForRole = queryClient
+    .getQueriesData<GetOrdersResponse>({ queryKey: ["orders"] })
+    .some(
+      ([queryKey, cachedOrders]) =>
+        (queryKey[1] as { role?: tabTypes } | undefined)?.role === tab &&
+        (cachedOrders?.counts.all ?? 0) > 0,
+    );
+  const shouldShowOrdersTabs =
+    ordersListLength > 0 || cachedOrdersForRole;
 
   const tabs: { title: string; key: tabTypes; icon: ReactElement }[] = [
     {
@@ -113,7 +111,7 @@ const OrdersPage = () => {
 
   const ordersTabs: { title: string; key: orderTabTypes; count?: number }[] = [
     {
-      title: "All sales",
+      title: `All ${tab === "BUYER" ? "Purchases" : "sales"}`,
       key: "ALL",
       count: ordersListLength,
     },
@@ -154,8 +152,55 @@ const OrdersPage = () => {
         </div>
       )}
       <div className="h-full w-full overflow-hidden lg:flex-1 flex flex-col gap-3 md:gap-7.75">
-        {isPending ? (
-          <Loader2 className="animate-spin m-auto" />
+        {shouldShowOrdersTabs && (
+          <div className="w-full grid grid-cols-3 shrink-0 border-b-2 md:border-b-0 md:gap-6.5 border-brand-50/50 overflow-auto">
+            {ordersTabs.map((item) => (
+              <button
+                type="button"
+                key={item.title}
+                onClick={() => {
+                  set({ tab, view: item.key });
+                  reset();
+                }}
+                className={`cursor-pointer flex items-center justify-center gap-2 px-2.5 py-1 md:p-2.5 border-b-2 ${orderTab === item.key ? "border-brand-500 md:border-black-500" : "border-transparent"}`}
+              >
+                <p
+                  className={`text-black-500 text-s md:text-base ${
+                    orderTab === item.key ? "font-bold" : ""
+                  }`}
+                >
+                  {item.title} ({item.count})
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+        {isLoadingOrders ? (
+          <div
+            aria-label="Loading orders"
+            aria-busy="true"
+            className="flex flex-col gap-4 md:gap-7.75"
+          >
+            <div className="grid gap-5 md:grid-cols-3">
+              {Array.from({ length: limit }, (_, index) => (
+                <div
+                  key={index}
+                  className="flex min-h-64 animate-pulse flex-col gap-4 rounded-lg border border-brand-50/50 p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="h-5 w-28 rounded bg-black-50" />
+                    <div className="h-6 w-20 rounded-full bg-black-50" />
+                  </div>
+                  <div className="h-32 w-full rounded-md bg-black-50" />
+                  <div className="flex flex-col gap-3">
+                    <div className="h-5 w-3/4 rounded bg-black-50" />
+                    <div className="h-4 w-1/2 rounded bg-black-50" />
+                    <div className="h-4 w-2/3 rounded bg-black-50" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : ordersListLength <= 0 ? (
           <div className="flex flex-col gap-8 items-center justify-center text-center mt-10 lg:mt-[83.14px]">
             <Image src={EmptyOrderImg} alt="empty-state" className="m-auto" />
@@ -170,27 +215,6 @@ const OrdersPage = () => {
           </div>
         ) : (
           <>
-            <div className="w-full grid grid-cols-3 shrink-0 border-b-2 md:border-b-0 md:gap-6.5 border-brand-50/50 overflow-auto">
-              {ordersTabs.map((item) => (
-                <button
-                  type="button"
-                  key={item.title}
-                  onClick={() => {
-                    set({ tab, view: item.key });
-                    reset();
-                  }}
-                  className={`cursor-pointer flex items-center justify-center gap-2 px-2.5 py-1 md:p-2.5 border-b-2 ${orderTab === item.key ? "border-brand-500 md:border-black-500" : "border-transparent"}`}
-                >
-                  <p
-                    className={`text-black-500 text-s md:text-base ${
-                      orderTab === item.key ? "font-bold" : ""
-                    }`}
-                  >
-                    {item.title} ({item.count})
-                  </p>
-                </button>
-              ))}
-            </div>
             {currentTabObject &&
             currentTabObject.key !== "ALL" &&
             ordersList.length === 0 ? (

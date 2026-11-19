@@ -7,7 +7,6 @@ import Overview from "@/components/Home/Overview";
 import ListingOverveiw from "@/components/Home/ListingOverveiw";
 import RecentActivities from "@/components/Home/RecentActivities";
 import Pill from "@/components/Pill";
-import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboard } from "@/actions/user/user.query";
 import HomeEmptyState from "@/components/Home/HomeEmptyState";
@@ -36,10 +35,7 @@ export default function Home() {
 
   return (
     <div className="flex py-6 flex-col gap-8 h-full px-6 md:px-8 overflow-auto w-full">
-      {isPending ? (
-        <Loader2 className="animate-spin m-auto" />
-      ) : (
-        <>
+
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 md:gap-0">
             <div className="flex flex-col gap-1">
               <div className="flex flex-col gap-0.5">
@@ -96,14 +92,18 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className={`w-full ${hasData ? "block" : "hidden md:block"}`}>
+          <div className={`w-full ${isPending || hasData ? "block" : "hidden md:block"}`}>
             <Overview
               totalWasteRecovered={totalWasteRecovered}
               totalValue={totalValue}
               ecosystemActivity={ecosystemActivity}
             />
           </div>
-          {hasData ? (
+          {isPending ? (
+            <>
+              <RecentActivities activities={[]} isLoading />
+            </>
+          ) : hasData ? (
             <>
               {isSeller && <ListingOverveiw listing={recentListing ?? []} />}
               <RecentActivities activities={recentActivities ?? []} />
@@ -111,8 +111,7 @@ export default function Home() {
           ) : (
             <HomeEmptyState activities={dashboardData?.context.activities} />
           )}
-        </>
-      )}
+    
     </div>
   );
 }

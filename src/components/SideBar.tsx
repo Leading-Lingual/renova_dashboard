@@ -14,7 +14,8 @@ import { X } from "lucide-react";
 
 const SideBar = () => {
   const pathname = usePathname();
-  const { overviewItems, generalItems, featureItems } = useSidebarItems();
+  const { overviewItems, generalItems, featureItems, isUserLoading } =
+    useSidebarItems();
   const { isOpen, close } = useSidebar();
 
   return (
@@ -65,25 +66,47 @@ const SideBar = () => {
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-s">FEATURES</p>
-            <div className="flex flex-col">
-              {featureItems.map((item) => (
-                <Link href={item.route ?? "#"} key={item.text} onClick={close}>
+            {isUserLoading ? (
+              <div
+                className="flex flex-col gap-1"
+                aria-label="Loading features"
+                aria-busy="true"
+              >
+                {Array.from({ length: 4 }, (_, index) => (
                   <div
-                    onClick={item.onClick}
-                    className={`w-full p-3 flex gap-2 rounded-[8px] items-center ${pathname.includes(item.route ?? "#") ? "bg-brand-500" : ""}`}
+                    key={index}
+                    className="w-full p-3 flex gap-2 items-center"
                   >
-                    <item.Icon
-                      className={`size-6 ${pathname.includes(item.route ?? "#") ? " text-white fill-white" : "text-black-400 fill-black-400"}`}
+                    <div className="size-6 rounded bg-black-50 animate-pulse" />
+                    <div
+                      className={`h-4 rounded bg-black-50 animate-pulse ${
+                        index === 3 ? "w-36" : "w-28"
+                      }`}
                     />
-                    <p
-                      className={`${pathname.includes(item.route ?? "#") ? " text-white text-m-bold" : "text-black-500 text-m-medium"}`}
-                    >
-                      {item.text}
-                    </p>
                   </div>
-                </Link>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                {featureItems.map((item) => (
+                  <Link href={item.route ?? "#"} key={item.text} onClick={close}>
+                    <div
+                      onClick={item.onClick}
+                      className={`w-full p-3 flex gap-2 rounded-[8px] items-center ${pathname.includes(item.route ?? "#") ? "bg-brand-500" : ""}`}
+                    >
+                      <item.Icon
+                        className={`size-6 ${pathname.includes(item.route ?? "#") ? " text-white fill-white" : "text-black-400 fill-black-400"}`}
+                      />
+                      <p
+                        className={`${pathname.includes(item.route ?? "#") ? " text-white text-m-bold" : "text-black-500 text-m-medium"}`}
+                      >
+                        {item.text}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-s">GENERAL</p>

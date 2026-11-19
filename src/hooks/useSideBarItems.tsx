@@ -30,7 +30,7 @@ const useSidebarItems = () => {
   const queryClient = useQueryClient();
   const { mutate: logout } = useMutation(logoutMutation);
   const route = useRouter();
-  const { data } = useQuery(getUserProfile);
+  const { data, isPending: isUserLoading } = useQuery(getUserProfile);
 
   function onSubmit() {
     logout(undefined, {
@@ -105,7 +105,7 @@ const useSidebarItems = () => {
     { Icon: ArrowLeft, text: "Logout", onClick: onSubmit },
   ];
 
-  return { featureItems, generalItems, overviewItems };
+  return { featureItems, generalItems, overviewItems, isUserLoading };
 };
 
 export default useSidebarItems;

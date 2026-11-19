@@ -15,7 +15,6 @@ import TicketCard from "./TicketCard";
 import { getTicketColumns } from "./TicketTableColumn";
 import { Ticket } from "@/types/support.types";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 
 interface TicketTableProps {
   tickets?: Ticket[];
@@ -36,9 +35,23 @@ const TicketTable = ({ tickets = [], isLoading }: TicketTableProps) => {
   return (
     <>
       <div className="overflow-x-auto">
-        <div className="md:hidden pb-8 flex flex-col gap-3">
+        <div className="md:hidden pb-8 flex flex-col gap-2">
           {isLoading ? (
-            <Loader2 className="animate-spin m-auto" />
+            Array.from({ length: 3 }, (_, index) => (
+              <div key={index} className="flex group flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center w-ful">
+                    <div className="size-8 animate-pulse  bg-black-50 rounded-full flex justify-center items-center font-bold "></div>
+                    <div className="flex flex-col gap-1 flex-1 border-black-50 ">
+                      <div className="h-4 w-32 animate-pulse rounded bg-black-50" />
+                      <div className="h-3 w-1/2 animate-pulse rounded bg-black-50" />
+                    </div>
+                  </div>
+                  <div className="h-7 w-11 animate-pulse rounded-md bg-black-50" />
+                </div>
+                <hr className="mx-0.5 group-last:hidden" />
+              </div>
+            ))
           ) : table.getRowModel().rows.length ? (
             table
               .getRowModel()
@@ -81,14 +94,19 @@ const TicketTable = ({ tickets = [], isLoading }: TicketTableProps) => {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 "
-                >
-                  <Loader2 className="animate-spin m-auto" />
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 5 }, (_, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {columns.map((column, columnIndex) => (
+                    <TableCell key={`${rowIndex}-${column.id ?? columnIndex}`}>
+                      {columnIndex === 4 || columnIndex === 3 ? (
+                        <div className="h-7 w-11 animate-pulse rounded-md bg-black-50" />
+                      ) : (
+                        <div className="h-4 w-2/3 max-w-40 animate-pulse rounded bg-black-50" />
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>

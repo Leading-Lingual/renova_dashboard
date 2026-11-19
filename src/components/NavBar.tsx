@@ -16,7 +16,7 @@ import Image from "next/image";
 
 const NavBar = () => {
   const { isOpen, setIsOpen } = useSidebar();
-  const { data } = useQuery(getUserProfile);
+  const { data, isPending: isUserLoading } = useQuery(getUserProfile);
   const { isMobile } = useWindowSize();
   const showNavBar = useShowNavBar();
   const { data: cartData, isLoading } = useQuery(getCartItems);
@@ -42,12 +42,10 @@ const NavBar = () => {
       </div>
       <div className="flex gap-6 md:gap-7">
         <SearchCategory />
-        <Link href={"/cart"} className="relative">
+        <Link href="/cart" className="relative">
           {cartData?.items.length !== 0 && !isLoading && (
             <div className="absolute rounded-full size-5 bg-danger-500 flex -right-1 -top-1">
-              <p className="text-white m-auto text-2s-medium">
-                {cartData?.items.length}
-              </p>
+              <p className="text-white m-auto text-2s-medium">{cartData?.items.length}</p>
             </div>
           )}
           <div className="rounded-full size-8 md:size-10 bg-black-50 flex">
@@ -55,26 +53,36 @@ const NavBar = () => {
           </div>
         </Link>
         <Notification />
-        <div className="hidden md:flex gap-3 ">
-          <div className="relative flex rounded-full bg-brand-500 text-white size-10 overflow-hidden items-center justify-center">
-            {data?.avatarUrl ? (
-              <Image
-                src={data.avatarUrl}
-                alt={`${data.fullName || "Profile"} profile picture`}
-                fill
-                sizes="40px"
-                className="object-cover"
-              />
-            ) : (
-              <p className="text-m-bold">{getInitials(data?.fullName ?? "")}</p>
-            )}
-          </div>
-          <div className="">
-            <p className="text-s font-semibold text-black-500">
-              {data?.fullName}
-            </p>
-            <p className="text-2s-medium font-normal">{data?.email}</p>
-          </div>
+        <div className="hidden md:flex gap-3 items-center">
+          {isUserLoading ? (
+            <div className="flex gap-3 items-center" aria-label="Loading profile" aria-busy="true">
+              <div className="size-10 rounded-full bg-black-50 animate-pulse" />
+              <div className="flex flex-col gap-2">
+                <div className="h-4 w-28 rounded bg-black-50 animate-pulse" />
+                <div className="h-3 w-36 rounded bg-black-50 animate-pulse" />
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="relative flex rounded-full bg-brand-500 text-white size-10 overflow-hidden items-center justify-center">
+                {data?.avatarUrl ? (
+                  <Image
+                    src={data.avatarUrl}
+                    alt={`${data.fullName || "Profile"} profile picture`}
+                    fill
+                    sizes="40px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <p className="text-m-bold">{getInitials(data?.fullName ?? "")}</p>
+                )}
+              </div>
+              <div>
+                <p className="text-s font-semibold text-black-500">{data?.fullName}</p>
+                <p className="text-2s-medium font-normal">{data?.email}</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </nav>

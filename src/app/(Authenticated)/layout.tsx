@@ -11,9 +11,10 @@ import { useEffect, useTransition } from "react";
 const AuthenticatedLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isFetching, data } = useQuery(getUserProfile);
+  const { data, isPending: isUserProfileLoading } = useQuery(getUserProfile);
   const router = useRouter();
   const [isRouting, handleRoute] = useTransition();
+  const needsOnboarding = data !== undefined && !data.isProfileComplete;
 
   useEffect(() => {
     if (data && !data.isProfileComplete) {
@@ -23,15 +24,19 @@ const AuthenticatedLayout: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <main className="flex h-full w-full">
-      {isFetching || isRouting ? (
+      {isRouting || needsOnboarding ? (
         <Loader2 className="animate-spin m-auto" />
       ) : (
         <>
           <SideBar />
           <div className="flex flex-col w-full">
+            <NavBar />
             <UserActivityGuard>
-              <NavBar />
-              {children}
+              {isUserProfileLoading ? (
+                <Loader2 className="animate-spin m-auto" />
+              ) : (
+                children
+              )}
             </UserActivityGuard>
           </div>
         </>
