@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 const SessionManagement = () => {
   const queryClient = useQueryClient();
-  const { data } = useQuery(getSessions);
+  const { data, isPending } = useQuery(getSessions);
   const {
     mutate: deleteSession,
     isPending: deletingSession,
@@ -63,6 +63,23 @@ const SessionManagement = () => {
         useAccordion
       >
         <div className="flex flex-col gap-1.5 w-full">
+          {isPending && (
+            <div
+              aria-label="Loading sessions"
+              aria-busy="true"
+              className="flex flex-col gap-3"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-2">
+                  <div className="h-4 w-28 animate-pulse rounded bg-black-50" />
+                  <div className="h-3 w-40 animate-pulse rounded bg-black-50" />
+                  <div className="h-3 w-48 animate-pulse rounded bg-black-50" />
+                  <div className="h-3 w-36 animate-pulse rounded bg-black-50" />
+                </div>
+                <div className="h-9 w-20 animate-pulse rounded-md bg-black-50" />
+              </div>
+            </div>
+          )}
           {sessions?.map((session, index) => (
             <div key={session.id} className={`flex flex-col gap-1.5 w-full`}>
               <div className="flex justify-between items-center">

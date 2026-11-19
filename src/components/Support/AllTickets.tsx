@@ -1,4 +1,4 @@
-import { ArrowLeft, ListFilter, Loader2 } from "lucide-react";
+import { ArrowLeft, ListFilter } from "lucide-react";
 import { Button } from "../ui/button";
 import { Drawer, DrawerClose, DrawerContent } from "../ui/drawer";
 // import FilterDrawer from "./FilterDrawer";
@@ -92,7 +92,26 @@ const AllTickets = ({
           </div>
           <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain">
             {isLoading ? (
-              <Loader2 className="animate-spin m-auto" />
+              <section className="flex flex-col gap-3">
+                <div className="h-4 w-28 animate-pulse rounded bg-black-50" />
+                <div className="flex flex-col gap-4 rounded-[12px] bg-[#F8F8F8] p-4">
+                  {Array.from({ length: 4 }, (_, index) => (
+                    <div key={index} className="flex group flex-col gap-2">
+                      <div className="flex justify-between items-center">
+                        <div className="flex gap-2 items-center w-ful">
+                          <div className="size-8 animate-pulse  bg-black-50 rounded-full flex justify-center items-center font-bold "></div>
+                          <div className="flex flex-col gap-1 flex-1 border-black-50 ">
+                            <div className="h-4 w-32 animate-pulse rounded bg-black-50" />
+                            <div className="h-3 w-1/2 animate-pulse rounded bg-black-50" />
+                          </div>
+                        </div>
+                        <div className="h-7 w-11 animate-pulse rounded-md bg-black-50" />
+                      </div>
+                      <hr className="mx-0.5 group-last:hidden" />
+                    </div>
+                  ))}
+                </div>
+              </section>
             ) : (
               dayKeys.map((dayKey) => (
                 <section key={dayKey} className="flex flex-col gap-3">

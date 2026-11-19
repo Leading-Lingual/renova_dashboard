@@ -9,16 +9,16 @@ import { canAccess } from "@/lib/user-access";
 const UserActivityGuard = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { data } = useQuery(getUserProfile);
+  const { data, isPending } = useQuery(getUserProfile);
 
   const activities = (data?.activities ?? []) as UserAppActivity[];
-  const allowed = canAccess(pathname, activities);
+  const allowed = !data || canAccess(pathname, activities);
 
   useEffect(() => {
-    if (!allowed) router.replace("/home");
-  }, [allowed, router]);
+    if (!isPending && data && !allowed) router.replace("/home");
+  }, [allowed, data, isPending, router]);
 
-  if (!allowed) return null;
+  if (!isPending && data && !allowed) return null;
 
   return <>{children}</>;
 };

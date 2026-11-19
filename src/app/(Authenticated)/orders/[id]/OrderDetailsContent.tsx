@@ -9,7 +9,7 @@ import {
   ProgressValue,
 } from "@/components/ui/progress";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const OrderDetailsContent = ({ orderId }: { orderId: string }) => {
@@ -39,7 +39,47 @@ const OrderDetailsContent = ({ orderId }: { orderId: string }) => {
           </Progress>
         )}
         {isPending || isUserPending ? (
-          <Loader2 className="m-auto animate-spin" />
+          <div
+            aria-label="Loading order details"
+            aria-busy="true"
+            className="flex flex-col gap-4"
+          >
+            <div className="h-2 w-full animate-pulse rounded bg-black-50" />
+            <div className="flex flex-col w-full gap-4">
+              {Array.from({ length: 2 }, (_, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col w-full gap-1 rounded-[8px] border py-2"
+                >
+                  <div className="flex items-center justify-between px-4 py-1">
+                    <div className="flex flex-col gap-2">
+                      <div className="h-5 w-32 animate-pulse rounded bg-black-50" />
+                      <div className="h-4 w-28 animate-pulse rounded bg-black-50" />
+                    </div>
+                    <div className="h-5 w-20 animate-pulse rounded bg-black-50" />
+                  </div>
+                  <hr className="my-2.5 w-full" />
+                  <div className="flex w-full gap-5.5 px-4 py-2">
+                    <div className="size-16 shrink-0 animate-pulse rounded-[8px] bg-black-50" />
+                    <div className="flex flex-1 flex-col gap-3">
+                      <div className="flex justify-between gap-4">
+                        <div className="h-5 w-32 animate-pulse rounded bg-black-50" />
+                        <div className="h-5 w-20 animate-pulse rounded bg-black-50" />
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="h-4 w-12 animate-pulse rounded bg-black-50" />
+                        <div className="h-4 w-28 animate-pulse rounded bg-black-50" />
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="h-4 w-16 animate-pulse rounded bg-black-50" />
+                        <div className="h-4 w-16 animate-pulse rounded bg-black-50" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         ) : data && me ? (
           <div className="flex flex-col gap-4">
             {data.items.map((item) => (
