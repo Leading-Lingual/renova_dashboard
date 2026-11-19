@@ -1,4 +1,5 @@
 import { getCookieValue } from "@/lib/utils";
+import { getClientRequestHeaders } from "@/lib/client-request-headers";
 import { NextResponse } from "next/server";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...getClientRequestHeaders(request),
       },
       body: JSON.stringify(payload),
     });

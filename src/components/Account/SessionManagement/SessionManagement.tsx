@@ -29,26 +29,22 @@ const SessionManagement = () => {
     sessionId: string;
     isCurrent: boolean;
   }) => {
-    deleteSession(details.sessionId, {
-      onSuccess: (data) => {
-        if (!details.isCurrent) {
-          toast.success(data?.message ?? "Session logged out");
-        }
-      },
-      onError: (error) => {
-        toast.success(error?.message ?? "Session logged out");
-      },
-    });
-
     if (details.isCurrent) {
       logout(undefined, {
-        onSettled: (data) => {
+        onSuccess: (data) => {
           toast.success(data?.message ?? " successful");
           route.replace("/login");
           setTimeout(() => queryClient.clear(), 300);
         },
+        onError: (error) => toast.error(error.message || "Unable to log out"),
       });
+      return;
     }
+
+    deleteSession(details.sessionId, {
+      onSuccess: (data) => toast.success(data?.message ?? "Session logged out"),
+      onError: (error) => toast.error(error.message || "Unable to log out"),
+    });
   };
 
   const sessions = data?.sessions?.toSorted(
@@ -68,10 +64,7 @@ const SessionManagement = () => {
       >
         <div className="flex flex-col gap-1.5 w-full">
           {sessions?.map((session, index) => (
-            <div
-              key={session.id}
-              className={`flex flex-col gap-1.5 w-full`}
-            >
+            <div key={session.id} className={`flex flex-col gap-1.5 w-full`}>
               <div className="flex justify-between items-center">
                 <div className="flex flex-col gap-2">
                   <div className=" flex gap-20">
@@ -85,13 +78,19 @@ const SessionManagement = () => {
                     )}
                   </div>
                   <p className="max-w-56.5 text-sm">
-                    {session.browser} on {session.operatingSystem} <br/>
-                    Approximate location: {session.approximateLocation} <br/>
-                    Last active: {session.isCurrent ? "Now": dayjs(session.lastActiveAt).format(
-                      dayjs(session.lastActiveAt).year() === dayjs().year()
-                        ? "D MMM, h:mm A"
-                        : "D MMM YYYY, h:mm A",
-                    )}
+                    {session.browser}{" "}
+                    {session.browser && session.operatingSystem && "on"}{" "}
+                    {session.operatingSystem}{" "}
+                    {session.browser && session.operatingSystem && <br />}
+                    Approximate location: {session.approximateLocation} <br />
+                    Last active:{" "}
+                    {session.isCurrent
+                      ? "Now"
+                      : dayjs(session.lastActiveAt).format(
+                          dayjs(session.lastActiveAt).year() === dayjs().year()
+                            ? "D MMM, h:mm A"
+                            : "D MMM YYYY, h:mm A",
+                        )}
                   </p>
                 </div>
                 <Button
@@ -105,7 +104,8 @@ const SessionManagement = () => {
                   variant="outline"
                   className="text-danger-600 hover:text-danger-400 border-danger-100! font-bold!"
                 >
-                  {deletingSession && deletingSessionId === session.id ? (
+                  {(session.isCurrent && isLoggingOut) ||
+                  (deletingSession && deletingSessionId === session.id) ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Logout"

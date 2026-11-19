@@ -1,4 +1,5 @@
 import { getCookieValue } from "@/lib/utils";
+import { getClientRequestHeaders } from "@/lib/client-request-headers";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -30,6 +31,12 @@ async function handler(
 
   if (accessToken) {
     headers.set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  if (path.join("/") === "v1/auth/password/change") {
+    for (const [name, value] of Object.entries(getClientRequestHeaders(request))) {
+      headers.set(name, value);
+    }
   }
 
   const body =
