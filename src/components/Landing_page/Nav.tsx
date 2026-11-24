@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 import LandingPageButton from "./LandingPageButton";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "@/actions/user/user.query";

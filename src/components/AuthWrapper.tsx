@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
-import Logo1 from "@/assets/logo.png";
+import Logo1 from "@/assets/logo-white.svg";
+import Logo from "@/assets/logo.svg";
 import { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -40,7 +41,7 @@ const AuthWrapper = ({
           </div>
         </div>
       )}
-      <Image src={Logo1} alt="logo" className="md:hidden ml-auto w-21.5" />
+      <Image src={Logo} alt="logo" className="md:hidden ml-auto w-21.5" />
 
       <div
         className={`w-full h-full ${isFullScreen ? "m-auto overflow-auto flex-1 max-w-178.5" : "2xl:max-w-178.5"}`}

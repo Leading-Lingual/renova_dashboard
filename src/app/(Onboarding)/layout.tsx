@@ -1,7 +1,7 @@
 "use client";
 import { YellowStrokes } from "@/assets/YellowStrokes";
 import Image from "next/image";
-import Logo1 from "@/assets/logo1.svg";
+import Logo1 from "@/assets/logo-white.svg";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProfile } from "@/actions/user/user.query";
 import { Loader2 } from "lucide-react";

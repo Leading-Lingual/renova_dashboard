@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 import FacebookFillIcon from "@iconify-react/ri/facebook-fill";
 import InstagramIcon from "@iconify-react/mdi/instagram";
 import LinkedinSolidIcon from "@iconify-react/basil/linkedin-solid";
