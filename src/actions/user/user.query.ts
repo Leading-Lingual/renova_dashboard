@@ -8,6 +8,7 @@ import {
   UserProfile,
 } from "@/types/user.type";
 import { queryOptions } from "@tanstack/react-query";
+import { KycVerification } from "@/types/kyc.types";
 
 export const getUser = queryOptions({
   queryKey: ["user", "profile"],
@@ -42,4 +43,9 @@ export const getSessions = queryOptions({
 export const getDeletionCheck = queryOptions({
   queryKey: ["deleteCheck"],
   queryFn: () => apiClient<DeletionCheckResponse>("/v1/users/me/deletion-check"),
+});
+
+export const getKycDetails = queryOptions({
+  queryKey: ["kyc"],
+  queryFn: () => apiClient<KycVerification>("/v1/kyc"),
 });

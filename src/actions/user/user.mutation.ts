@@ -8,6 +8,7 @@ import {
   UserProfile,
 } from "@/types/user.type";
 import { mutationOptions } from "@tanstack/react-query";
+import { KycSubmission, KycVerification } from "@/types/kyc.types";
 
 export const updateProfileMutation = mutationOptions({
   mutationKey: ["onboarding"],
@@ -27,6 +28,19 @@ export const updateProfileMutation = mutationOptions({
     context.client.invalidateQueries({
       queryKey: ["user"],
     });
+  },
+});
+
+export const submitKycMutation = mutationOptions({
+  mutationKey: ["submitKyc"],
+  mutationFn: ({ payload, idempotencyKey }: { payload: KycSubmission; idempotencyKey: string }) =>
+    apiClient<KycVerification>("/v1/kyc/verify", {
+      method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
+      body: JSON.stringify(payload),
+    }),
+  onSuccess: (_data, _variables, _onMutateResult, context) => {
+    context.client.invalidateQueries({ queryKey: ["kyc"] });
   },
 });
 
